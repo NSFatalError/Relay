@@ -45,10 +45,12 @@ extension PublishableMacro: MemberMacro {
             in: context
         )
 
+        // Propagate @MainActor isolation if declared on the type
+        let isMainActor = declaration.attributes.contains(likeOneOf: "@MainActor")
         let builderTypes: [any ClassDeclBuilder] = [
             PublisherDeclBuilder(declaration: declaration, properties: properties),
-            PropertyPublisherDeclBuilder(declaration: declaration, properties: properties),
-            ObservationRegistrarDeclBuilder(declaration: declaration, properties: properties)
+            PropertyPublisherDeclBuilder(declaration: declaration, properties: properties, mainActor: isMainActor),
+            ObservationRegistrarDeclBuilder(declaration: declaration, properties: properties, mainActor: isMainActor)
         ]
 
         return try builderTypes.flatMap { builderType in

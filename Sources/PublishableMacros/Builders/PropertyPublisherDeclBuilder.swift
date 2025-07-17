@@ -12,24 +12,41 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
+    let mainActor: Bool
 
     var settings: DeclBuilderSettings {
         .init(accessControlLevel: .init(inheritingDeclaration: .member))
     }
 
     func build() -> [DeclSyntax] { // swiftlint:disable:this type_contents_order
-        [
-            """
-            \(inheritedAccessControlLevel)final class PropertyPublisher: AnyPropertyPublisher<\(trimmedTypeName)> {
+        if mainActor {
+            return [
+                """
+                @MainActor
+                \(inheritedAccessControlLevel)final class PropertyPublisher: AnyPropertyPublisher<\(trimmedTypeName)> {
 
-                \(deinitializer())
+                    \(deinitializer())
 
-                \(storedPropertiesPublishers().formatted())
+                    \(storedPropertiesPublishers().formatted())
 
-                \(computedPropertiesPublishers().formatted())
-            }
-            """
-        ]
+                    \(computedPropertiesPublishers().formatted())
+                }
+                """
+            ]
+        } else {
+            return [
+                """
+                \(inheritedAccessControlLevel)final class PropertyPublisher: AnyPropertyPublisher<\(trimmedTypeName)> {
+
+                    \(deinitializer())
+
+                    \(storedPropertiesPublishers().formatted())
+
+                    \(computedPropertiesPublishers().formatted())
+                }
+                """
+            ]
+        }
     }
 
     private func deinitializer() -> MemberBlockItemListSyntax {

@@ -12,6 +12,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
+    let mainActor: Bool
 
     var settings: DeclBuilderSettings {
         .init(accessControlLevel: .init(inheritingDeclaration: .member))
@@ -22,21 +23,40 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
     }
 
     func build() -> [DeclSyntax] {
-        [
-            """
-            private enum Observation {
+        if mainActor {
+            return [
+                """
+                private enum Observation {
 
-                struct ObservationRegistrar: PublishableObservationRegistrar {
+                    @MainActor
+                    struct ObservationRegistrar: PublishableObservationRegistrar {
 
-                    let underlying = SwiftObservationRegistrar()
+                        let underlying = SwiftObservationRegistrar()
 
-                    \(publishNewValueFunction())
+                        \(publishNewValueFunction())
 
-                    \(subjectFunctions().formatted())
+                        \(subjectFunctions().formatted())
+                    }
                 }
-            }
-            """
-        ]
+                """
+            ]
+        } else {
+            return [
+                """
+                private enum Observation {
+
+                    struct ObservationRegistrar: PublishableObservationRegistrar {
+
+                        let underlying = SwiftObservationRegistrar()
+
+                        \(publishNewValueFunction())
+
+                        \(subjectFunctions().formatted())
+                    }
+                }
+                """
+            ]
+        }
     }
 
     private func publishNewValueFunction() -> MemberBlockItemListSyntax {
