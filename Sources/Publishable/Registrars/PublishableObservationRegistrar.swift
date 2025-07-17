@@ -102,16 +102,27 @@ extension MainActorPublishableObservationRegistrar {
         underlying.access(object, keyPath: keyPath)
     }
 
-    @MainActor
     public func withMutation<T>(
         of object: Object,
         keyPath: KeyPath<Object, some Any>,
         _ mutation: () throws -> T
     ) rethrows -> T {
-        object.publisher.beginModifications()
-        let result = try underlying.withMutation(of: object, keyPath: keyPath, mutation)
-        publish(object, keyPath: keyPath)
-        object.publisher.endModifications()
-        return result
+      try withoutActuallyEscaping(mutation) { mutation in
+        try MainActor.assumeIsolated { [unchecked = UncheckedSendable(wrappedValue: (self, object, keyPath, mutation))] in
+          unchecked.wrappedValue.1.publisher.beginModifications()
+          let result = try unchecked.wrappedValue.0.underlying.withMutation(of: unchecked.wrappedValue.1, keyPath: unchecked.wrappedValue.2, unchecked.wrappedValue.3)
+          unchecked.wrappedValue.0.publish(unchecked.wrappedValue.1, keyPath: unchecked.wrappedValue.2)
+          unchecked.wrappedValue.1.publisher.endModifications()
+          return UncheckedSendable(wrappedValue: result)
+        }
+      }.wrappedValue
+    }
+}
+
+struct UncheckedSendable<Value>: @unchecked Sendable {
+    var wrappedValue: Value
+
+    init(wrappedValue: Value) {
+        self.wrappedValue = wrappedValue
     }
 }
