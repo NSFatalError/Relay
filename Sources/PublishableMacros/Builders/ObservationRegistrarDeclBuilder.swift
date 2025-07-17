@@ -24,7 +24,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
 
     func build() -> [DeclSyntax] {
         if mainActor {
-            return [
+            [
                 """
                 private enum Observation {
 
@@ -41,7 +41,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
                 """
             ]
         } else {
-            return [
+            [
                 """
                 private enum Observation {
 

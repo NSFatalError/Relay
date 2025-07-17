@@ -58,7 +58,6 @@ public protocol Publishable: AnyObject, Observable {
     var publisher: PropertyPublisher { get }
 }
 
-
 /// A type that can be observed using both the `Observation` and `Combine` frameworks.
 ///
 /// You don't need to declare conformance to this protocol yourself.

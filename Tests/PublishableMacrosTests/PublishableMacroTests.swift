@@ -155,81 +155,81 @@
                 }
                 """#,
                 macros: macros
-        )
-    }
+            )
+        }
 
-    func testMainActorExpansion() {
-        assertMacroExpansion(
-            #"""
-            @MainActor
-            @Publishable @Observable
-            public final class Person {
-
-                var name: String
-            }
-            """#,
-            expandedSource:
-            #"""
-            @MainActor
-            @Observable
-            public final class Person {
-
-                var name: String
-
-                public private(set) lazy var publisher = PropertyPublisher(object: self)
-
+        func testMainActorExpansion() {
+            assertMacroExpansion(
+                #"""
                 @MainActor
-                public final class PropertyPublisher: AnyPropertyPublisher<Person> {
+                @Publishable @Observable
+                public final class Person {
 
-                    deinit {
-                        _name.send(completion: .finished)
-                    }
-
-                    fileprivate let _name = PassthroughSubject<String, Never>()
-                    var name: AnyPublisher<String, Never> {
-                        _storedPropertyPublisher(_name, for: \.name)
-                    }
-
-
+                    var name: String
                 }
+                """#,
+                expandedSource:
+                #"""
+                @MainActor
+                @Observable
+                public final class Person {
 
-                private enum Observation {
+                    var name: String
+
+                    public private(set) lazy var publisher = PropertyPublisher(object: self)
 
                     @MainActor
-                    struct ObservationRegistrar: MainActorPublishableObservationRegistrar {
+                    public final class PropertyPublisher: AnyPropertyPublisher<Person> {
 
-                        let underlying = SwiftObservationRegistrar()
-
-                        func publish(
-                            _ object: Person,
-                            keyPath: KeyPath<Person, some Any>
-                        ) {
-                            if let keyPath = keyPath as? KeyPath<Person, String>,
-                               let subject = subject(for: keyPath, on: object) {
-                                subject.send(object[keyPath: keyPath])
-                                return
-                            }
-                            assertionFailure("Unknown keyPath: \(keyPath)")
+                        deinit {
+                            _name.send(completion: .finished)
                         }
 
-                        private func subject(
-                            for keyPath: KeyPath<Person, String>,
-                            on object: Person
-                        ) -> PassthroughSubject<String, Never>? {
-                            if keyPath == \.name {
-                                return object.publisher._name
+                        fileprivate let _name = PassthroughSubject<String, Never>()
+                        var name: AnyPublisher<String, Never> {
+                            _storedPropertyPublisher(_name, for: \.name)
+                        }
+
+
+                    }
+
+                    private enum Observation {
+
+                        @MainActor
+                        struct ObservationRegistrar: MainActorPublishableObservationRegistrar {
+
+                            let underlying = SwiftObservationRegistrar()
+
+                            func publish(
+                                _ object: Person,
+                                keyPath: KeyPath<Person, some Any>
+                            ) {
+                                if let keyPath = keyPath as? KeyPath<Person, String>,
+                                   let subject = subject(for: keyPath, on: object) {
+                                    subject.send(object[keyPath: keyPath])
+                                    return
+                                }
+                                assertionFailure("Unknown keyPath: \(keyPath)")
                             }
-                            return nil
+
+                            private func subject(
+                                for keyPath: KeyPath<Person, String>,
+                                on object: Person
+                            ) -> PassthroughSubject<String, Never>? {
+                                if keyPath == \.name {
+                                    return object.publisher._name
+                                }
+                                return nil
+                            }
                         }
                     }
                 }
-            }
 
-            extension Person: MainActorPublishable {
-            }
-            """#,
-            macros: macros
-        )
+                extension Person: MainActorPublishable {
+                }
+                """#,
+                macros: macros
+            )
+        }
     }
-}
 #endif

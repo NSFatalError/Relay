@@ -20,7 +20,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
 
     func build() -> [DeclSyntax] { // swiftlint:disable:this type_contents_order
         if mainActor {
-            return [
+            [
                 """
                 @MainActor
                 \(inheritedAccessControlLevel)final class PropertyPublisher: AnyPropertyPublisher<\(trimmedTypeName)> {
@@ -34,7 +34,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
                 """
             ]
         } else {
-            return [
+            [
                 """
                 \(inheritedAccessControlLevel)final class PropertyPublisher: AnyPropertyPublisher<\(trimmedTypeName)> {
 
