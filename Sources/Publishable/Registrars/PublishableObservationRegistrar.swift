@@ -67,7 +67,6 @@ public protocol MainActorPublishableObservationRegistrar {
 
     var underlying: SwiftObservationRegistrar { get }
 
-    @MainActor
     func publish(
         _ object: Object,
         keyPath: KeyPath<Object, some Any>
@@ -95,7 +94,6 @@ extension MainActorPublishableObservationRegistrar {
         object.publisher.endModifications()
     }
 
-    @MainActor
     public func access(
         _ object: Object,
         keyPath: KeyPath<Object, some Any>
@@ -103,7 +101,6 @@ extension MainActorPublishableObservationRegistrar {
         underlying.access(object, keyPath: keyPath)
     }
 
-    @MainActor
     public func withMutation<T>(
         of object: Object,
         keyPath: KeyPath<Object, some Any>,

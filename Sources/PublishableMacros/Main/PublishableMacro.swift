@@ -72,12 +72,14 @@ extension PublishableMacro: ExtensionMacro {
             return []
         }
 
+        let isMainActor = declaration.attributes.contains(likeOneOf: "@MainActor")
+
         return [
             .init(
                 extendedType: type,
                 inheritanceClause: .init(
                     inheritedTypes: [
-                        .init(type: IdentifierTypeSyntax(name: "Publishable"))
+                        .init(type: IdentifierTypeSyntax(name: isMainActor ? "MainActorPublishable" : "Publishable"))
                     ]
                 ),
                 memberBlock: "{}"
