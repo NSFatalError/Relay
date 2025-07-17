@@ -31,7 +31,7 @@ import Observation
 )
 @attached(
     extension,
-    conformances: Publishable
+    conformances: Publishable, MainActorPublishable
 )
 public macro Publishable() = #externalMacro(
     module: "PublishableMacros",
