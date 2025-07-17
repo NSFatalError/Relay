@@ -29,7 +29,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
                 private enum Observation {
 
                     @MainActor
-                    struct ObservationRegistrar: PublishableObservationRegistrar {
+                    struct ObservationRegistrar: MainActorPublishableObservationRegistrar {
 
                         let underlying = SwiftObservationRegistrar()
 

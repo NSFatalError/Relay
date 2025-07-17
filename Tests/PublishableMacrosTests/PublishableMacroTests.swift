@@ -196,7 +196,7 @@
                 private enum Observation {
 
                     @MainActor
-                    struct ObservationRegistrar: PublishableObservationRegistrar {
+                    struct ObservationRegistrar: MainActorPublishableObservationRegistrar {
 
                         let underlying = SwiftObservationRegistrar()
 
@@ -225,7 +225,7 @@
                 }
             }
 
-            extension Person: Publishable {
+            extension Person: MainActorPublishable {
             }
             """#,
             macros: macros
