@@ -63,10 +63,11 @@ extension PublishableObservationRegistrar {
 @_documentation(visibility: private)
 public protocol MainActorPublishableObservationRegistrar {
 
-    associatedtype Object: Publishable, Observable
+    associatedtype Object: MainActorPublishable, Observable
 
     var underlying: SwiftObservationRegistrar { get }
 
+    @MainActor
     func publish(
         _ object: Object,
         keyPath: KeyPath<Object, some Any>
@@ -84,7 +85,7 @@ extension MainActorPublishableObservationRegistrar {
         underlying.willSet(object, keyPath: keyPath)
     }
 
-  @MainActor
+    @MainActor
     public func didSet(
         _ object: Object,
         keyPath: KeyPath<Object, some Any>
@@ -101,6 +102,7 @@ extension MainActorPublishableObservationRegistrar {
         underlying.access(object, keyPath: keyPath)
     }
 
+    @MainActor
     public func withMutation<T>(
         of object: Object,
         keyPath: KeyPath<Object, some Any>,
