@@ -18,7 +18,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
         .init(accessControlLevel: .init(inheritingDeclaration: .member))
     }
 
-    func build() -> [DeclSyntax] { // swiftlint:disable:this type_contents_order
+    func build() -> [DeclSyntax] {
         if mainActor {
             [
                 """
