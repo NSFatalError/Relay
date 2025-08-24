@@ -23,11 +23,11 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/NSFatalError/PrincipleMacros",
-            from: "1.0.6"
+            from: "2.0.4"
         ),
         .package(
             url: "https://github.com/swiftlang/swift-syntax",
-            "600.0.0" ..< "602.0.0"
+            "600.0.0" ..< "604.0.0"
         )
     ],
     targets: [

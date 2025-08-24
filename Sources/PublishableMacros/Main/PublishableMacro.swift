@@ -31,7 +31,7 @@ public enum PublishableMacro {
 extension PublishableMacro: MemberMacro {
 
     public static func expansion(
-        of _: AttributeSyntax,
+        of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
         conformingTo _: [TypeSyntax],
         in context: some MacroExpansionContext
@@ -40,15 +40,30 @@ extension PublishableMacro: MemberMacro {
             return []
         }
 
+        let parameterExtractor = ParameterExtractor(from: node)
+        let explicitGlobalActorIsolation = try parameterExtractor
+            .globalActorIsolation(withLabel: "isolation")
+
         let properties = PropertiesParser.parse(
             memberBlock: declaration.memberBlock,
             in: context
         )
 
         let builderTypes: [any ClassDeclBuilder] = [
-            PublisherDeclBuilder(declaration: declaration, properties: properties),
-            PropertyPublisherDeclBuilder(declaration: declaration, properties: properties),
-            ObservationRegistrarDeclBuilder(declaration: declaration, properties: properties)
+            PublisherDeclBuilder(
+                declaration: declaration,
+                properties: properties
+            ),
+            PropertyPublisherDeclBuilder(
+                declaration: declaration,
+                properties: properties,
+                explicitGlobalActorIsolation: explicitGlobalActorIsolation
+            ),
+            ObservationRegistrarDeclBuilder(
+                declaration: declaration,
+                properties: properties,
+                explicitGlobalActorIsolation: explicitGlobalActorIsolation
+            )
         ]
 
         return try builderTypes.flatMap { builderType in

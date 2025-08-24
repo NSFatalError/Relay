@@ -13,49 +13,26 @@ public protocol PublishableObservationRegistrar {
 
     associatedtype Object: Publishable, Observable
 
-    var underlying: SwiftObservationRegistrar { get }
+    init()
 
-    func publish(
+    func willSet(
         _ object: Object,
         keyPath: KeyPath<Object, some Any>
     )
-}
 
-extension PublishableObservationRegistrar {
-
-    public func willSet(
+    func didSet(
         _ object: Object,
         keyPath: KeyPath<Object, some Any>
-    ) {
-        object.publisher.beginModifications()
-        underlying.willSet(object, keyPath: keyPath)
-    }
+    )
 
-    public func didSet(
+    func access(
         _ object: Object,
         keyPath: KeyPath<Object, some Any>
-    ) {
-        underlying.didSet(object, keyPath: keyPath)
-        publish(object, keyPath: keyPath)
-        object.publisher.endModifications()
-    }
+    )
 
-    public func access(
-        _ object: Object,
-        keyPath: KeyPath<Object, some Any>
-    ) {
-        underlying.access(object, keyPath: keyPath)
-    }
-
-    public func withMutation<T>(
+    func withMutation<T>(
         of object: Object,
         keyPath: KeyPath<Object, some Any>,
         _ mutation: () throws -> T
-    ) rethrows -> T {
-        object.publisher.beginModifications()
-        let result = try underlying.withMutation(of: object, keyPath: keyPath, mutation)
-        publish(object, keyPath: keyPath)
-        object.publisher.endModifications()
-        return result
-    }
+    ) rethrows -> T
 }

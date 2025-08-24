@@ -1,8 +1,8 @@
 //
-//  PublishableMacroTests.swift
+//  MainActorMacroTests.swift
 //  Publishable
 //
-//  Created by Kamil Strzelecki on 12/01/2025.
+//  Created by Kamil Strzelecki on 24/08/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
@@ -12,7 +12,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class PublishableMacroTests: XCTestCase {
+    internal final class MainActorMacroTests: XCTestCase {
 
         private let macros: [String: any Macro.Type] = [
             "Publishable": PublishableMacro.self
@@ -21,7 +21,7 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @Publishable @Observable
+                @MainActor @Publishable @Observable
                 public final class Person {
 
                     static var user: Person?
@@ -48,7 +48,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @MainActor @Observable
                 public final class Person {
 
                     static var user: Person?
@@ -90,22 +90,22 @@
                         }
 
                         fileprivate let _age = PassthroughSubject<Int, Never>()
-                        var age: AnyPublisher<Int, Never> {
+                        @MainActor var age: AnyPublisher<Int, Never> {
                             _storedPropertyPublisher(_age, for: \.age)
                         }
                         fileprivate let _name = PassthroughSubject<String, Never>()
-                        var name: AnyPublisher<String, Never> {
+                        @MainActor var name: AnyPublisher<String, Never> {
                             _storedPropertyPublisher(_name, for: \.name)
                         }
                         fileprivate let _surname = PassthroughSubject<String, Never>()
-                        public var surname: AnyPublisher<String, Never> {
+                        @MainActor public var surname: AnyPublisher<String, Never> {
                             _storedPropertyPublisher(_surname, for: \.surname)
                         }
 
-                        internal var fullName: AnyPublisher<String, Never> {
+                        @MainActor internal var fullName: AnyPublisher<String, Never> {
                             _computedPropertyPublisher(for: \.fullName)
                         }
-                        package var initials: AnyPublisher<String, Never> {
+                        @MainActor package var initials: AnyPublisher<String, Never> {
                             _computedPropertyPublisher(for: \.initials)
                         }
                     }
@@ -116,7 +116,7 @@
 
                             private let underlying = SwiftObservationRegistrar()
 
-                            func publish(
+                            @MainActor func publish(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
                             ) {
@@ -133,7 +133,7 @@
                                 assertionFailure("Unknown keyPath: \(keyPath)")
                             }
 
-                            private func subject(
+                            @MainActor private func subject(
                                 for keyPath: KeyPath<Person, Int>,
                                 on object: Person
                             ) -> PassthroughSubject<Int, Never>? {
@@ -142,7 +142,7 @@
                                 }
                                 return nil
                             }
-                            private func subject(
+                            @MainActor private func subject(
                                 for keyPath: KeyPath<Person, String>,
                                 on object: Person
                             ) -> PassthroughSubject<String, Never>? {
@@ -205,9 +205,22 @@
                             }
 
                             private nonisolated func assumeIsolatedIfNeeded(
-                                _ operation: () throws -> Void
+                                _ operation: @MainActor () throws -> Void,
+                                file: StaticString = #fileID,
+                                line: UInt = #line
                             ) rethrows {
-                                try operation()
+                                try withoutActuallyEscaping(operation) { operation in
+                                    typealias Nonisolated = () throws -> Void
+                                    let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
+
+                                    try MainActor.shared.assumeIsolated(
+                                        { _ in
+                                            try rawOperation()
+                                        },
+                                        file: file,
+                                        line: line
+                                    )
+                                }
                             }
                         }
                     }

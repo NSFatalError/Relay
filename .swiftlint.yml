@@ -183,11 +183,11 @@ custom_rules:
     global_actor_attribute_order:
         name: "Global actor attribute order"
         message: "Global actor should be the first attribute."
-        regex: "(?-s)(@.+[^,\\s]\\s+@.*Actor)"
+        regex: "(?-s)(@.+[^,\\s]\\s+@.*Actor\\s)"
     sendable_attribute_order:
         name: "Sendable attribute order"
         message: "Sendable should be the first attribute."
-        regex: "(?-s)(@.+[^,\\s]\\s+@Sendable)"
+        regex: "(?-s)(@.+[^,\\s]\\s+@Sendable\\s)"
     autoclosure_attribute_order:
         name: "Autoclosure attribute order"
         message: "Autoclosure should be the last attribute."

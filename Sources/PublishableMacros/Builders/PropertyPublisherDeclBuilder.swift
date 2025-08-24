@@ -12,15 +12,19 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
+    let explicitGlobalActorIsolation: GlobalActorIsolation?
 
     var settings: DeclBuilderSettings {
-        .init(accessControlLevel: .init(inheritingDeclaration: .member))
+        .init(
+            accessControlLevel: .init(inheritingDeclaration: .member),
+            explicitGlobalActorIsolation: explicitGlobalActorIsolation
+        )
     }
 
     func build() -> [DeclSyntax] { // swiftlint:disable:this type_contents_order
         [
             """
-            \(inheritedAccessControlLevel)final class PropertyPublisher: AnyPropertyPublisher<\(trimmedTypeName)> {
+            \(inheritedAccessControlLevel)final class PropertyPublisher: AnyPropertyPublisher<\(trimmedType)> {
 
                 \(deinitializer())
 
@@ -50,12 +54,15 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
     @MemberBlockItemListBuilder
     private func storedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.stored.mutable.instance {
-            let accessControlLevel = property.declaration.accessControlLevel(inheritedBy: .peer, maxAllowed: .public)
+            let accessControlLevel = property.declaration.inlinableAccessControlLevel(
+                inheritedBy: .peer,
+                maxAllowed: .public
+            )
             let name = property.trimmedName
             let type = property.inferredType
             """
             fileprivate let _\(name) = PassthroughSubject<\(type), Never>()
-            \(accessControlLevel)var \(name): AnyPublisher<\(type), Never> {
+            \(inheritedGlobalActorAttribute)\(accessControlLevel)var \(name): AnyPublisher<\(type), Never> {
                 _storedPropertyPublisher(_\(name), for: \\.\(name))
             }
             """
@@ -65,11 +72,14 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
     @MemberBlockItemListBuilder
     private func computedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.computed.instance {
-            let accessControlLevel = property.declaration.accessControlLevel(inheritedBy: .peer, maxAllowed: .public)
+            let accessControlLevel = property.declaration.inlinableAccessControlLevel(
+                inheritedBy: .peer,
+                maxAllowed: .public
+            )
             let name = property.trimmedName
             let type = property.inferredType
             """
-            \(accessControlLevel)var \(name): AnyPublisher<\(type), Never> {
+            \(inheritedGlobalActorAttribute)\(accessControlLevel)var \(name): AnyPublisher<\(type), Never> {
                 _computedPropertyPublisher(for: \\.\(name))
             }
             """
