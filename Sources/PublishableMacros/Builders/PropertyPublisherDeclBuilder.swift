@@ -18,7 +18,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
         inheritingDeclaration: .member
     )
 
-    func build() -> [DeclSyntax] { // swiftlint:disable:this type_contents_order
+    func build() -> [DeclSyntax] {
         [
             """
             \(inheritedAccessControlLevel)final class PropertyPublisher: AnyPropertyPublisher<\(trimmedType)> {
