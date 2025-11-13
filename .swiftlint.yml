@@ -7,7 +7,7 @@ opt_in_rules:
     - accessibility_trait_for_button
     - anonymous_argument_in_multiline_closure
     - array_init
-    # async_without_await - not recognized
+    - async_without_await
     # attributes
     # balanced_xctest_lifecycle
     # closure_body_length
@@ -21,7 +21,7 @@ opt_in_rules:
     - contains_over_first_not_nil
     - contains_over_range_nil_comparison
     # contrasted_opening_brace
-    # convenience_type - not working with Testing framework
+    # convenience_type
     - direct_return
     - discarded_notification_center_observer
     - discouraged_assert
@@ -56,6 +56,7 @@ opt_in_rules:
     - identical_operands
     - implicit_return
     # implicitly_unwrapped_optional
+    # incompatible_concurrency_annotation
     # indentation_width
     - joined_default_parameter
     - last_where
@@ -66,7 +67,7 @@ opt_in_rules:
     - local_doc_comment
     - lower_acl_than_parent
     # missing_docs
-    # modifier_order
+    - modifier_order
     - multiline_arguments
     - multiline_arguments_brackets
     - multiline_function_chains
@@ -90,6 +91,8 @@ opt_in_rules:
     - override_in_extension
     - pattern_matching_keywords
     - period_spacing
+    - prefer_asset_symbols
+    - prefer_condition_list
     - prefer_key_path
     # prefer_nimble
     - prefer_self_in_static_references
@@ -123,7 +126,7 @@ opt_in_rules:
     - static_operator
     # strict_fileprivate
     - strong_iboutlet
-    - superfluous_else
+    # superfluous_else
     - switch_case_on_newline
     - test_case_accessibility
     - toggle_bool
@@ -164,13 +167,16 @@ file_length:
     warning: 500
 
 identifier_name:
-    excluded: [id, x, y, z]
+    excluded: [id, ui, x, y, z, dx, dy, dz]
 
 line_length:
     ignores_comments: true
 
 nesting:
     type_level: 2
+
+no_magic_numbers:
+    allowed_numbers: [0.0, 1.0, 2.0, 100.0]
 
 type_name:
     allowed_symbols: ["_"]

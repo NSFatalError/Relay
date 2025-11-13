@@ -13,9 +13,9 @@ internal struct PublisherDeclBuilder: ClassDeclBuilder {
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
 
-    var settings: DeclBuilderSettings {
-        .init(accessControlLevel: .init(inheritingDeclaration: .member))
-    }
+    let accessControlLevelInheritanceSettings = AccessControlLevelInheritanceSettings(
+        inheritingDeclaration: .member
+    )
 
     func build() -> [DeclSyntax] {
         [

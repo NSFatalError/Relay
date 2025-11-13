@@ -40,10 +40,7 @@ extension PublishableMacro: MemberMacro {
             return []
         }
 
-        let parameterExtractor = ParameterExtractor(from: node)
-        let explicitGlobalActorIsolation = try parameterExtractor
-            .globalActorIsolation(withLabel: "isolation")
-
+        let parameters = try Parameters(from: node)
         let properties = PropertiesParser.parse(
             memberBlock: declaration.memberBlock,
             in: context
@@ -57,12 +54,12 @@ extension PublishableMacro: MemberMacro {
             PropertyPublisherDeclBuilder(
                 declaration: declaration,
                 properties: properties,
-                explicitGlobalActorIsolation: explicitGlobalActorIsolation
+                preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
             ),
             ObservationRegistrarDeclBuilder(
                 declaration: declaration,
                 properties: properties,
-                explicitGlobalActorIsolation: explicitGlobalActorIsolation
+                preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
             )
         ]
 
@@ -75,14 +72,26 @@ extension PublishableMacro: MemberMacro {
 extension PublishableMacro: ExtensionMacro {
 
     public static func expansion(
-        of _: AttributeSyntax,
+        of node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
         providingExtensionsOf type: some TypeSyntaxProtocol,
         conformingTo _: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
-        guard validate(declaration, in: context) != nil else {
+        guard let declaration = validate(declaration, in: context) else {
             return []
+        }
+
+        let parameters = try Parameters(from: node)
+        let globalActorIsolation = GlobalActorIsolation.resolved(
+            for: declaration,
+            preferred: parameters.preferredGlobalActorIsolation
+        )
+
+        let attributes: AttributeListSyntax = if let globalActorIsolation {
+            [.attribute(globalActorIsolation.standardizedAttribute)]
+        } else {
+            []
         }
 
         return [
@@ -90,11 +99,34 @@ extension PublishableMacro: ExtensionMacro {
                 extendedType: type,
                 inheritanceClause: .init(
                     inheritedTypes: [
-                        .init(type: IdentifierTypeSyntax(name: "Publishable"))
+                        InheritedTypeSyntax(
+                            type: AttributedTypeSyntax(
+                                specifiers: [],
+                                attributes: attributes,
+                                baseType: IdentifierTypeSyntax(
+                                    name: "Publishable"
+                                )
+                            )
+                        )
                     ]
                 ),
                 memberBlock: "{}"
             )
         ]
+    }
+}
+
+extension PublishableMacro {
+
+    private struct Parameters {
+
+        let preferredGlobalActorIsolation: ExplicitGlobalActorIsolation?
+
+        init(from node: AttributeSyntax) throws {
+            let extractor = ParameterExtractor(from: node)
+            self.preferredGlobalActorIsolation = try extractor.globalActorIsolation(
+                withLabel: "isolation"
+            )
+        }
     }
 }

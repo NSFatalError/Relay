@@ -7,9 +7,8 @@
 //
 
 #if canImport(PublishableMacros)
+    import PrincipleMacrosTestSupport
     import PublishableMacros
-    import SwiftSyntaxMacros
-    import SwiftSyntaxMacrosTestSupport
     import XCTest
 
     internal final class PublishableMacroTests: XCTestCase {

@@ -12,14 +12,11 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
-    let explicitGlobalActorIsolation: GlobalActorIsolation?
+    let preferredGlobalActorIsolation: ExplicitGlobalActorIsolation?
 
-    var settings: DeclBuilderSettings {
-        .init(
-            accessControlLevel: .init(inheritingDeclaration: .member),
-            explicitGlobalActorIsolation: explicitGlobalActorIsolation
-        )
-    }
+    let accessControlLevelInheritanceSettings = AccessControlLevelInheritanceSettings(
+        inheritingDeclaration: .member
+    )
 
     func build() -> [DeclSyntax] { // swiftlint:disable:this type_contents_order
         [
@@ -54,6 +51,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
     @MemberBlockItemListBuilder
     private func storedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.stored.mutable.instance {
+            let globalActor = inheritedGlobalActorIsolation
             let accessControlLevel = property.declaration.inlinableAccessControlLevel(
                 inheritedBy: .peer,
                 maxAllowed: .public
@@ -62,7 +60,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
             let type = property.inferredType
             """
             fileprivate let _\(name) = PassthroughSubject<\(type), Never>()
-            \(inheritedGlobalActorAttribute)\(accessControlLevel)var \(name): AnyPublisher<\(type), Never> {
+            \(globalActor)\(accessControlLevel)var \(name): AnyPublisher<\(type), Never> {
                 _storedPropertyPublisher(_\(name), for: \\.\(name))
             }
             """
@@ -72,6 +70,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
     @MemberBlockItemListBuilder
     private func computedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.computed.instance {
+            let globalActor = inheritedGlobalActorIsolation
             let accessControlLevel = property.declaration.inlinableAccessControlLevel(
                 inheritedBy: .peer,
                 maxAllowed: .public
@@ -79,7 +78,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
             let name = property.trimmedName
             let type = property.inferredType
             """
-            \(inheritedGlobalActorAttribute)\(accessControlLevel)var \(name): AnyPublisher<\(type), Never> {
+            \(globalActor)\(accessControlLevel)var \(name): AnyPublisher<\(type), Never> {
                 _computedPropertyPublisher(for: \\.\(name))
             }
             """

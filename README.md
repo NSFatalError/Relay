@@ -21,7 +21,8 @@ publishes the updates via an `AsyncSequence`.
 In some scenarios, however, developers need to perform actions synchronously - immediately after a change occurs.
 
 This is where `Publishable` comes in. It allows `Observation` and `Combine` to coexist within a single type, letting you take advantage of the latest 
-`Observable` features, while processing changes synchronously when needed. It even works with the `SwiftData.Model` macro!
+`Observable` features, while processing changes synchronously when needed. It integrates just as smoothly with the `SwiftData.Model` macro 
+and can be extended to support other macros built on `Observation`.
 
 ```swift
 import Publishable 

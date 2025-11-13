@@ -148,8 +148,7 @@ extension AnyPropertyPublisherTests {
 
         object?.storedProperty = 0
         #expect(publishableQueue.popFirst() == nil)
-        #expect(observationsQueue.popFirst() != nil)
-        observe()
+        #expect(observationsQueue.popFirst() == nil)
 
         object?.storedProperty += 1
         #expect(publishableQueue.popFirst() == 1)
@@ -193,8 +192,7 @@ extension AnyPropertyPublisherTests {
 
         object?.storedProperty = 0
         #expect(publishableQueue.popFirst() == nil)
-        #expect(observationsQueue.popFirst() != nil)
-        observe()
+        #expect(observationsQueue.popFirst() == nil)
 
         object?.storedProperty += 1
         #expect(publishableQueue.popFirst() == 1)

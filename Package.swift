@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import CompilerPluginSupport
@@ -23,11 +23,11 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/NSFatalError/PrincipleMacros",
-            from: "2.0.4"
+            revision: "99f04db9fefe7faa666721c1484197d0a2bd0e15"
         ),
         .package(
             url: "https://github.com/swiftlang/swift-syntax",
-            "600.0.0" ..< "604.0.0"
+            "602.0.0" ..< "603.0.0"
         )
     ],
     targets: [
@@ -57,7 +57,11 @@ let package = Package(
             dependencies: [
                 "PublishableMacros",
                 .product(
-                    name: "SwiftSyntaxMacrosTestSupport",
+                    name: "PrincipleMacrosTestSupport",
+                    package: "PrincipleMacros"
+                ),
+                .product(
+                    name: "SwiftCompilerPlugin",
                     package: "swift-syntax"
                 )
             ]
@@ -68,6 +72,8 @@ let package = Package(
 for target in package.targets {
     target.swiftSettings = (target.swiftSettings ?? []) + [
         .swiftLanguageMode(.v6),
-        .enableUpcomingFeature("ExistentialAny")
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault")
     ]
 }

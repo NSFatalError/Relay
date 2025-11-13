@@ -7,9 +7,8 @@
 //
 
 #if canImport(PublishableMacros)
+    import PrincipleMacrosTestSupport
     import PublishableMacros
-    import SwiftSyntaxMacros
-    import SwiftSyntaxMacrosTestSupport
     import XCTest
 
     internal final class MainActorMacroTests: XCTestCase {
@@ -112,7 +111,7 @@
 
                     private enum Observation {
 
-                        struct ObservationRegistrar: PublishableObservationRegistrar {
+                        struct ObservationRegistrar: @MainActor PublishableObservationRegistrar {
 
                             private let underlying = SwiftObservationRegistrar()
 
@@ -226,7 +225,7 @@
                     }
                 }
 
-                extension Person: Publishable {
+                extension Person: @MainActor Publishable {
                 }
                 """#,
                 macros: macros

@@ -12,14 +12,11 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
-    let explicitGlobalActorIsolation: GlobalActorIsolation?
+    let preferredGlobalActorIsolation: ExplicitGlobalActorIsolation?
 
-    var settings: DeclBuilderSettings {
-        .init(
-            accessControlLevel: .init(inheritingDeclaration: .member),
-            explicitGlobalActorIsolation: explicitGlobalActorIsolation
-        )
-    }
+    let accessControlLevelInheritanceSettings = AccessControlLevelInheritanceSettings(
+        inheritingDeclaration: .member
+    )
 
     private var registeredProperties: PropertiesList {
         properties.stored.mutable.instance
@@ -30,7 +27,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
             """
             private enum Observation {
 
-                struct ObservationRegistrar: PublishableObservationRegistrar {
+                struct ObservationRegistrar: \(inheritedGlobalActorIsolation)PublishableObservationRegistrar {
 
                     private let underlying = SwiftObservationRegistrar()
 
@@ -49,7 +46,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
 
     private func publishNewValueFunction() -> MemberBlockItemListSyntax {
         """
-        \(inheritedGlobalActorAttribute)func publish(
+        \(inheritedGlobalActorIsolation)func publish(
             _ object: \(trimmedType),
             keyPath: KeyPath<\(trimmedType), some Any>
         ) {
@@ -78,7 +75,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
     private func subjectFunctions() -> MemberBlockItemListSyntax {
         for inferredType in registeredProperties.uniqueInferredTypes {
             """
-            \(inheritedGlobalActorAttribute)private func subject(
+            \(inheritedGlobalActorIsolation)private func subject(
                 for keyPath: KeyPath<\(trimmedType), \(inferredType)>,
                 on object: \(trimmedType)
             ) -> PassthroughSubject<\(inferredType), Never>? {
@@ -157,7 +154,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
     }
 
     private func assumeIsolatedIfNeededFunction() -> MemberBlockItemListSyntax {
-        if let globalActor = inheritedGlobalActorIsolation?.trimmedType {
+        if let globalActor = inheritedGlobalActorIsolation?.standardizedType {
             // https://github.com/swiftlang/swift/blob/main/stdlib/public/Concurrency/MainActor.swift
             """
             private nonisolated func assumeIsolatedIfNeeded(
