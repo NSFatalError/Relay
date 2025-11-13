@@ -28,7 +28,7 @@ internal struct AnyPropertyPublisherTests {
     func nonEquatableStoredPropertyPublisher() {
         var object: ObjectWithNonEquatableProperties? = .init()
         var publishableQueue = [NonEquatableStruct]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue: [Void] = []
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = object?.publisher.storedProperty.sink(
@@ -68,7 +68,7 @@ internal struct AnyPropertyPublisherTests {
     func nonEquatableComputedPropertyPublisher() {
         var object: ObjectWithNonEquatableProperties? = .init()
         var publishableQueue = [NonEquatableStruct]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue: [Void] = []
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = object?.publisher.computedProperty.sink(
@@ -122,7 +122,7 @@ extension AnyPropertyPublisherTests {
     func equatableStoredPropertyPublisher() {
         var object: ObjectWithEquatableProperties? = .init()
         var publishableQueue = [Int]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue: [Void] = []
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = object?.publisher.storedProperty.sink(
@@ -166,7 +166,7 @@ extension AnyPropertyPublisherTests {
     func equatableComputedPropertyPublisher() {
         var object: ObjectWithEquatableProperties? = .init()
         var publishableQueue = [Int]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue: [Void] = []
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = object?.publisher.computedProperty.sink(

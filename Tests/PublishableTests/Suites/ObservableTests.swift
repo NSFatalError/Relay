@@ -13,7 +13,7 @@ import Testing
 internal struct ObservableTests {
 
     @Test
-    func testStoredPropertyPublisher() {
+    func storedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
         nonisolated(unsafe) var observationsQueue: [Void] = []
@@ -53,7 +53,7 @@ internal struct ObservableTests {
     }
 
     @Test
-    func testComputedPropertyPublisher() {
+    func computedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
         nonisolated(unsafe) var observationsQueue: [Void] = []
@@ -101,7 +101,7 @@ internal struct ObservableTests {
 extension ObservableTests {
 
     @Test
-    func testWillChangePublisher() {
+    func willChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
         nonisolated(unsafe) var observationsQueue: [Void] = []
@@ -150,7 +150,7 @@ extension ObservableTests {
     }
 
     @Test
-    func testDidChangePublisher() {
+    func didChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
         nonisolated(unsafe) var observationsQueue: [Void] = []

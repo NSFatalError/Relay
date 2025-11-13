@@ -14,7 +14,7 @@ import Testing
 internal struct MainActorTests {
 
     @Test
-    func testStoredPropertyPublisher() {
+    func storedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
         nonisolated(unsafe) var observationsQueue: [Void] = []
@@ -54,7 +54,7 @@ internal struct MainActorTests {
     }
 
     @Test
-    func testComputedPropertyPublisher() {
+    func computedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
         nonisolated(unsafe) var observationsQueue: [Void] = []
@@ -102,7 +102,7 @@ internal struct MainActorTests {
 extension MainActorTests {
 
     @Test
-    func testWillChangePublisher() {
+    func willChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
         nonisolated(unsafe) var observationsQueue: [Void] = []
@@ -151,7 +151,7 @@ extension MainActorTests {
     }
 
     @Test
-    func testDidChangePublisher() {
+    func didChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
         nonisolated(unsafe) var observationsQueue: [Void] = []
