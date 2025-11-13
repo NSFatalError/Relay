@@ -28,7 +28,7 @@ internal struct AnyPropertyPublisherTests {
     func nonEquatableStoredPropertyPublisher() {
         var object: ObjectWithNonEquatableProperties? = .init()
         var publishableQueue = [NonEquatableStruct]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = object?.publisher.storedProperty.sink(
@@ -40,7 +40,7 @@ internal struct AnyPropertyPublisherTests {
             withObservationTracking {
                 _ = object?.storedProperty
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -54,7 +54,7 @@ internal struct AnyPropertyPublisherTests {
 
         object?.storedProperty = NonEquatableStruct()
         #expect(publishableQueue.popFirst() != nil)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         object = nil
@@ -68,7 +68,7 @@ internal struct AnyPropertyPublisherTests {
     func nonEquatableComputedPropertyPublisher() {
         var object: ObjectWithNonEquatableProperties? = .init()
         var publishableQueue = [NonEquatableStruct]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = object?.publisher.computedProperty.sink(
@@ -80,7 +80,7 @@ internal struct AnyPropertyPublisherTests {
             withObservationTracking {
                 _ = object?.computedProperty
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -94,7 +94,7 @@ internal struct AnyPropertyPublisherTests {
 
         object?.storedProperty = NonEquatableStruct()
         #expect(publishableQueue.popFirst() != nil)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         object = nil
@@ -122,7 +122,7 @@ extension AnyPropertyPublisherTests {
     func equatableStoredPropertyPublisher() {
         var object: ObjectWithEquatableProperties? = .init()
         var publishableQueue = [Int]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = object?.publisher.storedProperty.sink(
@@ -134,7 +134,7 @@ extension AnyPropertyPublisherTests {
             withObservationTracking {
                 _ = object?.storedProperty
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -152,7 +152,7 @@ extension AnyPropertyPublisherTests {
 
         object?.storedProperty += 1
         #expect(publishableQueue.popFirst() == 1)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         object = nil
@@ -166,7 +166,7 @@ extension AnyPropertyPublisherTests {
     func equatableComputedPropertyPublisher() {
         var object: ObjectWithEquatableProperties? = .init()
         var publishableQueue = [Int]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = object?.publisher.computedProperty.sink(
@@ -178,7 +178,7 @@ extension AnyPropertyPublisherTests {
             withObservationTracking {
                 _ = object?.computedProperty
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -196,7 +196,7 @@ extension AnyPropertyPublisherTests {
 
         object?.storedProperty += 1
         #expect(publishableQueue.popFirst() == 1)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         object = nil

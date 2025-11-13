@@ -16,7 +16,7 @@ internal struct ObservableTests {
     func storedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.name.sink(
@@ -28,7 +28,7 @@ internal struct ObservableTests {
             withObservationTracking {
                 _ = person?.name
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -42,7 +42,7 @@ internal struct ObservableTests {
 
         person?.name = "Kamil"
         #expect(publishableQueue.popFirst() == "Kamil")
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person = nil
@@ -56,7 +56,7 @@ internal struct ObservableTests {
     func computedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.fullName.sink(
@@ -68,7 +68,7 @@ internal struct ObservableTests {
             withObservationTracking {
                 _ = person?.fullName
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -78,7 +78,7 @@ internal struct ObservableTests {
 
         person?.surname = "Strzelecki"
         #expect(publishableQueue.popFirst() == "John Strzelecki")
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person?.age += 1
@@ -87,7 +87,7 @@ internal struct ObservableTests {
 
         person?.name = "Kamil"
         #expect(publishableQueue.popFirst() == "Kamil Strzelecki")
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person = nil
@@ -104,7 +104,7 @@ extension ObservableTests {
     func willChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.willChange.sink(
@@ -119,7 +119,7 @@ extension ObservableTests {
                 _ = person?.surname
                 _ = person?.fullName
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -129,17 +129,17 @@ extension ObservableTests {
 
         person?.surname = "Strzelecki"
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person?.age += 1
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person?.name = "Kamil"
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person = nil
@@ -153,7 +153,7 @@ extension ObservableTests {
     func didChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.didChange.sink(
@@ -168,7 +168,7 @@ extension ObservableTests {
                 _ = person?.surname
                 _ = person?.fullName
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -178,17 +178,17 @@ extension ObservableTests {
 
         person?.surname = "Strzelecki"
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person?.age += 1
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person?.name = "Kamil"
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person = nil

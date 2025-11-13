@@ -17,7 +17,7 @@ internal struct SwiftDataTests {
     func storedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.name.sink(
@@ -29,7 +29,7 @@ internal struct SwiftDataTests {
             withObservationTracking {
                 _ = person?.name
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -43,7 +43,7 @@ internal struct SwiftDataTests {
 
         person?.name = "Kamil"
         #expect(publishableQueue.popFirst() == "Kamil")
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person = nil
@@ -57,7 +57,7 @@ internal struct SwiftDataTests {
     func computedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.fullName.sink(
@@ -69,7 +69,7 @@ internal struct SwiftDataTests {
             withObservationTracking {
                 _ = person?.fullName
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -79,7 +79,7 @@ internal struct SwiftDataTests {
 
         person?.surname = "Strzelecki"
         #expect(publishableQueue.popFirst() == "John Strzelecki")
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person?.age += 1
@@ -88,7 +88,7 @@ internal struct SwiftDataTests {
 
         person?.name = "Kamil"
         #expect(publishableQueue.popFirst() == "Kamil Strzelecki")
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person = nil
@@ -105,7 +105,7 @@ extension SwiftDataTests {
     func willChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.willChange.sink(
@@ -120,7 +120,7 @@ extension SwiftDataTests {
                 _ = person?.surname
                 _ = person?.fullName
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -130,17 +130,17 @@ extension SwiftDataTests {
 
         person?.surname = "Strzelecki"
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person?.age += 1
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person?.name = "Kamil"
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person = nil
@@ -154,7 +154,7 @@ extension SwiftDataTests {
     func didChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
-        nonisolated(unsafe) var observationsQueue = [Void]()
+        nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.didChange.sink(
@@ -169,7 +169,7 @@ extension SwiftDataTests {
                 _ = person?.surname
                 _ = person?.fullName
             } onChange: {
-                observationsQueue.append(())
+                observationsQueue.append(true)
             }
         }
 
@@ -179,17 +179,17 @@ extension SwiftDataTests {
 
         person?.surname = "Strzelecki"
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person?.age += 1
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person?.name = "Kamil"
         #expect(publishableQueue.popFirst() === person)
-        #expect(observationsQueue.popFirst() != nil)
+        #expect(observationsQueue.popFirst() == true)
         observe()
 
         person = nil
