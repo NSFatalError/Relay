@@ -17,7 +17,7 @@ internal struct SwiftDataTests {
     func storedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
-        nonisolated(unsafe) var observationsQueue: [Void] = []
+        nonisolated(unsafe) var observationsQueue = [Void]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.name.sink(
@@ -57,7 +57,7 @@ internal struct SwiftDataTests {
     func computedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
-        nonisolated(unsafe) var observationsQueue: [Void] = []
+        nonisolated(unsafe) var observationsQueue = [Void]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.fullName.sink(
@@ -105,7 +105,7 @@ extension SwiftDataTests {
     func willChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
-        nonisolated(unsafe) var observationsQueue: [Void] = []
+        nonisolated(unsafe) var observationsQueue = [Void]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.willChange.sink(
@@ -154,7 +154,7 @@ extension SwiftDataTests {
     func didChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
-        nonisolated(unsafe) var observationsQueue: [Void] = []
+        nonisolated(unsafe) var observationsQueue = [Void]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.didChange.sink(
@@ -203,11 +203,11 @@ extension SwiftDataTests {
 extension SwiftDataTests {
 
     @Publishable @Model
-    public final class Person {
+    final class Person {
 
         var age: Int
         fileprivate(set) var name: String
-        public var surname: String
+        var surname: String
 
         internal var fullName: String {
             "\(name) \(surname)"

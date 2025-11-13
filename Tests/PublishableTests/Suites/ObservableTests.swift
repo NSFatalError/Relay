@@ -16,7 +16,7 @@ internal struct ObservableTests {
     func storedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
-        nonisolated(unsafe) var observationsQueue: [Void] = []
+        nonisolated(unsafe) var observationsQueue = [Void]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.name.sink(
@@ -56,7 +56,7 @@ internal struct ObservableTests {
     func computedPropertyPublisher() {
         var person: Person? = .init()
         var publishableQueue = [String]()
-        nonisolated(unsafe) var observationsQueue: [Void] = []
+        nonisolated(unsafe) var observationsQueue = [Void]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.fullName.sink(
@@ -104,7 +104,7 @@ extension ObservableTests {
     func willChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
-        nonisolated(unsafe) var observationsQueue: [Void] = []
+        nonisolated(unsafe) var observationsQueue = [Void]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.willChange.sink(
@@ -153,7 +153,7 @@ extension ObservableTests {
     func didChangePublisher() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
-        nonisolated(unsafe) var observationsQueue: [Void] = []
+        nonisolated(unsafe) var observationsQueue = [Void]()
 
         var completion: Subscribers.Completion<Never>?
         let cancellable = person?.publisher.didChange.sink(
@@ -202,12 +202,12 @@ extension ObservableTests {
 extension ObservableTests {
 
     @Publishable @Observable
-    public final class Person {
+    final class Person {
 
         let id = UUID()
         var age = 25
         fileprivate(set) var name = "John"
-        public var surname = "Doe"
+        var surname = "Doe"
 
         internal var fullName: String {
             "\(name) \(surname)"
