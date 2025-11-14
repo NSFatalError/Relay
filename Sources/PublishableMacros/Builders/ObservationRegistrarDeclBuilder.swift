@@ -8,15 +8,11 @@
 
 import PrincipleMacros
 
-internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder {
+internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
     let preferredGlobalActorIsolation: ExplicitGlobalActorIsolation?
-
-    let accessControlLevelInheritanceSettings = AccessControlLevelInheritanceSettings(
-        inheritingDeclaration: .member
-    )
 
     private var registeredProperties: PropertiesList {
         properties.stored.mutable.instance

@@ -23,7 +23,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/NSFatalError/PrincipleMacros",
-            revision: "99f04db9fefe7faa666721c1484197d0a2bd0e15"
+            revision: "e7336abe981c31deaebde62c5dd216fb88029f90"
         ),
         .package(
             url: "https://github.com/swiftlang/swift-syntax",

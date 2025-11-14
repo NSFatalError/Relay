@@ -39,7 +39,7 @@
                         "\(name) \(surname)"
                     }
 
-                    package var initials: String {
+                    private var initials: String {
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
@@ -66,7 +66,7 @@
                         "\(name) \(surname)"
                     }
 
-                    package var initials: String {
+                    private var initials: String {
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
@@ -104,7 +104,7 @@
                         internal var fullName: AnyPublisher<String, Never> {
                             _computedPropertyPublisher(for: \.fullName)
                         }
-                        package var initials: AnyPublisher<String, Never> {
+                        fileprivate var initials: AnyPublisher<String, Never> {
                             _computedPropertyPublisher(for: \.initials)
                         }
                     }

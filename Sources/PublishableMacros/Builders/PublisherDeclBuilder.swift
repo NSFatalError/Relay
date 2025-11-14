@@ -8,14 +8,10 @@
 
 import PrincipleMacros
 
-internal struct PublisherDeclBuilder: ClassDeclBuilder {
+internal struct PublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
-
-    let accessControlLevelInheritanceSettings = AccessControlLevelInheritanceSettings(
-        inheritingDeclaration: .member
-    )
 
     func build() -> [DeclSyntax] {
         [

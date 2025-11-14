@@ -8,15 +8,11 @@
 
 import PrincipleMacros
 
-internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
+internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
     let preferredGlobalActorIsolation: ExplicitGlobalActorIsolation?
-
-    let accessControlLevelInheritanceSettings = AccessControlLevelInheritanceSettings(
-        inheritingDeclaration: .member
-    )
 
     func build() -> [DeclSyntax] {
         [
@@ -52,10 +48,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
     private func storedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.stored.mutable.instance {
             let globalActor = inheritedGlobalActorIsolation
-            let accessControlLevel = property.declaration.inlinableAccessControlLevel(
-                inheritedBy: .peer,
-                maxAllowed: .public
-            )
+            let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
             let name = property.trimmedName
             let type = property.inferredType
             """
@@ -71,10 +64,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder {
     private func computedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.computed.instance {
             let globalActor = inheritedGlobalActorIsolation
-            let accessControlLevel = property.declaration.inlinableAccessControlLevel(
-                inheritedBy: .peer,
-                maxAllowed: .public
-            )
+            let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
             let name = property.trimmedName
             let type = property.inferredType
             """
