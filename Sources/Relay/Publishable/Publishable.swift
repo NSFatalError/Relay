@@ -37,7 +37,7 @@ import Observation
     conformances: Publishable
 )
 public macro Publishable() = #externalMacro(
-    module: "PublishableMacros",
+    module: "RelayMacros",
     type: "PublishableMacro"
 )
 
@@ -72,7 +72,7 @@ public macro Publishable() = #externalMacro(
 public macro Publishable<Isolation: GlobalActor>(
     isolation: Isolation.Type?
 ) = #externalMacro(
-    module: "PublishableMacros",
+    module: "RelayMacros",
     type: "PublishableMacro"
 )
 

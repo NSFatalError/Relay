@@ -5,7 +5,7 @@ import CompilerPluginSupport
 import PackageDescription
 
 let package = Package(
-    name: "Publishable",
+    name: "Relay",
     platforms: [
         .macOS(.v14),
         .macCatalyst(.v17),
@@ -16,14 +16,14 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "Publishable",
-            targets: ["Publishable"]
+            name: "Relay",
+            targets: ["Relay"]
         )
     ],
     dependencies: [
         .package(
             url: "https://github.com/NSFatalError/PrincipleMacros",
-            revision: "e7336abe981c31deaebde62c5dd216fb88029f90"
+            revision: "0fed1881daa3a2a8f6ebe606f17e5b5416369f6f"
         ),
         .package(
             url: "https://github.com/swiftlang/swift-syntax",
@@ -32,15 +32,15 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "Publishable",
-            dependencies: ["PublishableMacros"]
+            name: "Relay",
+            dependencies: ["RelayMacros"]
         ),
         .testTarget(
-            name: "PublishableTests",
-            dependencies: ["Publishable"]
+            name: "RelayTests",
+            dependencies: ["Relay"]
         ),
         .macro(
-            name: "PublishableMacros",
+            name: "RelayMacros",
             dependencies: [
                 .product(
                     name: "PrincipleMacros",
@@ -53,9 +53,9 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "PublishableMacrosTests",
+            name: "RelayMacrosTests",
             dependencies: [
-                "PublishableMacros",
+                "RelayMacros",
                 .product(
                     name: "PrincipleMacrosTestSupport",
                     package: "PrincipleMacros"

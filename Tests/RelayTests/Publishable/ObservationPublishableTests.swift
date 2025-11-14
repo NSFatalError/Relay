@@ -1,16 +1,16 @@
 //
-//  ObservableTests.swift
+//  ObservationPublishableTests.swift
 //  Publishable
 //
 //  Created by Kamil Strzelecki on 18/01/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-@testable import Publishable
+@testable import Relay
 import Foundation
 import Testing
 
-internal struct ObservableTests {
+internal struct ObservationPublishableTests {
 
     @Test
     func storedPropertyPublisher() {
@@ -98,7 +98,7 @@ internal struct ObservableTests {
     }
 }
 
-extension ObservableTests {
+extension ObservationPublishableTests {
 
     @Test
     func willChangePublisher() {
@@ -199,7 +199,7 @@ extension ObservableTests {
     }
 }
 
-extension ObservableTests {
+extension ObservationPublishableTests {
 
     @Publishable @Observable
     final class Person {

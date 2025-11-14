@@ -12,7 +12,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
-    let preferredGlobalActorIsolation: ExplicitGlobalActorIsolation?
+    let preferredGlobalActorIsolation: GlobalActorIsolation?
 
     func build() -> [DeclSyntax] {
         [

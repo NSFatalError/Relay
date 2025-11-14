@@ -1,5 +1,5 @@
 //
-//  PublishablePlugin.swift
+//  RelayPlugin.swift
 //  Publishable
 //
 //  Created by Kamil Strzelecki on 11/01/2025.
@@ -10,7 +10,7 @@ import PrincipleMacros
 import SwiftCompilerPlugin
 
 @main
-internal struct PublishablePlugin: CompilerPlugin {
+internal struct RelayPlugin: CompilerPlugin {
 
     let providingMacros: [any Macro.Type] = [
         PublishableMacro.self

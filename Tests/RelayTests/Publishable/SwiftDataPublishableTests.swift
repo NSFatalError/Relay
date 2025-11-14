@@ -1,17 +1,17 @@
 //
-//  MainActorTests.swift
+//  SwiftDataPublishableTests.swift
 //  Publishable
 //
-//  Created by Kamil Strzelecki on 18/01/2025.
+//  Created by Kamil Strzelecki on 15/05/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-@testable import Publishable
+@testable import Relay
 import Foundation
+import SwiftData
 import Testing
 
-@MainActor
-internal struct MainActorTests {
+internal struct SwiftDataPublishableTests {
 
     @Test
     func storedPropertyPublisher() {
@@ -99,7 +99,7 @@ internal struct MainActorTests {
     }
 }
 
-extension MainActorTests {
+extension SwiftDataPublishableTests {
 
     @Test
     func willChangePublisher() {
@@ -200,15 +200,14 @@ extension MainActorTests {
     }
 }
 
-extension MainActorTests {
+extension SwiftDataPublishableTests {
 
-    @MainActor @Publishable @Observable
+    @Publishable @Model
     final class Person {
 
-        let id = UUID()
-        var age = 25
-        fileprivate(set) var name = "John"
-        var surname = "Doe"
+        var age: Int
+        fileprivate(set) var name: String
+        var surname: String
 
         internal var fullName: String {
             "\(name) \(surname)"
@@ -217,6 +216,16 @@ extension MainActorTests {
         package var initials: String {
             get { "\(name.prefix(1))\(surname.prefix(1))" }
             set { _ = newValue }
+        }
+
+        init(
+            age: Int = 25,
+            name: String = "John",
+            surname: String = "Doe"
+        ) {
+            self.age = age
+            self.name = name
+            self.surname = surname
         }
     }
 }

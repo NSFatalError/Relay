@@ -88,12 +88,6 @@ extension PublishableMacro: ExtensionMacro {
             preferred: parameters.preferredGlobalActorIsolation
         )
 
-        let attributes: AttributeListSyntax = if let globalActorIsolation {
-            [.attribute(globalActorIsolation.standardizedAttribute)]
-        } else {
-            []
-        }
-
         return [
             .init(
                 extendedType: type,
@@ -101,11 +95,8 @@ extension PublishableMacro: ExtensionMacro {
                     inheritedTypes: [
                         InheritedTypeSyntax(
                             type: AttributedTypeSyntax(
-                                specifiers: [],
-                                attributes: attributes,
-                                baseType: IdentifierTypeSyntax(
-                                    name: "Publishable"
-                                )
+                                globalActorIsolation: globalActorIsolation,
+                                baseType: IdentifierTypeSyntax(name: "Publishable")
                             )
                         )
                     ]
@@ -120,7 +111,7 @@ extension PublishableMacro {
 
     private struct Parameters {
 
-        let preferredGlobalActorIsolation: ExplicitGlobalActorIsolation?
+        let preferredGlobalActorIsolation: GlobalActorIsolation?
 
         init(from node: AttributeSyntax) throws {
             let extractor = ParameterExtractor(from: node)

@@ -1,17 +1,17 @@
 //
-//  MainActorMacroTests.swift
+//  MainActorPublishableMacroTests.swift
 //  Publishable
 //
 //  Created by Kamil Strzelecki on 24/08/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-#if canImport(PublishableMacros)
+#if canImport(RelayMacros)
     import PrincipleMacrosTestSupport
-    import PublishableMacros
+    import RelayMacros
     import XCTest
 
-    internal final class MainActorMacroTests: XCTestCase {
+    internal final class MainActorPublishableMacroTests: XCTestCase {
 
         private let macros: [String: any Macro.Type] = [
             "Publishable": PublishableMacro.self

@@ -6,7 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-@testable import Publishable
+@testable import Relay
 import Testing
 
 internal struct AnyPropertyPublisherTests {

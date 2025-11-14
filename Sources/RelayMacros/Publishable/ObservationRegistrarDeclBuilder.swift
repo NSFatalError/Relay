@@ -12,7 +12,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
-    let preferredGlobalActorIsolation: ExplicitGlobalActorIsolation?
+    let preferredGlobalActorIsolation: GlobalActorIsolation?
 
     private var registeredProperties: PropertiesList {
         properties.stored.mutable.instance
@@ -150,7 +150,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
     }
 
     private func assumeIsolatedIfNeededFunction() -> MemberBlockItemListSyntax {
-        if let globalActor = inheritedGlobalActorIsolation?.standardizedType {
+        if let globalActor = inheritedGlobalActorIsolation?.standardizedIsolationType {
             // https://github.com/swiftlang/swift/blob/main/stdlib/public/Concurrency/MainActor.swift
             """
             private nonisolated func assumeIsolatedIfNeeded(

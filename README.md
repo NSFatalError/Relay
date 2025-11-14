@@ -25,7 +25,7 @@ This is where `Publishable` comes in. It allows `Observation` and `Combine` to c
 and can be extended to support other macros built on `Observation`.
 
 ```swift
-import Publishable 
+import Relay 
 
 @Publishable @Observable
 final class Person {
