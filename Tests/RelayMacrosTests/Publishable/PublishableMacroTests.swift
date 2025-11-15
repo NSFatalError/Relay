@@ -43,7 +43,7 @@
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
-                
+
                     @Memoized(.public)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
@@ -75,7 +75,7 @@
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
-                
+
                     @Memoized(.public)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
@@ -117,7 +117,7 @@
                         fileprivate var initials: AnyPublisher<String, Never> {
                             _computedPropertyPublisher(for: \.initials)
                         }
-                
+
                         public var label: AnyPublisher<String, Never> {
                             _computedPropertyPublisher(for: \.label)
                         }

@@ -22,9 +22,9 @@
                 #"""
                 @Observable
                 public class Square {
-                
+
                     var side = 12.3
-                
+
                     @Memoized
                     private func calculateArea() -> Double {
                         side * side
@@ -35,28 +35,28 @@
                 #"""
                 @Observable
                 public class Square {
-                
+
                     var side = 12.3
                     private func calculateArea() -> Double {
                         side * side
                     }
-                
+
                     private var _area: Optional<Double> = nil
-                
+
                     var area: Double {
                         if let cached = _area {
                             access(keyPath: \._area)
                             return cached
                         }
-                
+
                         nonisolated(unsafe) weak var instance = self
-                
+
                         @Sendable nonisolated func assumeIsolatedIfNeeded(
                             _ operation: () throws -> Void
                         ) rethrows {
                             try operation()
                         }
-                
+
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
                                 instance?.withMutation(keyPath: \._area) {
@@ -64,7 +64,7 @@
                                 }
                             }
                         }
-                
+
                         return withObservationTracking {
                             let result = calculateArea()
                             _area = result
@@ -84,9 +84,9 @@
                 #"""
                 @Observable
                 public final class Square {
-                
+
                     var side = 12.3
-                
+
                     @Memoized(.public, "customName")
                     private func calculateArea() -> Double {
                         side * side
@@ -97,28 +97,28 @@
                 #"""
                 @Observable
                 public final class Square {
-                
+
                     var side = 12.3
                     private func calculateArea() -> Double {
                         side * side
                     }
-                
+
                     private var _customName: Optional<Double> = nil
-                
+
                     public var customName: Double {
                         if let cached = _customName {
                             access(keyPath: \._customName)
                             return cached
                         }
-                
+
                         nonisolated(unsafe) weak var instance = self
-                
+
                         @Sendable nonisolated func assumeIsolatedIfNeeded(
                             _ operation: () throws -> Void
                         ) rethrows {
                             try operation()
                         }
-                
+
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
                                 instance?.withMutation(keyPath: \._customName) {
@@ -126,7 +126,7 @@
                                 }
                             }
                         }
-                
+
                         return withObservationTracking {
                             let result = calculateArea()
                             _customName = result

@@ -24,7 +24,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
                 \(storedPropertiesPublishers().formatted())
 
                 \(computedPropertiesPublishers().formatted())
-            
+
                 \(memoizedPropertiesPublishers().formatted())
             }
             """
