@@ -1,6 +1,6 @@
 //
 //  PublishableMacro.swift
-//  Publishable
+//  Relay
 //
 //  Created by Kamil Strzelecki on 12/01/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
@@ -14,7 +14,7 @@ public enum PublishableMacro {
         _ declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext
     ) -> ClassDeclSyntax? {
-        guard let declaration = declaration as? ClassDeclSyntax,
+        guard let declaration = declaration.as(ClassDeclSyntax.self),
               declaration.attributes.contains(likeOneOf: "@Observable", "@Model"),
               declaration.isFinal
         else {
@@ -115,9 +115,7 @@ extension PublishableMacro {
 
         init(from node: AttributeSyntax) throws {
             let extractor = ParameterExtractor(from: node)
-            self.preferredGlobalActorIsolation = try extractor.globalActorIsolation(
-                withLabel: "isolation"
-            )
+            self.preferredGlobalActorIsolation = try extractor.globalActorIsolation(withLabel: "isolation")
         }
     }
 }

@@ -23,7 +23,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/NSFatalError/PrincipleMacros",
-            revision: "0fed1881daa3a2a8f6ebe606f17e5b5416369f6f"
+            revision: "210cb630fa67c59239070fac094d88bd6cd27419"
         ),
         .package(
             url: "https://github.com/swiftlang/swift-syntax",
@@ -33,7 +33,13 @@ let package = Package(
     targets: [
         .target(
             name: "Relay",
-            dependencies: ["RelayMacros"]
+            dependencies: [
+                "RelayMacros",
+                .product(
+                    name: "PrincipleMacrosClientSupport",
+                    package: "PrincipleMacros"
+                )
+            ]
         ),
         .testTarget(
             name: "RelayTests",

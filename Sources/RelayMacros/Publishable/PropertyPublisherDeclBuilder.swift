@@ -1,6 +1,6 @@
 //
 //  PropertyPublisherDeclBuilder.swift
-//  Publishable
+//  Relay
 //
 //  Created by Kamil Strzelecki on 12/01/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
@@ -24,6 +24,8 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
                 \(storedPropertiesPublishers().formatted())
 
                 \(computedPropertiesPublishers().formatted())
+            
+                \(memoizedPropertiesPublishers().formatted())
             }
             """
         ]
@@ -72,6 +74,26 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
                 _computedPropertyPublisher(for: \\.\(name))
             }
             """
+        }
+    }
+
+    @MemberBlockItemListBuilder
+    private func memoizedPropertiesPublishers() -> MemberBlockItemListSyntax {
+        for member in declaration.memberBlock.members {
+            if let functionDecl = member.decl.as(FunctionDeclSyntax.self),
+               let attribute = functionDecl.attributes.first(like: "@Memoized"),
+               let parameters = try? MemoizedMacro.Parameters(from: attribute),
+               let trimmedReturnType = MemoizedMacro.trimmedReturnType(of: functionDecl) {
+                let globalActor = parameters.preferredGlobalActorIsolation ?? inheritedGlobalActorIsolation
+                let accessControlLevel = parameters.preferredAccessControlLevel
+                let name = parameters.preferredPropertyName ?? MemoizedMacro.defaultPropertyName(for: functionDecl)
+                let type = trimmedReturnType
+                """
+                \(globalActor)\(accessControlLevel)var \(raw: name): AnyPublisher<\(type), Never> {
+                    _computedPropertyPublisher(for: \\.\(raw: name))
+                }
+                """
+            }
         }
     }
 }

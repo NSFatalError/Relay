@@ -1,6 +1,6 @@
 //
 //  MainActorPublishableMacroTests.swift
-//  Publishable
+//  Relay
 //
 //  Created by Kamil Strzelecki on 24/08/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
@@ -43,6 +43,11 @@
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
+                
+                    @Memoized(.public)
+                    func makeLabel() -> String {
+                        "\(fullName), \(age)"
+                    }
                 }
                 """#,
                 expandedSource:
@@ -69,6 +74,11 @@
                     private var initials: String {
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
+                    }
+                
+                    @Memoized(.public)
+                    func makeLabel() -> String {
+                        "\(fullName), \(age)"
                     }
 
                     /// A ``PropertyPublisher`` which exposes `Combine` publishers for all mutable 
@@ -107,6 +117,10 @@
                         @MainActor fileprivate var initials: AnyPublisher<String, Never> {
                             _computedPropertyPublisher(for: \.initials)
                         }
+                
+                        @MainActor public var label: AnyPublisher<String, Never> {
+                            _computedPropertyPublisher(for: \.label)
+                        }
                     }
 
                     private enum Observation {
@@ -129,7 +143,6 @@
                                     subject.send(object[keyPath: keyPath])
                                     return
                                 }
-                                assertionFailure("Unknown keyPath: \(keyPath)")
                             }
 
                             @MainActor private func subject(

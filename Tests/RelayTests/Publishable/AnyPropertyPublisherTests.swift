@@ -1,6 +1,6 @@
 //
 //  AnyPropertyPublisherTests.swift
-//  Publishable
+//  Relay
 //
 //  Created by Kamil Strzelecki on 15/05/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
@@ -25,7 +25,7 @@ internal struct AnyPropertyPublisherTests {
     }
 
     @Test
-    func nonEquatableStoredPropertyPublisher() {
+    func nonEquatableStoredProperty() {
         var object: ObjectWithNonEquatableProperties? = .init()
         var publishableQueue = [NonEquatableStruct]()
         nonisolated(unsafe) var observationsQueue = [Bool]()
@@ -65,7 +65,7 @@ internal struct AnyPropertyPublisherTests {
     }
 
     @Test
-    func nonEquatableComputedPropertyPublisher() {
+    func nonEquatableComputedProperty() {
         var object: ObjectWithNonEquatableProperties? = .init()
         var publishableQueue = [NonEquatableStruct]()
         nonisolated(unsafe) var observationsQueue = [Bool]()
@@ -119,7 +119,7 @@ extension AnyPropertyPublisherTests {
     }
 
     @Test
-    func equatableStoredPropertyPublisher() {
+    func equatableStoredProperty() {
         var object: ObjectWithEquatableProperties? = .init()
         var publishableQueue = [Int]()
         nonisolated(unsafe) var observationsQueue = [Bool]()
@@ -163,7 +163,7 @@ extension AnyPropertyPublisherTests {
     }
 
     @Test
-    func equatableComputedPropertyPublisher() {
+    func equatableComputedProperty() {
         var object: ObjectWithEquatableProperties? = .init()
         var publishableQueue = [Int]()
         nonisolated(unsafe) var observationsQueue = [Bool]()

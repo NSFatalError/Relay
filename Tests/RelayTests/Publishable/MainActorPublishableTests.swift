@@ -1,6 +1,6 @@
 //
 //  MainActorPublishableTests.swift
-//  Publishable
+//  Relay
 //
 //  Created by Kamil Strzelecki on 18/01/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
@@ -14,7 +14,7 @@ import Testing
 internal struct MainActorPublishableTests {
 
     @Test
-    func storedPropertyPublisher() {
+    func storedProperty() {
         var person: Person? = .init()
         var publishableQueue = [String]()
         nonisolated(unsafe) var observationsQueue = [Bool]()
@@ -54,7 +54,7 @@ internal struct MainActorPublishableTests {
     }
 
     @Test
-    func computedPropertyPublisher() {
+    func computedProperty() {
         var person: Person? = .init()
         var publishableQueue = [String]()
         nonisolated(unsafe) var observationsQueue = [Bool]()
@@ -102,7 +102,7 @@ internal struct MainActorPublishableTests {
 extension MainActorPublishableTests {
 
     @Test
-    func willChangePublisher() {
+    func willChange() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
         nonisolated(unsafe) var observationsQueue = [Bool]()
@@ -151,7 +151,7 @@ extension MainActorPublishableTests {
     }
 
     @Test
-    func didChangePublisher() {
+    func didChange() {
         var person: Person? = .init()
         var publishableQueue = [Person]()
         nonisolated(unsafe) var observationsQueue = [Bool]()

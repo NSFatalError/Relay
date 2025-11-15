@@ -1,12 +1,12 @@
 {
-  "originHash" : "c7f470c434b63b5457085b32585e613e796b42f710570891a11544ef6760a02c",
+  "originHash" : "49e7ced1729dac73b31288ac69c288f2532e1445d91ce73d773c8446ce5cdb09",
   "pins" : [
     {
       "identity" : "principlemacros",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/NSFatalError/PrincipleMacros",
       "state" : {
-        "revision" : "0fed1881daa3a2a8f6ebe606f17e5b5416369f6f"
+        "revision" : "210cb630fa67c59239070fac094d88bd6cd27419"
       }
     },
     {

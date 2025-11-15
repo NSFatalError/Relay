@@ -1,6 +1,6 @@
 //
 //  ObservationRegistrarDeclBuilder.swift
-//  Publishable
+//  Relay
 //
 //  Created by Kamil Strzelecki on 14/01/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
@@ -62,9 +62,6 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
             }
             """
         }
-        """
-        assertionFailure("Unknown keyPath: \\(keyPath)")
-        """
     }
 
     @MemberBlockItemListBuilder
