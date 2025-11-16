@@ -12,7 +12,7 @@ In some scenarios, however, developers need to perform actions synchronously - i
 
 This is where ``Publishable()`` macro comes in. It allows `Observation` and `Combine` to coexist within a single type, letting you 
 take advantage of the latest `Observable` features, while processing changes synchronously when needed. It integrates 
-with both the `@Observable` and `@Model` macros and could be extended to support other macros built on top of `Observation`:
+with both the `@Observable` and `@Model` macros and could be extended to support other types built on top of `Observation`:
 
 ```swift
 import Relay 
