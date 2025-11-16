@@ -6,7 +6,6 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
 internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuilding {
@@ -32,7 +31,9 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
                     \(subjectFunctions().formatted())
 
-                    \(publishableObservationRegistrarFunctions())
+                    \(observationRegistrarWillSetDidSetAccessFunctions())
+
+                    \(observationRegistrarWithMutationFunction())
 
                     \(assumeIsolatedIfNeededFunction())
                 }
@@ -94,7 +95,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
         """
     }
 
-    private func publishableObservationRegistrarFunctions() -> MemberBlockItemListSyntax {
+    private func observationRegistrarWillSetDidSetAccessFunctions() -> MemberBlockItemListSyntax {
         """
         nonisolated func willSet(
             _ object: \(trimmedType),
@@ -125,7 +126,11 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
         ) {
             underlying.access(object, keyPath: keyPath)
         }
+        """
+    }
 
+    private func observationRegistrarWithMutationFunction() -> MemberBlockItemListSyntax {
+        """
         nonisolated func withMutation<T>(
             of object: \(trimmedType),
             keyPath: KeyPath<\(trimmedType), some Any>,

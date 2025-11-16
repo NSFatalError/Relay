@@ -6,7 +6,6 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
 internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
