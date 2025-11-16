@@ -15,7 +15,7 @@ Essential tools that extend the capabilities of `Observation`.
 ## Publishable
 
 <details>
-<summary> Observe changes to `Observable` types synchronously with `Combine`. </summary>
+<summary> Observe changes to Observable types synchronously with Combine. </summary>
 
 With the introduction of [Observations](https://developer.apple.com/documentation/observation/observations),
 Swift gained built-in support for observing changes to `Observable` types. This solution is great, but it only covers some of the use cases, 
@@ -82,7 +82,7 @@ This approach has been carefully tested and verified to work with both `@Observa
 ## Memoized
 
 <details>
-<summary> Perform expensive computations lazily and cache their outputs until `Observable` inputs change. </summary>
+<summary> Perform expensive computations lazily and cache their outputs until Observable inputs change. </summary>
 
 Computed properties in Swift are a great way of getting an always-up-to-date values derived from other properties of a type.
 However, they can also hide away computational complexity from the caller, who might assume that accessing them is trivial 
@@ -126,8 +126,7 @@ In the example above, it’s clear that we could save computing resources on rep
 when both `query` and `data` remain unchanged. The `@Memoized` macro allows you to do exactly that 
 by automatically caching and updating values derived from their underlying `Observable` inputs.
 
-To use it, refactor your computed property into a method and apply the `@Memoized` macro to it.
-The call site remains the same:
+To use it, refactor your computed property into a method and apply the `@Memoized` macro to it:
 
 ```swift
 @MainActor @Observable

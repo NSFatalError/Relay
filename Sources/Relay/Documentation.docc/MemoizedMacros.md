@@ -46,8 +46,7 @@ In the example above, it’s clear that we could save computing resources on rep
 when both `query` and `data` remain unchanged. The ``Memoized(_:_:)`` macro allows you to do exactly that 
 by automatically caching and updating values derived from their underlying `Observable` inputs.
 
-To use it, refactor your computed property into a method and apply the ``Memoized(_:_:)`` macro to it.
-The call site remains the same:
+To use it, refactor your computed property into a method and apply the ``Memoized(_:_:)`` macro to it:
 
 ```swift
 @MainActor @Observable
