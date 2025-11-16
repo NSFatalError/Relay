@@ -89,7 +89,7 @@ public enum MemoizedMacro {
             context.diagnose(
                 node: declaration,
                 errorMessage: """
-                Memoized macro requires a function name with at least two words \
+                Memoized macro requires a method name with at least two words \
                 or explicit property name
                 """
             )

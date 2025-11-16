@@ -73,13 +73,13 @@ internal struct MemoizedDeclBuilder: FunctionDeclBuilder, PeerBuilding {
             // https://github.com/swiftlang/swift/blob/main/stdlib/public/Concurrency/MainActor.swift
             """
             @Sendable nonisolated func assumeIsolatedIfNeeded(
-                _ operation: @\(globalActor) () throws -> Void
-            ) rethrows {
-                try withoutActuallyEscaping(operation) { operation in
-                    typealias Nonisolated = () throws -> Void
+                _ operation: @\(globalActor) () -> Void
+            ) {
+                withoutActuallyEscaping(operation) { operation in
+                    typealias Nonisolated = () -> Void
                     let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
-                    try \(globalActor).shared.assumeIsolated { _ in 
-                        try rawOperation()
+                    \(globalActor).shared.assumeIsolated { _ in 
+                        rawOperation()
                     }
                 }
             }
@@ -87,9 +87,9 @@ internal struct MemoizedDeclBuilder: FunctionDeclBuilder, PeerBuilding {
         } else {
             """
             @Sendable nonisolated func assumeIsolatedIfNeeded(
-                _ operation: () throws -> Void
-            ) rethrows {
-                try operation()
+                _ operation: () -> Void
+            ) {
+                operation()
             }
             """
         }

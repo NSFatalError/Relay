@@ -137,9 +137,15 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
             try assumeIsolatedIfNeeded {
                 object.publisher._beginModifications()
-                result = try underlying.withMutation(of: object, keyPath: keyPath, mutation)
-                publish(object, keyPath: keyPath)
-                object.publisher._endModifications()
+                defer {
+                    publish(object, keyPath: keyPath)
+                    object.publisher._endModifications()
+                }
+                result = try underlying.withMutation(
+                    of: object, 
+                    keyPath: keyPath,
+                    mutation
+                )
             }
 
             return result

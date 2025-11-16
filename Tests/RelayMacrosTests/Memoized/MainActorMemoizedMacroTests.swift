@@ -54,13 +54,13 @@
                         nonisolated(unsafe) weak var instance = self
 
                         @Sendable nonisolated func assumeIsolatedIfNeeded(
-                            _ operation: @MainActor () throws -> Void
-                        ) rethrows {
-                            try withoutActuallyEscaping(operation) { operation in
-                                typealias Nonisolated = () throws -> Void
+                            _ operation: @MainActor () -> Void
+                        ) {
+                            withoutActuallyEscaping(operation) { operation in
+                                typealias Nonisolated = () -> Void
                                 let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
-                                try MainActor.shared.assumeIsolated { _ in
-                                    try rawOperation()
+                                MainActor.shared.assumeIsolated { _ in
+                                    rawOperation()
                                 }
                             }
                         }
@@ -122,13 +122,13 @@
                         nonisolated(unsafe) weak var instance = self
 
                         @Sendable nonisolated func assumeIsolatedIfNeeded(
-                            _ operation: @MainActor () throws -> Void
-                        ) rethrows {
-                            try withoutActuallyEscaping(operation) { operation in
-                                typealias Nonisolated = () throws -> Void
+                            _ operation: @MainActor () -> Void
+                        ) {
+                            withoutActuallyEscaping(operation) { operation in
+                                typealias Nonisolated = () -> Void
                                 let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
-                                try MainActor.shared.assumeIsolated { _ in
-                                    try rawOperation()
+                                MainActor.shared.assumeIsolated { _ in
+                                    rawOperation()
                                 }
                             }
                         }

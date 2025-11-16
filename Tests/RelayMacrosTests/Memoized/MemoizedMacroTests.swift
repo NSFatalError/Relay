@@ -52,9 +52,9 @@
                         nonisolated(unsafe) weak var instance = self
 
                         @Sendable nonisolated func assumeIsolatedIfNeeded(
-                            _ operation: () throws -> Void
-                        ) rethrows {
-                            try operation()
+                            _ operation: () -> Void
+                        ) {
+                            operation()
                         }
 
                         @Sendable nonisolated func invalidateCache() {
@@ -114,9 +114,9 @@
                         nonisolated(unsafe) weak var instance = self
 
                         @Sendable nonisolated func assumeIsolatedIfNeeded(
-                            _ operation: () throws -> Void
-                        ) rethrows {
-                            try operation()
+                            _ operation: () -> Void
+                        ) {
+                            operation()
                         }
 
                         @Sendable nonisolated func invalidateCache() {

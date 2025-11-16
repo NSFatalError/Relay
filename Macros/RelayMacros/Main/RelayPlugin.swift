@@ -6,16 +6,14 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-#if canImport(SwiftCompilerPlugin)
-    import SwiftCompilerPlugin
-    import SwiftSyntaxMacros
+import SwiftCompilerPlugin
+import SwiftSyntaxMacros
 
-    @main
-    internal struct RelayPlugin: CompilerPlugin {
+@main
+internal struct RelayPlugin: CompilerPlugin {
 
-        let providingMacros: [any Macro.Type] = [
-            PublishableMacro.self,
-            MemoizedMacro.self
-        ]
-    }
-#endif
+    let providingMacros: [any Macro.Type] = [
+        PublishableMacro.self,
+        MemoizedMacro.self
+    ]
+}
