@@ -7,8 +7,8 @@
 //
 
 #if canImport(RelayMacros)
-    import SwiftSyntaxMacrosTestSupport
     import RelayMacros
+    import SwiftSyntaxMacrosTestSupport
     import XCTest
 
     internal final class MainActorPublishableMacroTests: XCTestCase {

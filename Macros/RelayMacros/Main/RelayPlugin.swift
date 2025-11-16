@@ -7,8 +7,8 @@
 //
 
 #if canImport(SwiftCompilerPlugin)
-    import SwiftSyntaxMacros
     import SwiftCompilerPlugin
+    import SwiftSyntaxMacros
 
     @main
     internal struct RelayPlugin: CompilerPlugin {
