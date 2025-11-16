@@ -6,8 +6,8 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import Relay
 import Foundation
+import Relay
 import SwiftData
 import Testing
 
