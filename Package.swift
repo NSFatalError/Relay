@@ -22,10 +22,6 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/NSFatalError/PrincipleMacros",
-            "3.0.0" ..< "4.0.0"
-        ),
-        .package(
             url: "https://github.com/swiftlang/swift-syntax",
             "602.0.0" ..< "603.0.0"
         )
@@ -33,13 +29,7 @@ let package = Package(
     targets: [
         .target(
             name: "Relay",
-            dependencies: [
-                "RelayMacros",
-                .product(
-                    name: "PrincipleMacrosClientSupport",
-                    package: "PrincipleMacros"
-                )
-            ]
+            dependencies: ["RelayMacros"]
         ),
         .testTarget(
             name: "RelayTests",
@@ -49,14 +39,18 @@ let package = Package(
             name: "RelayMacros",
             dependencies: [
                 .product(
-                    name: "PrincipleMacros",
-                    package: "PrincipleMacros"
+                    name: "SwiftSyntaxMacros",
+                    package: "swift-syntax"
                 ),
                 .product(
                     name: "SwiftCompilerPlugin",
-                    package: "swift-syntax",
-                    condition: .when(platforms: [.macOS])
+                    package: "swift-syntax"
                 )
+            ],
+            path: "Macros",
+            sources: [
+                "RelayMacros/",
+                "Dependencies/PrincipleMacros/Sources/PrincipleMacros/"
             ]
         ),
         .testTarget(
@@ -64,13 +58,8 @@ let package = Package(
             dependencies: [
                 "RelayMacros",
                 .product(
-                    name: "PrincipleMacrosTestSupport",
-                    package: "PrincipleMacros"
-                ),
-                .product(
-                    name: "SwiftCompilerPlugin",
-                    package: "swift-syntax",
-                    condition: .when(platforms: [.macOS])
+                    name: "SwiftSyntaxMacrosTestSupport",
+                    package: "swift-syntax"
                 )
             ]
         )

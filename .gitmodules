@@ -1,0 +1,3 @@
+[submodule "Macros/Dependencies/PrincipleMacros"]
+	path = Macros/Dependencies/PrincipleMacros
+	url = https://github.com/NSFatalError/PrincipleMacros
