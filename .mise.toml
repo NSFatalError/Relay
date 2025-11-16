@@ -1,12 +1,10 @@
 [vars]
-sources = "Sources"
-tests = "Tests"
 swiftlint = '~/.local/bin/mise x -- swiftlint'
 swiftformat = '~/.local/bin/mise x -- swiftformat'
 
 [tools]
-swiftlint = "0.58.2"
-swiftformat = "0.55.5"
+swiftlint = "0.62.2"
+swiftformat = "0.58.5"
 
 [tasks.lint]
 description = 'Run all linters'
@@ -19,7 +17,7 @@ run = """
 {{ vars.swiftlint }} lint \
 --config .swiftlint.yml \
 --strict \
-{{ vars.sources }}
+Sources Macros
 """
 
 [tasks."swiftlint:tests"]
@@ -30,7 +28,7 @@ run = """
 --config .swiftlint.yml \
 --config .swiftlint.tests.yml \
 --strict \
-{{ vars.tests }}
+Tests
 """
 
 [tasks.swiftformat]

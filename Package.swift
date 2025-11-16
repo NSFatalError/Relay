@@ -1,11 +1,11 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import CompilerPluginSupport
 import PackageDescription
 
 let package = Package(
-    name: "Publishable",
+    name: "Relay",
     platforms: [
         .macOS(.v14),
         .macCatalyst(.v17),
@@ -16,46 +16,47 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "Publishable",
-            targets: ["Publishable"]
+            name: "Relay",
+            targets: ["Relay"]
         )
     ],
     dependencies: [
         .package(
-            url: "https://github.com/NSFatalError/PrincipleMacros",
-            from: "1.0.6"
-        ),
-        .package(
             url: "https://github.com/swiftlang/swift-syntax",
-            "600.0.0" ..< "602.0.0"
+            "602.0.0" ..< "603.0.0"
         )
     ],
     targets: [
         .target(
-            name: "Publishable",
-            dependencies: ["PublishableMacros"]
+            name: "Relay",
+            dependencies: ["RelayMacros"]
         ),
         .testTarget(
-            name: "PublishableTests",
-            dependencies: ["Publishable"]
+            name: "RelayTests",
+            dependencies: ["Relay"]
         ),
         .macro(
-            name: "PublishableMacros",
+            name: "RelayMacros",
             dependencies: [
                 .product(
-                    name: "PrincipleMacros",
-                    package: "PrincipleMacros"
+                    name: "SwiftSyntaxMacros",
+                    package: "swift-syntax"
                 ),
                 .product(
                     name: "SwiftCompilerPlugin",
                     package: "swift-syntax"
                 )
+            ],
+            path: "Macros",
+            sources: [
+                "RelayMacros/",
+                "Dependencies/PrincipleMacros/Sources/PrincipleMacros/"
             ]
         ),
         .testTarget(
-            name: "PublishableMacrosTests",
+            name: "RelayMacrosTests",
             dependencies: [
-                "PublishableMacros",
+                "RelayMacros",
                 .product(
                     name: "SwiftSyntaxMacrosTestSupport",
                     package: "swift-syntax"
@@ -68,6 +69,8 @@ let package = Package(
 for target in package.targets {
     target.swiftSettings = (target.swiftSettings ?? []) + [
         .swiftLanguageMode(.v6),
-        .enableUpcomingFeature("ExistentialAny")
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault")
     ]
 }
