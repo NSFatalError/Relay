@@ -82,8 +82,11 @@ model.filteredData
 
 ## Topics
 
-### Memoizing Function Outputs
+### Memoizing Method Outputs
 
 - ``Memoized(_:_:)``
 - ``Memoized(_:_:isolation:)``
+
+### Customizing Generated Declarations
+
 - ``AccessControlLevel``

@@ -57,6 +57,6 @@ person.surname = "Strzelecki"
 - ``Publishable(isolation:)``
 - ``Publishable-protocol``
 
-### Getting Property Publishers
+### Observing Changes with Combine
 
 - ``AnyPropertyPublisher``
