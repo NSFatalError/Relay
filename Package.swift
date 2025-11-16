@@ -54,7 +54,8 @@ let package = Package(
                 ),
                 .product(
                     name: "SwiftCompilerPlugin",
-                    package: "swift-syntax"
+                    package: "swift-syntax",
+                    condition: .when(platforms: [.macOS])
                 )
             ]
         ),
@@ -68,7 +69,8 @@ let package = Package(
                 ),
                 .product(
                     name: "SwiftCompilerPlugin",
-                    package: "swift-syntax"
+                    package: "swift-syntax",
+                    condition: .when(platforms: [.macOS])
                 )
             ]
         )
