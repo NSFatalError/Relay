@@ -12,11 +12,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  XCODE_VERSION: "16.3"
+  XCODE_VERSION: "26.1"
 
 jobs:
   prepare:
-    runs-on: macos-15
+    runs-on: macos-26
     outputs:
       platforms: ${{ steps.platforms.outputs.platforms }}
       scheme: ${{ steps.scheme.outputs.scheme }}
@@ -62,7 +62,7 @@ jobs:
 
   build-and-test:
     needs: prepare
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       fail-fast: false
       matrix:
@@ -81,16 +81,16 @@ jobs:
             destination="platform=macOS,variant=Mac Catalyst"
             ;;
           ios)
-            destination="platform=iOS Simulator,name=iPhone 16 Pro Max,OS=latest"
+            destination="platform=iOS Simulator,name=iPhone 17 Pro Max,OS=26.1"
             ;;
           tvos)
-            destination="platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=latest"
+            destination="platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=26.1"
             ;;
           watchos)
-            destination="platform=watchOS Simulator,name=Apple Watch Series 10 (46mm),OS=latest"
+            destination="platform=watchOS Simulator,name=Apple Watch Series 11 (46mm),OS=26.1"
             ;;
           visionos)
-            destination="platform=visionOS Simulator,name=Apple Vision Pro,OS=latest"
+            destination="platform=visionOS Simulator,name=Apple Vision Pro,OS=26.1"
             ;;
           *)
             echo "Unknown platform: ${{ matrix.platform }}"
