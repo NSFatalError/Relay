@@ -7,7 +7,7 @@
 //
 
 #if canImport(RelayMacros)
-    import PrincipleMacrosTestSupport
+    import SwiftSyntaxMacrosTestSupport
     import RelayMacros
     import XCTest
 

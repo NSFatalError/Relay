@@ -6,7 +6,8 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacros
+import SwiftSyntaxMacros
+import SwiftSyntaxBuilder
 
 internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
@@ -41,14 +42,14 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     @CodeBlockItemListBuilder
     private func storedPropertiesPublishersFinishCalls() -> CodeBlockItemListSyntax {
-        for property in properties.stored.mutable.instance {
+        for property in properties.stored.mutable.instance.all {
             "_\(property.trimmedName).send(completion: .finished)"
         }
     }
 
     @MemberBlockItemListBuilder
     private func storedPropertiesPublishers() -> MemberBlockItemListSyntax {
-        for property in properties.stored.mutable.instance {
+        for property in properties.stored.mutable.instance.all {
             let globalActor = inheritedGlobalActorIsolation
             let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
             let name = property.trimmedName
@@ -64,7 +65,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     @MemberBlockItemListBuilder
     private func computedPropertiesPublishers() -> MemberBlockItemListSyntax {
-        for property in properties.computed.instance {
+        for property in properties.computed.instance.all {
             let globalActor = inheritedGlobalActorIsolation
             let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
             let name = property.trimmedName

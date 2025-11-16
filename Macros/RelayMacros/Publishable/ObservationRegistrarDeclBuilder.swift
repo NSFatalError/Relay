@@ -6,7 +6,8 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacros
+import SwiftSyntaxMacros
+import SwiftSyntaxBuilder
 
 internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
@@ -80,7 +81,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     @CodeBlockItemListBuilder
     private func subjectKeyPathCasting(for inferredType: TypeSyntax) -> CodeBlockItemListSyntax {
-        for property in registeredProperties.withInferredType(like: inferredType) {
+        for property in registeredProperties.withInferredType(like: inferredType).all {
             let name = property.trimmedName
             """
             if keyPath == \\.\(name) {

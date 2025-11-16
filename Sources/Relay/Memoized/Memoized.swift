@@ -6,8 +6,6 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-import PrincipleMacrosClientSupport
-
 /// A macro allowing a method to be used as a computed property, whose value will be automatically cached
 /// and updated when its underlying `Observable` inputs change.
 ///

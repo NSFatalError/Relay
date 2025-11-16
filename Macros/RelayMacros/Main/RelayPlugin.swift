@@ -7,7 +7,7 @@
 //
 
 #if canImport(SwiftCompilerPlugin)
-    import PrincipleMacros
+    import SwiftSyntaxMacros
     import SwiftCompilerPlugin
 
     @main
