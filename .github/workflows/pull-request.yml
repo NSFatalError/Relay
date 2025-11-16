@@ -116,7 +116,8 @@ jobs:
         set -o pipefail
         xcodebuild build \
           -scheme ${{ needs.prepare.outputs.scheme }} \
-          -destination "${{ steps.destination.outputs.destination }}" | \
+          -destination "${{ steps.destination.outputs.destination }}" \
+          -IDEPackageEnablePrebuilts=NO | \
           xcbeautify --renderer github-actions
 
     - name: Test (SPM)
@@ -136,7 +137,8 @@ jobs:
         set -o pipefail
         xcodebuild test \
           -scheme ${{ needs.prepare.outputs.scheme }} \
-          -destination "${{ steps.destination.outputs.destination }}" | \
+          -destination "${{ steps.destination.outputs.destination }}" \
+          -IDEPackageEnablePrebuilts=NO | \
           xcbeautify --renderer github-actions
 
     - name: Check coverage (SPM)
