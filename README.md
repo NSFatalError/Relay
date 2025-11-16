@@ -1,8 +1,8 @@
 # Relay
 
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FPublishable%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/NSFatalError/Publishable)
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FPublishable%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/NSFatalError/Publishable)
-[![Codecov](https://codecov.io/github/NSFatalError/Publishable/graph/badge.svg?token=axMe8BnuvB)](https://codecov.io/github/NSFatalError/Publishable)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FRelay%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/NSFatalError/Relay)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FRelay%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/NSFatalError/Relay)
+[![Codecov](https://codecov.io/gh/NSFatalError/Relay/graph/badge.svg?token=axMe8BnuvB)](https://codecov.io/gh/NSFatalError/Relay)
 
 Essential tools that extend the capabilities of `Observation`.
 
@@ -68,7 +68,7 @@ The `@Publishable` macro relies on two key properties of Swift Macros and `Obser
 - Macro expansions are compiled in the context of the module where they’re used. This allows references in the macro to be overloaded by locally available symbols.
 - Swift exposes `ObservationRegistrar` as a documented, public API, making it possible to use it safely and directly.
 
-`Publishable` leverages these facts to overload the default `ObservationRegistrar` with a custom one that:
+By leveraging these facts, the `@Publishable` macro can overload the default `ObservationRegistrar` with a custom one that:
 - Forwards changes to Swift’s native `ObservationRegistrar`
 - Simultaneously emits values through generated `Combine` publishers
 
@@ -164,13 +164,13 @@ model.filteredData
 
 ## Documentation
 
-[Full documentation is available on the Swift Package Index.](https://swiftpackageindex.com/NSFatalError/Publishable/documentation/publishable)
+[Full documentation is available on the Swift Package Index.](https://swiftpackageindex.com/NSFatalError/Relay/documentation/relay)
 
 ## Installation
 
 ```swift
 .package(
-    url: "https://github.com/NSFatalError/Publishable",
+    url: "https://github.com/NSFatalError/Relay",
     from: "1.0.0"
 )
 ```
