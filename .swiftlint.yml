@@ -163,6 +163,9 @@ file_header:
         //  Copyright © \d{4} .+\. All rights reserved\.
         //
 
+excluded:
+    - Macros/Dependencies
+
 file_length:
     warning: 500
 

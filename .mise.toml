@@ -1,6 +1,4 @@
 [vars]
-sources = "Sources"
-tests = "Tests"
 swiftlint = '~/.local/bin/mise x -- swiftlint'
 swiftformat = '~/.local/bin/mise x -- swiftformat'
 
@@ -19,7 +17,7 @@ run = """
 {{ vars.swiftlint }} lint \
 --config .swiftlint.yml \
 --strict \
-{{ vars.sources }}
+Sources Macros
 """
 
 [tasks."swiftlint:tests"]
@@ -30,7 +28,7 @@ run = """
 --config .swiftlint.yml \
 --config .swiftlint.tests.yml \
 --strict \
-{{ vars.tests }}
+Tests
 """
 
 [tasks.swiftformat]
