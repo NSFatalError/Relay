@@ -350,7 +350,7 @@ extension SwiftDataMemoizedTests {
     @Model
     final class Cube {
 
-        var offset = 0.0
+        var offset: Double
         var x = 1.0
         var y = 1.0
         var z = 1.0
@@ -361,7 +361,9 @@ extension SwiftDataMemoizedTests {
         private(set) var calculateVolumeCallsCount = 0
         var isVolumeCached: Bool { _volume != nil }
 
-        init() {}
+        init() {
+            self.offset = 0.0
+        }
 
         @Memoized
         func calculateBaseArea() -> Double {

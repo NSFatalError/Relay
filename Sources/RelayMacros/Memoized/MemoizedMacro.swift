@@ -10,11 +10,12 @@ import PrincipleMacros
 
 public enum MemoizedMacro {
 
-    private typealias Input = (
-        declaration: FunctionDeclSyntax,
-        trimmedReturnType: TypeSyntax,
-        propertyName: String
-    )
+    private struct Input {
+
+        let declaration: FunctionDeclSyntax
+        let trimmedReturnType: TypeSyntax
+        let propertyName: String
+    }
 
     private static func validate(
         _ declaration: some DeclSyntaxProtocol,
@@ -50,19 +51,41 @@ public enum MemoizedMacro {
             return nil
         }
 
-        if let propertyName = parameters.preferredPropertyName {
-            guard !propertyName.isEmpty else {
+        let propertyName = validatePropertyName(
+            for: declaration,
+            in: context,
+            preferred: parameters.preferredPropertyName
+        )
+
+        guard let propertyName else {
+            return nil
+        }
+
+        return Input(
+            declaration: declaration,
+            trimmedReturnType: trimmedReturnType,
+            propertyName: propertyName
+        )
+    }
+
+    private static func validatePropertyName(
+        for declaration: FunctionDeclSyntax,
+        in context: some MacroExpansionContext,
+        preferred: String?
+    ) -> String? {
+        if let preferred {
+            guard !preferred.isEmpty else {
                 context.diagnose(
                     node: declaration,
                     errorMessage: "Memoized macro requires a non-empty property name"
                 )
                 return nil
             }
-            return (declaration, trimmedReturnType, propertyName)
+            return preferred
         }
 
-        let propertyName = defaultPropertyName(for: declaration)
-        guard !propertyName.isEmpty else {
+        let inferred = defaultPropertyName(for: declaration)
+        guard !inferred.isEmpty else {
             context.diagnose(
                 node: declaration,
                 errorMessage: """
@@ -73,7 +96,7 @@ public enum MemoizedMacro {
             return nil
         }
 
-        return (declaration, trimmedReturnType, propertyName)
+        return inferred
     }
 
     static func defaultPropertyName(for declaration: FunctionDeclSyntax) -> String {
