@@ -86,3 +86,4 @@ model.filteredData
 
 - ``Memoized(_:_:)``
 - ``Memoized(_:_:isolation:)``
+- ``AccessControlLevel``
