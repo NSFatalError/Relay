@@ -43,7 +43,8 @@ public macro Publishable() = #externalMacro(
 
 /// A macro that adds ``Publishable-protocol`` conformance to `Observable` types.
 ///
-/// - Parameter isolation: The global actor to which the type is isolated. If set to `nil`, the generated members are `nonisolated`.
+/// - Parameter isolation: The global actor to which the type is isolated.
+/// If set to `nil`, the generated members are `nonisolated`.
 /// To infer isolation automatically, use the ``Publishable()`` macro instead.
 ///
 /// - Note: This macro works only with `final` classes to which the `@Observable` or `@Model` macro has been applied directly.
