@@ -47,17 +47,17 @@ open class AnyPropertyPublisher<Object: AnyObject> {
 extension AnyPropertyPublisher {
 
     func beginModifications() {
-        if pendingModifications == 0 {
+        pendingModifications += 1
+        if pendingModifications == 1 {
             _willChange.send(object)
         }
-        pendingModifications += 1
     }
 
     func endModifications() {
-        pendingModifications -= 1
-        if pendingModifications == 0 {
+        if pendingModifications == 1 {
             _didChange.send(object)
         }
+        pendingModifications -= 1
     }
 }
 

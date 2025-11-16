@@ -13,9 +13,9 @@ import Observation
 /// - Note: This macro infers the global actor isolation of the type and applies it to the generated declarations.
 /// If this causes compilation errors, use ``Publishable(isolation:)`` instead.
 ///
-/// - Note: This macro works only with `final` classes to which the `Observable` or `SwiftData.Model` macro has been applied directly.
+/// - Note: This macro works only with `final` classes to which the `@Observable` or `@Model` macro has been applied.
 ///
-/// The `Publishable` macro adds a new `publisher` property to your type,
+/// The `@Publishable` macro adds a new `publisher` property to your type,
 /// which exposes `Combine` publishers for all mutable or computed instance properties.
 ///
 /// If a property’s type conforms to `Equatable`, its publisher automatically removes duplicate values.
@@ -46,9 +46,9 @@ public macro Publishable() = #externalMacro(
 /// - Parameter isolation: The global actor to which the type is isolated. If set to `nil`, the generated members are `nonisolated`.
 /// To infer isolation automatically, use the ``Publishable()`` macro instead.
 ///
-/// - Note: This macro works only with `final` classes to which the `Observable` or `SwiftData.Model` macro has been applied directly.
+/// - Note: This macro works only with `final` classes to which the `@Observable` or `@Model` macro has been applied directly.
 ///
-/// The `Publishable` macro adds a new `publisher` property to your type,
+/// The `@Publishable` macro adds a new `publisher` property to your type,
 /// which exposes `Combine` publishers for all mutable or computed instance properties.
 ///
 /// If a property’s type conforms to `Equatable`, its publisher automatically removes duplicate values.
