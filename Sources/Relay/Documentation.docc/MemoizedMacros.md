@@ -4,7 +4,7 @@ Perform expensive computations lazily and cache their outputs until `Observable`
 
 ## Overview
 
-Computed properties in Swift are a great way of getting an always-up-to date values derived from other properties of a type.
+Computed properties in Swift are a great way of getting an always-up-to-date values derived from other properties of a type.
 However, they can also hide away computational complexity from the caller, who might assume that accessing them is trivial 
 and therefore call them repeatedly.
 
