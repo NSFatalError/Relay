@@ -84,7 +84,7 @@ This approach has been carefully tested and verified to work with both `@Observa
 
 <details>
 <summary> Perform expensive computations lazily and cache their outputs until Observable inputs change. </summary>
-
+<br />
 
 Computed properties in Swift are a great way of getting an always-up-to-date values derived from other properties of a type.
 However, they can also hide away computational complexity from the caller, who might assume that accessing them is trivial 
