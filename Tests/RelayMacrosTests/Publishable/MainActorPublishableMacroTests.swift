@@ -173,7 +173,7 @@
                             ) {
                                 nonisolated(unsafe) let keyPath = keyPath
                                 assumeIsolatedIfNeeded {
-                                    object.publisher.beginModifications()
+                                    object.publisher._beginModifications()
                                     underlying.willSet(object, keyPath: keyPath)
                                 }
                             }
@@ -186,7 +186,7 @@
                                 assumeIsolatedIfNeeded {
                                     underlying.didSet(object, keyPath: keyPath)
                                     publish(object, keyPath: keyPath)
-                                    object.publisher.endModifications()
+                                    object.publisher._endModifications()
                                 }
                             }
 
@@ -207,10 +207,10 @@
                                 nonisolated(unsafe) var result: T!
 
                                 try assumeIsolatedIfNeeded {
-                                    object.publisher.beginModifications()
+                                    object.publisher._beginModifications()
                                     result = try underlying.withMutation(of: object, keyPath: keyPath, mutation)
                                     publish(object, keyPath: keyPath)
-                                    object.publisher.endModifications()
+                                    object.publisher._endModifications()
                                 }
 
                                 return result

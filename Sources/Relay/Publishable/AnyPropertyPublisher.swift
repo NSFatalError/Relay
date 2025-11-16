@@ -44,24 +44,24 @@ open class AnyPropertyPublisher<Object: AnyObject> {
     }
 }
 
+// swiftlint:disable identifier_name
+
 extension AnyPropertyPublisher {
 
-    func beginModifications() {
+    public func _beginModifications() {
         pendingModifications += 1
         if pendingModifications == 1 {
             _willChange.send(object)
         }
     }
 
-    func endModifications() {
+    public func _endModifications() {
         if pendingModifications == 1 {
             _didChange.send(object)
         }
         pendingModifications -= 1
     }
 }
-
-// swiftlint:disable identifier_name
 
 extension AnyPropertyPublisher {
 
