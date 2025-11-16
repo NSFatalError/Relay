@@ -16,7 +16,7 @@ Essential tools that extend the capabilities of `Observation`.
 
 <details>
 <summary> Observe changes to Observable types synchronously with Combine. </summary>
-
+<br />
 
 With the introduction of [Observations](https://developer.apple.com/documentation/observation/observations),
 Swift gained built-in support for observing changes to `Observable` types. This solution is great, but it only covers some of the use cases, 
