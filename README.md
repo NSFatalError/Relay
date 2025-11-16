@@ -77,6 +77,8 @@ It relies solely on well-understood behaviors of Swift and its public APIs.
 
 This approach has been carefully tested and verified to work with both `@Observable` and `@Model` macros.
 
+</details>
+
 ## Memoized
 
 <details>
@@ -158,6 +160,8 @@ model.query = "..."
 model.filteredData // Prints: recompute
 model.filteredData
 ```
+
+</details>
 
 ## Documentation
 
