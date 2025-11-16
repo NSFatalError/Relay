@@ -4,7 +4,7 @@
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FNSFatalError%2FPublishable%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/NSFatalError/Publishable)
 [![Codecov](https://codecov.io/github/NSFatalError/Publishable/graph/badge.svg?token=axMe8BnuvB)](https://codecov.io/github/NSFatalError/Publishable)
 
-Extend functionality of `Observable` types.
+Essential tools that extend the capabilities of `Observation`.
 
 #### Contents
 - [Publishable](#publishable)

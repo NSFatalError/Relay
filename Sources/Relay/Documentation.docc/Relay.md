@@ -1,6 +1,6 @@
 # ``Relay-module``
 
-Extend functionality of `Observable` types.
+Essential tools that extend the capabilities of `Observation`.
 
 ## Topics
 
