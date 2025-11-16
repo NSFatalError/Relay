@@ -6,7 +6,7 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-@testable import Relay
+import Relay
 import Foundation
 import SwiftData
 import Testing
