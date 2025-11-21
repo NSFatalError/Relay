@@ -73,16 +73,6 @@ extension AnyPropertyPublisher {
             .prepend(object[keyPath: keyPath])
             .eraseToAnyPublisher()
     }
-
-    public func _storedPropertyPublisher<T: Equatable>(
-        _ subject: PassthroughSubject<T, Never>,
-        for keyPath: KeyPath<Object, T>
-    ) -> AnyPublisher<T, Never> {
-        subject
-            .prepend(object[keyPath: keyPath])
-            .removeDuplicates()
-            .eraseToAnyPublisher()
-    }
 }
 
 extension AnyPropertyPublisher {
@@ -97,6 +87,26 @@ extension AnyPropertyPublisher {
     }
 
     public func _computedPropertyPublisher<T: Equatable>(
+        for keyPath: KeyPath<Object, T>
+    ) -> AnyPublisher<T, Never> {
+        _didChange
+            .prepend(object)
+            .map { $0[keyPath: keyPath] }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+    public func _computedPropertyPublisher<T: AnyObject>(
+        for keyPath: KeyPath<Object, T>
+    ) -> AnyPublisher<T, Never> {
+        _didChange
+            .prepend(object)
+            .map { $0[keyPath: keyPath] }
+            .removeDuplicates { $0 === $1 }
+            .eraseToAnyPublisher()
+    }
+
+    public func _computedPropertyPublisher<T: AnyObject & Equatable>(
         for keyPath: KeyPath<Object, T>
     ) -> AnyPublisher<T, Never> {
         _didChange
