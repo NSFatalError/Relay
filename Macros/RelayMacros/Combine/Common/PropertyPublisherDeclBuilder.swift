@@ -14,6 +14,10 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
     let properties: PropertiesList
     let preferredGlobalActorIsolation: GlobalActorIsolation?
 
+    var maxAllowedAccessControlLevel: AccessControlLevel {
+        .open
+    }
+
     func build() -> [DeclSyntax] {
         [
             """
