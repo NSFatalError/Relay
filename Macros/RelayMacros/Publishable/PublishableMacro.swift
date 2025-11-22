@@ -11,18 +11,15 @@ import SwiftSyntaxMacros
 public enum PublishableMacro {
 
     private static func validate(
-        _ declaration: some DeclGroupSyntax,
-        in context: some MacroExpansionContext
-    ) -> ClassDeclSyntax? {
+        _ declaration: some DeclGroupSyntax
+    ) throws -> ClassDeclSyntax {
         guard let declaration = declaration.as(ClassDeclSyntax.self),
-              declaration.attributes.contains(likeOneOf: "@Observable", "@Model"),
               declaration.isFinal
         else {
-            context.diagnose(
+            throw DiagnosticsError(
                 node: declaration,
-                errorMessage: "Publishable macro can only be applied to final @Observable or @Model classes"
+                message: "Publishable macro can only be applied to final Observable classes"
             )
-            return nil
         }
         return declaration
     }
@@ -36,14 +33,11 @@ extension PublishableMacro: MemberMacro {
         conformingTo _: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        guard let declaration = validate(declaration, in: context) else {
-            return []
-        }
-
+        let declaration = try validate(declaration)
         let parameters = try Parameters(from: node)
-        let properties = PropertiesParser.parse(
-            memberBlock: declaration.memberBlock,
-            in: context
+
+        let properties = try PropertiesParser.parse(
+            memberBlock: declaration.memberBlock
         )
 
         let builderTypes: [any ClassDeclBuilder] = [
@@ -78,11 +72,9 @@ extension PublishableMacro: ExtensionMacro {
         conformingTo _: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
-        guard let declaration = validate(declaration, in: context) else {
-            return []
-        }
-
+        let declaration = try validate(declaration)
         let parameters = try Parameters(from: node)
+
         let globalActorIsolation = GlobalActorIsolation.resolved(
             for: declaration,
             preferred: parameters.preferredGlobalActorIsolation

@@ -9,200 +9,399 @@
 import Relay
 import Testing
 
-internal struct AnyPropertyPublisherTests {
+internal enum AnyPropertyPublisherTests {
 
-    fileprivate struct NonEquatableStruct {}
+    struct NonEquatableType {
 
-    @Publishable @Observable
-    fileprivate final class ObjectWithNonEquatableProperties {
+        fileprivate struct NonEquatableStruct {}
 
-        var storedProperty = NonEquatableStruct()
-        var unrelatedProperty = 0
+        fileprivate final class NonEquatableClass {}
 
-        var computedProperty: NonEquatableStruct {
-            storedProperty
-        }
-    }
+        @Publishable @Observable
+        fileprivate final class Object {
 
-    @Test
-    func nonEquatableStoredProperty() {
-        var object: ObjectWithNonEquatableProperties? = .init()
-        var publishableQueue = [NonEquatableStruct]()
-        nonisolated(unsafe) var observationsQueue = [Bool]()
+            var unrelatedProperty = 0
 
-        var completion: Subscribers.Completion<Never>?
-        let cancellable = object?.publisher.storedProperty.sink(
-            receiveCompletion: { completion = $0 },
-            receiveValue: { publishableQueue.append($0) }
-        )
+            var storedProperty = NonEquatableStruct()
+            var computedProperty: NonEquatableStruct {
+                storedProperty
+            }
 
-        func observe() {
-            withObservationTracking {
-                _ = object?.storedProperty
-            } onChange: {
-                observationsQueue.append(true)
+            var referenceTypeStoredProperty = NonEquatableClass()
+            var referenceTypeComputedProperty: NonEquatableClass {
+                referenceTypeStoredProperty
             }
         }
 
-        observe()
-        #expect(publishableQueue.popFirst() != nil)
-        #expect(observationsQueue.popFirst() == nil)
+        @Test
+        func storedProperty() {
+            var object: Object? = .init()
+            var publishableQueue = [NonEquatableStruct]()
+            nonisolated(unsafe) var observationsQueue = [Bool]()
 
-        object?.unrelatedProperty += 1
-        #expect(publishableQueue.popFirst() == nil)
-        #expect(observationsQueue.popFirst() == nil)
+            var completion: Subscribers.Completion<Never>?
+            let cancellable = object?.publisher.storedProperty.sink(
+                receiveCompletion: { completion = $0 },
+                receiveValue: { publishableQueue.append($0) }
+            )
 
-        object?.storedProperty = NonEquatableStruct()
-        #expect(publishableQueue.popFirst() != nil)
-        #expect(observationsQueue.popFirst() == true)
-        observe()
-
-        object = nil
-        #expect(publishableQueue.isEmpty)
-        #expect(observationsQueue.isEmpty)
-        #expect(completion == .finished)
-        cancellable?.cancel()
-    }
-
-    @Test
-    func nonEquatableComputedProperty() {
-        var object: ObjectWithNonEquatableProperties? = .init()
-        var publishableQueue = [NonEquatableStruct]()
-        nonisolated(unsafe) var observationsQueue = [Bool]()
-
-        var completion: Subscribers.Completion<Never>?
-        let cancellable = object?.publisher.computedProperty.sink(
-            receiveCompletion: { completion = $0 },
-            receiveValue: { publishableQueue.append($0) }
-        )
-
-        func observe() {
-            withObservationTracking {
-                _ = object?.computedProperty
-            } onChange: {
-                observationsQueue.append(true)
+            func observe() {
+                withObservationTracking {
+                    _ = object?.storedProperty
+                } onChange: {
+                    observationsQueue.append(true)
+                }
             }
+
+            observe()
+            #expect(publishableQueue.popFirst() != nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.unrelatedProperty += 1
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.storedProperty = NonEquatableStruct()
+            #expect(publishableQueue.popFirst() != nil)
+            #expect(observationsQueue.popFirst() == true)
+            observe()
+
+            object = nil
+            #expect(publishableQueue.isEmpty)
+            #expect(observationsQueue.isEmpty)
+            #expect(completion == .finished)
+            cancellable?.cancel()
         }
 
-        observe()
-        #expect(publishableQueue.popFirst() != nil)
-        #expect(observationsQueue.popFirst() == nil)
+        @Test
+        func referenceTypeStoredProperty() {
+            var object: Object? = .init()
+            var publishableQueue = [NonEquatableClass]()
+            nonisolated(unsafe) var observationsQueue = [Bool]()
 
-        object?.unrelatedProperty += 1
-        #expect(publishableQueue.popFirst() != nil)
-        #expect(observationsQueue.popFirst() == nil)
+            var completion: Subscribers.Completion<Never>?
+            let cancellable = object?.publisher.referenceTypeStoredProperty.sink(
+                receiveCompletion: { completion = $0 },
+                receiveValue: { publishableQueue.append($0) }
+            )
 
-        object?.storedProperty = NonEquatableStruct()
-        #expect(publishableQueue.popFirst() != nil)
-        #expect(observationsQueue.popFirst() == true)
-        observe()
+            func observe() {
+                withObservationTracking {
+                    _ = object?.referenceTypeStoredProperty
+                } onChange: {
+                    observationsQueue.append(true)
+                }
+            }
 
-        object = nil
-        #expect(publishableQueue.isEmpty)
-        #expect(observationsQueue.isEmpty)
-        #expect(completion == .finished)
-        cancellable?.cancel()
+            observe()
+            #expect(publishableQueue.popFirst() != nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.unrelatedProperty += 1
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.referenceTypeStoredProperty = NonEquatableClass()
+            #expect(publishableQueue.popFirst() != nil)
+            #expect(observationsQueue.popFirst() == true)
+            observe()
+
+            object = nil
+            #expect(publishableQueue.isEmpty)
+            #expect(observationsQueue.isEmpty)
+            #expect(completion == .finished)
+            cancellable?.cancel()
+        }
+
+        @Test
+        func computedProperty() {
+            var object: Object? = .init()
+            var publishableQueue = [NonEquatableStruct]()
+            nonisolated(unsafe) var observationsQueue = [Bool]()
+
+            var completion: Subscribers.Completion<Never>?
+            let cancellable = object?.publisher.computedProperty.sink(
+                receiveCompletion: { completion = $0 },
+                receiveValue: { publishableQueue.append($0) }
+            )
+
+            func observe() {
+                withObservationTracking {
+                    _ = object?.computedProperty
+                } onChange: {
+                    observationsQueue.append(true)
+                }
+            }
+
+            observe()
+            #expect(publishableQueue.popFirst() != nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.unrelatedProperty += 1
+            #expect(publishableQueue.popFirst() != nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.storedProperty = NonEquatableStruct()
+            #expect(publishableQueue.popFirst() != nil)
+            #expect(observationsQueue.popFirst() == true)
+            observe()
+
+            object = nil
+            #expect(publishableQueue.isEmpty)
+            #expect(observationsQueue.isEmpty)
+            #expect(completion == .finished)
+            cancellable?.cancel()
+        }
+
+        @Test
+        func referenceTypeComputedProperty() {
+            var object: Object? = .init()
+            var publishableQueue = [NonEquatableClass]()
+            nonisolated(unsafe) var observationsQueue = [Bool]()
+
+            var completion: Subscribers.Completion<Never>?
+            let cancellable = object?.publisher.referenceTypeComputedProperty.sink(
+                receiveCompletion: { completion = $0 },
+                receiveValue: { publishableQueue.append($0) }
+            )
+
+            func observe() {
+                withObservationTracking {
+                    _ = object?.referenceTypeComputedProperty
+                } onChange: {
+                    observationsQueue.append(true)
+                }
+            }
+
+            observe()
+            #expect(publishableQueue.popFirst() != nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.unrelatedProperty += 1
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.referenceTypeStoredProperty = NonEquatableClass()
+            #expect(publishableQueue.popFirst() != nil)
+            #expect(observationsQueue.popFirst() == true)
+            observe()
+
+            object = nil
+            #expect(publishableQueue.isEmpty)
+            #expect(observationsQueue.isEmpty)
+            #expect(completion == .finished)
+            cancellable?.cancel()
+        }
     }
 }
 
 extension AnyPropertyPublisherTests {
 
-    @Publishable @Observable
-    fileprivate final class ObjectWithEquatableProperties {
+    struct EquatableType {
 
-        var storedProperty = 0
-        var unrelatedProperty = 0
+        fileprivate final class EquatableClass: Equatable {
 
-        var computedProperty: Int {
-            storedProperty
-        }
-    }
+            let value: Int
 
-    @Test
-    func equatableStoredProperty() {
-        var object: ObjectWithEquatableProperties? = .init()
-        var publishableQueue = [Int]()
-        nonisolated(unsafe) var observationsQueue = [Bool]()
+            init(value: Int) {
+                self.value = value
+            }
 
-        var completion: Subscribers.Completion<Never>?
-        let cancellable = object?.publisher.storedProperty.sink(
-            receiveCompletion: { completion = $0 },
-            receiveValue: { publishableQueue.append($0) }
-        )
-
-        func observe() {
-            withObservationTracking {
-                _ = object?.storedProperty
-            } onChange: {
-                observationsQueue.append(true)
+            static func == (lhs: EquatableClass, rhs: EquatableClass) -> Bool {
+                lhs.value == rhs.value
             }
         }
 
-        observe()
-        #expect(publishableQueue.popFirst() == 0)
-        #expect(observationsQueue.popFirst() == nil)
+        @Publishable @Observable
+        fileprivate final class Object {
 
-        object?.unrelatedProperty += 1
-        #expect(publishableQueue.popFirst() == nil)
-        #expect(observationsQueue.popFirst() == nil)
+            var unrelatedProperty = 0
 
-        object?.storedProperty = 0
-        #expect(publishableQueue.popFirst() == nil)
-        #expect(observationsQueue.popFirst() == nil)
+            var storedProperty = 0
+            var computedProperty: Int {
+                storedProperty
+            }
 
-        object?.storedProperty += 1
-        #expect(publishableQueue.popFirst() == 1)
-        #expect(observationsQueue.popFirst() == true)
-        observe()
-
-        object = nil
-        #expect(publishableQueue.isEmpty)
-        #expect(observationsQueue.isEmpty)
-        #expect(completion == .finished)
-        cancellable?.cancel()
-    }
-
-    @Test
-    func equatableComputedProperty() {
-        var object: ObjectWithEquatableProperties? = .init()
-        var publishableQueue = [Int]()
-        nonisolated(unsafe) var observationsQueue = [Bool]()
-
-        var completion: Subscribers.Completion<Never>?
-        let cancellable = object?.publisher.computedProperty.sink(
-            receiveCompletion: { completion = $0 },
-            receiveValue: { publishableQueue.append($0) }
-        )
-
-        func observe() {
-            withObservationTracking {
-                _ = object?.computedProperty
-            } onChange: {
-                observationsQueue.append(true)
+            var referenceTypeStoredProperty = EquatableClass(value: 0)
+            var referenceTypeComputedProperty: EquatableClass {
+                referenceTypeStoredProperty
             }
         }
 
-        observe()
-        #expect(publishableQueue.popFirst() == 0)
-        #expect(observationsQueue.popFirst() == nil)
+        @Test
+        func storedProperty() {
+            var object: Object? = .init()
+            var publishableQueue = [Int]()
+            nonisolated(unsafe) var observationsQueue = [Bool]()
 
-        object?.unrelatedProperty += 1
-        #expect(publishableQueue.popFirst() == nil)
-        #expect(observationsQueue.popFirst() == nil)
+            var completion: Subscribers.Completion<Never>?
+            let cancellable = object?.publisher.storedProperty.sink(
+                receiveCompletion: { completion = $0 },
+                receiveValue: { publishableQueue.append($0) }
+            )
 
-        object?.storedProperty = 0
-        #expect(publishableQueue.popFirst() == nil)
-        #expect(observationsQueue.popFirst() == nil)
+            func observe() {
+                withObservationTracking {
+                    _ = object?.storedProperty
+                } onChange: {
+                    observationsQueue.append(true)
+                }
+            }
 
-        object?.storedProperty += 1
-        #expect(publishableQueue.popFirst() == 1)
-        #expect(observationsQueue.popFirst() == true)
-        observe()
+            observe()
+            #expect(publishableQueue.popFirst() == 0)
+            #expect(observationsQueue.popFirst() == nil)
 
-        object = nil
-        #expect(publishableQueue.isEmpty)
-        #expect(observationsQueue.isEmpty)
-        #expect(completion == .finished)
-        cancellable?.cancel()
+            object?.unrelatedProperty += 1
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.storedProperty = 0
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.storedProperty += 1
+            #expect(publishableQueue.popFirst() == 1)
+            #expect(observationsQueue.popFirst() == true)
+            observe()
+
+            object = nil
+            #expect(publishableQueue.isEmpty)
+            #expect(observationsQueue.isEmpty)
+            #expect(completion == .finished)
+            cancellable?.cancel()
+        }
+
+        @Test
+        func referenceTypeStoredProperty() {
+            var object: Object? = .init()
+            var publishableQueue = [EquatableClass]()
+            nonisolated(unsafe) var observationsQueue = [Bool]()
+
+            var completion: Subscribers.Completion<Never>?
+            let cancellable = object?.publisher.referenceTypeStoredProperty.sink(
+                receiveCompletion: { completion = $0 },
+                receiveValue: { publishableQueue.append($0) }
+            )
+
+            func observe() {
+                withObservationTracking {
+                    _ = object?.referenceTypeStoredProperty
+                } onChange: {
+                    observationsQueue.append(true)
+                }
+            }
+
+            observe()
+            #expect(publishableQueue.popFirst() == EquatableClass(value: 0))
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.unrelatedProperty += 1
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.referenceTypeStoredProperty = EquatableClass(value: 0)
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.referenceTypeStoredProperty = EquatableClass(value: 1)
+            #expect(publishableQueue.popFirst() == EquatableClass(value: 1))
+            #expect(observationsQueue.popFirst() == true)
+            observe()
+
+            object = nil
+            #expect(publishableQueue.isEmpty)
+            #expect(observationsQueue.isEmpty)
+            #expect(completion == .finished)
+            cancellable?.cancel()
+        }
+
+        @Test
+        func computedProperty() {
+            var object: Object? = .init()
+            var publishableQueue = [Int]()
+            nonisolated(unsafe) var observationsQueue = [Bool]()
+
+            var completion: Subscribers.Completion<Never>?
+            let cancellable = object?.publisher.computedProperty.sink(
+                receiveCompletion: { completion = $0 },
+                receiveValue: { publishableQueue.append($0) }
+            )
+
+            func observe() {
+                withObservationTracking {
+                    _ = object?.computedProperty
+                } onChange: {
+                    observationsQueue.append(true)
+                }
+            }
+
+            observe()
+            #expect(publishableQueue.popFirst() == 0)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.unrelatedProperty += 1
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.storedProperty = 0
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.storedProperty += 1
+            #expect(publishableQueue.popFirst() == 1)
+            #expect(observationsQueue.popFirst() == true)
+            observe()
+
+            object = nil
+            #expect(publishableQueue.isEmpty)
+            #expect(observationsQueue.isEmpty)
+            #expect(completion == .finished)
+            cancellable?.cancel()
+        }
+
+        @Test
+        func referenceTypeComputedProperty() {
+            var object: Object? = .init()
+            var publishableQueue = [EquatableClass]()
+            nonisolated(unsafe) var observationsQueue = [Bool]()
+
+            var completion: Subscribers.Completion<Never>?
+            let cancellable = object?.publisher.referenceTypeComputedProperty.sink(
+                receiveCompletion: { completion = $0 },
+                receiveValue: { publishableQueue.append($0) }
+            )
+
+            func observe() {
+                withObservationTracking {
+                    _ = object?.referenceTypeComputedProperty
+                } onChange: {
+                    observationsQueue.append(true)
+                }
+            }
+
+            observe()
+            #expect(publishableQueue.popFirst() == EquatableClass(value: 0))
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.unrelatedProperty += 1
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.referenceTypeStoredProperty = EquatableClass(value: 0)
+            #expect(publishableQueue.popFirst() == nil)
+            #expect(observationsQueue.popFirst() == nil)
+
+            object?.referenceTypeStoredProperty = EquatableClass(value: 1)
+            #expect(publishableQueue.popFirst() == EquatableClass(value: 1))
+            #expect(observationsQueue.popFirst() == true)
+            observe()
+
+            object = nil
+            #expect(publishableQueue.isEmpty)
+            #expect(observationsQueue.isEmpty)
+            #expect(completion == .finished)
+            cancellable?.cancel()
+        }
     }
 }

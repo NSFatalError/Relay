@@ -238,9 +238,11 @@ extension ObservationMemoizedTests {
         var y = 1.0
         var z = 1.0
 
+        @ObservationIgnored
         private(set) var calculateBaseAreaCallsCount = 0
         var isBaseAreaCached: Bool { _baseArea != nil }
 
+        @ObservationIgnored
         private(set) var calculateVolumeCallsCount = 0
         var isVolumeCached: Bool { _volume != nil }
 
