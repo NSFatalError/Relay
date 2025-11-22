@@ -21,7 +21,7 @@ public enum MemoizedMacro {
         _ declaration: some DeclSyntaxProtocol,
         in context: some MacroExpansionContext,
         with parameters: Parameters
-    ) throws -> Input? {
+    ) throws -> Input {
         guard let declaration = declaration.as(FunctionDeclSyntax.self),
               let trimmedReturnType = trimmedReturnType(of: declaration),
               declaration.signature.parameterClause.parameters.isEmpty,
@@ -108,10 +108,6 @@ extension MemoizedMacro: PeerMacro {
     ) throws -> [DeclSyntax] {
         let parameters = try Parameters(from: node)
         let input = try validate(declaration, in: context, with: parameters)
-
-        guard let input else {
-            return []
-        }
 
         let builder = MemoizedDeclBuilder(
             declaration: input.declaration,
