@@ -31,7 +31,7 @@ extension PublishableMacro: MemberMacro {
         of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
         conformingTo _: [TypeSyntax],
-        in context: some MacroExpansionContext
+        in _: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         let declaration = try validate(declaration)
         let parameters = try Parameters(from: node)
@@ -70,7 +70,7 @@ extension PublishableMacro: ExtensionMacro {
         attachedTo declaration: some DeclGroupSyntax,
         providingExtensionsOf type: some TypeSyntaxProtocol,
         conformingTo _: [TypeSyntax],
-        in context: some MacroExpansionContext
+        in _: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
         let declaration = try validate(declaration)
         let parameters = try Parameters(from: node)
