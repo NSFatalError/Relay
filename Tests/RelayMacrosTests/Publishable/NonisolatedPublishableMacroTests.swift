@@ -1,8 +1,8 @@
 //
-//  MainActorPublishableMacroTests.swift
+//  NonisolatedPublishableMacroTests.swift
 //  Relay
 //
-//  Created by Kamil Strzelecki on 24/08/2025.
+//  Created by Kamil Strzelecki on 23/11/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
@@ -12,8 +12,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    // swiftlint:disable:next type_body_length
-    internal final class MainActorPublishableMacroTests: XCTestCase {
+    internal final class NonisolatedPublishableMacroTests: XCTestCase {
 
         private let macroSpecs: [String: MacroSpec] = [
             "Publishable": MacroSpec(
@@ -25,7 +24,7 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @MainActor @Publishable @Observable
+                @Publishable(isolation: nil) @Observable
                 public final class Person {
 
                     static var user: Person?
@@ -57,7 +56,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @MainActor @Observable
+                @Observable
                 public final class Person {
 
                     static var user: Person?
@@ -99,7 +98,7 @@
                         _publisher
                     }
 
-                    @MainActor public final class PropertyPublisher: Relay.AnyPropertyPublisher {
+                    nonisolated public final class PropertyPublisher: Relay.AnyPropertyPublisher {
 
                         private final unowned let object: Person
 
@@ -120,7 +119,7 @@
                             super.init(object: object)
                         }
 
-                        @MainActor deinit {
+                        nonisolated deinit {
                             _age.send(completion: .finished)
                             _name.send(completion: .finished)
                             _surname.send(completion: .finished)
@@ -153,11 +152,11 @@
 
                     private enum Observation {
 
-                        nonisolated struct ObservationRegistrar: @MainActor PublishableObservationRegistrar {
+                        nonisolated struct ObservationRegistrar: nonisolated PublishableObservationRegistrar {
 
                             private let underlying = SwiftObservationRegistrar()
 
-                            @MainActor func publish(
+                            nonisolated func publish(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
                             ) {
@@ -173,7 +172,7 @@
                                 }
                             }
 
-                            @MainActor private func subject(
+                            nonisolated private func subject(
                                 for keyPath: KeyPath<Person, Int>,
                                 on object: Person
                             ) -> PassthroughSubject<Int, Never>? {
@@ -182,7 +181,7 @@
                                 }
                                 return nil
                             }
-                            @MainActor private func subject(
+                            nonisolated private func subject(
                                 for keyPath: KeyPath<Person, String>,
                                 on object: Person
                             ) -> PassthroughSubject<String, Never>? {
@@ -251,28 +250,15 @@
                             }
 
                             private nonisolated func assumeIsolatedIfNeeded(
-                                _ operation: @MainActor () throws -> Void,
-                                file: StaticString = #fileID,
-                                line: UInt = #line
+                                _ operation: () throws -> Void
                             ) rethrows {
-                                try withoutActuallyEscaping(operation) { operation in
-                                    typealias Nonisolated = () throws -> Void
-                                    let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
-
-                                    try MainActor.shared.assumeIsolated(
-                                        { _ in
-                                            try rawOperation()
-                                        },
-                                        file: file,
-                                        line: line
-                                    )
-                                }
+                                try operation()
                             }
                         }
                     }
                 }
 
-                extension Person: @MainActor Publishable {
+                extension Person: nonisolated Publishable {
                 }
                 """#,
                 macroSpecs: macroSpecs

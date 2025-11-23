@@ -1,8 +1,8 @@
 //
-//  MainActorPublishableMacroTests.swift
+//  GlobalActorPublishableMacroTests.swift
 //  Relay
 //
-//  Created by Kamil Strzelecki on 24/08/2025.
+//  Created by Kamil Strzelecki on 23/11/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
@@ -13,7 +13,7 @@
     import XCTest
 
     // swiftlint:disable:next type_body_length
-    internal final class MainActorPublishableMacroTests: XCTestCase {
+    internal final class GlobalActorPublishableMacroTests: XCTestCase {
 
         private let macroSpecs: [String: MacroSpec] = [
             "Publishable": MacroSpec(
@@ -25,7 +25,7 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @MainActor @Publishable @Observable
+                @CustomActor @Publishable(isolation: MainActor.self) @Observable
                 public final class Person {
 
                     static var user: Person?
@@ -57,7 +57,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @MainActor @Observable
+                @CustomActor @Observable
                 public final class Person {
 
                     static var user: Person?
