@@ -28,7 +28,6 @@
     names: named(_publisher),
     named(publisher),
     named(PropertyPublisher),
-    named(_PropertyPublisher),
     named(Observation)
 )
 @attached(
@@ -65,7 +64,6 @@ public macro Publishable(
     names: named(_publisher),
     named(publisher),
     named(PropertyPublisher),
-    named(_PropertyPublisher),
     named(Observation)
 )
 @attached(
@@ -103,7 +101,6 @@ public macro Publishable(
     names: named(_publisher),
     named(publisher),
     named(PropertyPublisher),
-    named(_PropertyPublisher),
     named(Observation)
 )
 @attached(
