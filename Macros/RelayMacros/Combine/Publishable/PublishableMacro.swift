@@ -11,14 +11,13 @@ import SwiftSyntaxMacros
 public enum PublishableMacro {
 
     private static func validate(
-        _ declaration: some DeclGroupSyntax
+        _ declaration: some DeclGroupSyntax,
+        in context: some MacroExpansionContext
     ) throws -> ClassDeclSyntax {
-        guard let declaration = declaration.as(ClassDeclSyntax.self),
-              declaration.isFinal
-        else {
+        guard let declaration = declaration.as(ClassDeclSyntax.self) else {
             throw DiagnosticsError(
                 node: declaration,
-                message: "Publishable macro can only be applied to final Observable classes"
+                message: "Publishable macro can only be applied to Observable classes"
             )
         }
         return declaration
@@ -31,29 +30,30 @@ extension PublishableMacro: MemberMacro {
         of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
         conformingTo _: [TypeSyntax],
-        in _: some MacroExpansionContext
+        in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        let declaration = try validate(declaration)
+        let declaration = try validate(declaration, in: context)
         let parameters = try Parameters(from: node)
-
-        let properties = try PropertiesParser.parse(
-            memberBlock: declaration.memberBlock
-        )
+        let properties = try PropertiesParser.parse(memberBlock: declaration.memberBlock)
+        let inferredSuperclass = try declaration.inferredSuperclass(isExpected: parameters.hasSuperclass)
 
         let builderTypes: [any ClassDeclBuilder] = [
             PublisherDeclBuilder(
                 declaration: declaration,
-                properties: properties
+                properties: properties,
+                trimmedSuperclassType: inferredSuperclass
             ),
             PropertyPublisherDeclBuilder(
                 declaration: declaration,
                 properties: properties,
+                trimmedSuperclassType: inferredSuperclass,
                 preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
             ),
             ObservationRegistrarDeclBuilder(
                 declaration: declaration,
                 properties: properties,
-                preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
+                preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation,
+                context: context
             )
         ]
 
@@ -69,10 +69,14 @@ extension PublishableMacro: ExtensionMacro {
         of node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
         providingExtensionsOf type: some TypeSyntaxProtocol,
-        conformingTo _: [TypeSyntax],
-        in _: some MacroExpansionContext
+        conformingTo protocols: [TypeSyntax],
+        in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
-        let declaration = try validate(declaration)
+        guard !protocols.isEmpty else {
+            return []
+        }
+
+        let declaration = try validate(declaration, in: context)
         let parameters = try Parameters(from: node)
 
         let globalActorIsolation = GlobalActorIsolation.resolved(
@@ -103,10 +107,12 @@ extension PublishableMacro {
 
     private struct Parameters {
 
+        let hasSuperclass: Bool?
         let preferredGlobalActorIsolation: GlobalActorIsolation?
 
         init(from node: AttributeSyntax) throws {
             let extractor = ParameterExtractor(from: node)
+            self.hasSuperclass = try extractor.rawBool(withLabel: "hasSuperclass")
             self.preferredGlobalActorIsolation = try extractor.globalActorIsolation(withLabel: "isolation")
         }
     }
