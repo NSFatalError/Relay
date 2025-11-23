@@ -20,11 +20,11 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
             """
             \(inheritedGlobalActorIsolation)\(inheritedAccessControlLevelAllowingOpen)\(inheritedFinalModifier)\
             class PropertyPublisher: \(inheritanceClause()) {
-            
+
                 private final unowned let object: \(trimmedType)
-            
+
                 \(objectWillChangeDidChangePublishers())
-            
+
                 \(initializer())
 
                 \(deinitializer())
@@ -58,7 +58,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
                 object 
             }
         }
-        
+
         \(inheritedAccessControlLevel)final var \
         \(raw: prefix)DidChange: some Publisher<\(trimmedType), Never> {
             didChange.map { [unowned object] _ in
