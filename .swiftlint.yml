@@ -27,7 +27,7 @@ opt_in_rules:
     - discouraged_assert
     - discouraged_none_name
     - discouraged_object_literal
-    - discouraged_optional_boolean
+    # discouraged_optional_boolean
     - discouraged_optional_collection
     - empty_collection_literal
     - empty_count
@@ -67,7 +67,7 @@ opt_in_rules:
     - local_doc_comment
     - lower_acl_than_parent
     # missing_docs
-    - modifier_order
+    # modifier_order
     - multiline_arguments
     - multiline_arguments_brackets
     - multiline_function_chains

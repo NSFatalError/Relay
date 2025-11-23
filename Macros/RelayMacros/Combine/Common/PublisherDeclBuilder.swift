@@ -12,15 +12,12 @@ internal struct PublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
-
-    var maxAllowedAccessControlLevel: AccessControlLevel {
-        .open
-    }
+    let trimmedSuperclassType: TypeSyntax?
 
     func build() -> [DeclSyntax] {
         [
             """
-            private lazy var _publisher = PropertyPublisher(object: self)
+            private final lazy var _publisher = PropertyPublisher(object: self)
             """,
             """
             /// A ``PropertyPublisher`` which exposes `Combine` publishers for all mutable 
@@ -30,7 +27,7 @@ internal struct PublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
             /// the original object has been deallocated may result in a crash. Always access it directly 
             /// through the object that exposes it.
             ///
-            \(inheritedAccessControlLevel)var publisher: PropertyPublisher {
+            \(inheritedOverrideModifier)\(inheritedAccessControlLevelAllowingOpen)var publisher: PropertyPublisher {
                 _publisher
             }
             """

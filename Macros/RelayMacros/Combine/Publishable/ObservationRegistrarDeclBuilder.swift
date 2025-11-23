@@ -13,9 +13,22 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
     let preferredGlobalActorIsolation: GlobalActorIsolation?
+    private let withMutationGenericParameter: TokenSyntax
 
-    private var registeredProperties: PropertiesList {
+    private var observableProperties: PropertiesList {
         properties.stored.mutable.instance
+    }
+
+    init(
+        declaration: ClassDeclSyntax,
+        properties: PropertiesList,
+        preferredGlobalActorIsolation: GlobalActorIsolation?,
+        context: some MacroExpansionContext
+    ) {
+        self.declaration = declaration
+        self.properties = properties
+        self.preferredGlobalActorIsolation = preferredGlobalActorIsolation
+        self.withMutationGenericParameter = context.makeUniqueName("T")
     }
 
     func build() -> [DeclSyntax] {
@@ -23,7 +36,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
             """
             private enum Observation {
 
-                struct ObservationRegistrar: \(inheritedGlobalActorIsolation)PublishableObservationRegistrar {
+                nonisolated struct ObservationRegistrar: \(inheritedGlobalActorIsolation)PublishableObservationRegistrar {
 
                     private let underlying = SwiftObservationRegistrar()
 
@@ -55,7 +68,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     @CodeBlockItemListBuilder
     private func publishNewValueKeyPathCasting() -> CodeBlockItemListSyntax {
-        for inferredType in registeredProperties.uniqueInferredTypes {
+        for inferredType in observableProperties.uniqueInferredTypes {
             """
             if let keyPath = keyPath as? KeyPath<\(trimmedType), \(inferredType)>,
                let subject = subject(for: keyPath, on: object) {
@@ -68,7 +81,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     @MemberBlockItemListBuilder
     private func subjectFunctions() -> MemberBlockItemListSyntax {
-        for inferredType in registeredProperties.uniqueInferredTypes {
+        for inferredType in observableProperties.uniqueInferredTypes {
             """
             \(inheritedGlobalActorIsolation)private func subject(
                 for keyPath: KeyPath<\(trimmedType), \(inferredType)>,
@@ -82,7 +95,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     @CodeBlockItemListBuilder
     private func subjectKeyPathCasting(for inferredType: TypeSyntax) -> CodeBlockItemListSyntax {
-        for property in registeredProperties.withInferredType(like: inferredType).all {
+        for property in observableProperties.withInferredType(like: inferredType).all {
             let name = property.trimmedName
             """
             if keyPath == \\.\(name) {
@@ -131,14 +144,14 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     private func observationRegistrarWithMutationFunction() -> MemberBlockItemListSyntax {
         """
-        nonisolated func withMutation<T>(
+        nonisolated func withMutation<\(withMutationGenericParameter)>(
             of object: \(trimmedType),
             keyPath: KeyPath<\(trimmedType), some Any>,
-            _ mutation: () throws -> T
-        ) rethrows -> T {
+            _ mutation: () throws -> \(withMutationGenericParameter)
+        ) rethrows -> \(withMutationGenericParameter) {
             nonisolated(unsafe) let mutation = mutation
             nonisolated(unsafe) let keyPath = keyPath
-            nonisolated(unsafe) var result: T!
+            nonisolated(unsafe) var result: \(withMutationGenericParameter)!
 
             try assumeIsolatedIfNeeded {
                 object.publisher._beginModifications()

@@ -12,16 +12,20 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
     let properties: PropertiesList
+    let trimmedSuperclassType: TypeSyntax?
     let preferredGlobalActorIsolation: GlobalActorIsolation?
-
-    var maxAllowedAccessControlLevel: AccessControlLevel {
-        .open
-    }
 
     func build() -> [DeclSyntax] {
         [
             """
-            \(inheritedAccessControlLevel)final class PropertyPublisher: AnyPropertyPublisher<\(trimmedType)> {
+            \(inheritedGlobalActorIsolation)\(inheritedAccessControlLevelAllowingOpen)\(inheritedFinalModifier)\
+            class PropertyPublisher: \(inheritanceClause()) {
+            
+                private final unowned let object: \(trimmedType)
+            
+                \(objectWillChangeDidChangePublishers())
+            
+                \(initializer())
 
                 \(deinitializer())
 
@@ -35,9 +39,47 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
         ]
     }
 
+    private func inheritanceClause() -> TypeSyntax {
+        if let trimmedSuperclassType {
+            "\(trimmedSuperclassType).PropertyPublisher"
+        } else {
+            "Relay.AnyPropertyPublisher"
+        }
+    }
+
+    private func objectWillChangeDidChangePublishers() -> MemberBlockItemListSyntax {
+        let notation = CamelCaseNotation(string: trimmedType.description)
+        let prefix = notation.joined(as: .lowerCamelCase)
+
+        return """
+        \(inheritedAccessControlLevel)final var \
+        \(raw: prefix)WillChange: some Publisher<\(trimmedType), Never> {
+            willChange.map { [unowned object] _ in
+                object 
+            }
+        }
+        
+        \(inheritedAccessControlLevel)final var \
+        \(raw: prefix)DidChange: some Publisher<\(trimmedType), Never> {
+            didChange.map { [unowned object] _ in
+                object 
+            }
+        }
+        """
+    }
+
+    private func initializer() -> MemberBlockItemListSyntax {
+        """
+        \(inheritedAccessControlLevel)init(object: \(trimmedType)) {
+            self.object = object
+            super.init(object: object)
+        }
+        """
+    }
+
     private func deinitializer() -> MemberBlockItemListSyntax {
         """
-        deinit {
+        \(inheritedGlobalActorIsolation)deinit {
             \(storedPropertiesPublishersFinishCalls().formatted())
         }
         """
@@ -53,14 +95,13 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
     @MemberBlockItemListBuilder
     private func storedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.stored.mutable.instance.all {
-            let globalActor = inheritedGlobalActorIsolation
             let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
             let name = property.trimmedName
             let type = property.inferredType
             """
-            fileprivate let _\(name) = PassthroughSubject<\(type), Never>()
-            \(globalActor)\(accessControlLevel)var \(name): AnyPublisher<\(type), Never> {
-                _storedPropertyPublisher(_\(name), for: \\.\(name))
+            fileprivate final let _\(name) = PassthroughSubject<\(type), Never>()
+            \(accessControlLevel)final var \(name): some Publisher<\(type), Never> {
+                _storedPropertyPublisher(_\(name), for: \\.\(name), object: object)
             }
             """
         }
@@ -69,13 +110,12 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
     @MemberBlockItemListBuilder
     private func computedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.computed.instance.all {
-            let globalActor = inheritedGlobalActorIsolation
             let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
             let name = property.trimmedName
             let type = property.inferredType
             """
-            \(globalActor)\(accessControlLevel)var \(name): AnyPublisher<\(type), Never> {
-                _computedPropertyPublisher(for: \\.\(name))
+            \(accessControlLevel)final var \(name): some Publisher<\(type), Never> {
+                _computedPropertyPublisher(for: \\.\(name), object: object)
             }
             """
         }
@@ -88,13 +128,13 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
                let attribute = functionDecl.attributes.first(like: MemoizedMacro.attribute),
                let parameters = try? MemoizedMacro.Parameters(from: attribute),
                let trimmedReturnType = MemoizedMacro.trimmedReturnType(of: functionDecl) {
-                let globalActor = parameters.preferredGlobalActorIsolation ?? inheritedGlobalActorIsolation
-                let accessControlLevel = parameters.preferredAccessControlLevel
+                let globalActor = parameters.preferredGlobalActorIsolation
+                let accessControlLevel = parameters.preferredAccessControlLevel?.inheritedBySibling()
                 let name = parameters.preferredPropertyName ?? MemoizedMacro.defaultPropertyName(for: functionDecl)
                 let type = trimmedReturnType
                 """
-                \(globalActor)\(accessControlLevel)var \(raw: name): AnyPublisher<\(type), Never> {
-                    _computedPropertyPublisher(for: \\.\(raw: name))
+                \(globalActor)\(accessControlLevel)final var \(raw: name): some Publisher<\(type), Never> {
+                    _computedPropertyPublisher(for: \\.\(raw: name), object: object)
                 }
                 """
             }
