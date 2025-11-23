@@ -11,6 +11,9 @@ import SwiftSyntaxMacros
 public enum MemoizedMacro {
 
     static let attribute: AttributeSyntax = "@Memoized"
+}
+
+extension MemoizedMacro {
 
     private struct Input {
 

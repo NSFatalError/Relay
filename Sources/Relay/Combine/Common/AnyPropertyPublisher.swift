@@ -33,7 +33,9 @@ open class AnyPropertyPublisher {
     private final var pendingModifications = 0
 
     @_documentation(visibility: private)
-    public init(object _: AnyObject) {}
+    public init(object _: AnyObject) {
+        // Void
+    }
 
     deinit {
         _willChange.send(completion: .finished)
@@ -41,6 +43,7 @@ open class AnyPropertyPublisher {
     }
 }
 
+// swiftlint:disable unowned_variable_capture
 // swiftlint:disable identifier_name
 
 extension AnyPropertyPublisher {
@@ -129,3 +132,4 @@ extension AnyPropertyPublisher {
 }
 
 // swiftlint:enable identifier_name
+// swiftlint:enable unowned_variable_capture

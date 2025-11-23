@@ -8,7 +8,7 @@
 
 import SwiftSyntaxMacros
 
-enum ObservationIgnoredMacro {
+internal enum ObservationIgnoredMacro {
 
     static let attribute: AttributeSyntax = "@ObservationIgnored"
 }

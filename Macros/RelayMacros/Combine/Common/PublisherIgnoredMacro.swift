@@ -8,9 +8,12 @@
 
 import SwiftSyntaxMacros
 
-public enum PublisherIgnoredMacro: AccessorMacro {
+public enum PublisherIgnoredMacro {
 
     static let attribute: AttributeSyntax = "@PublisherIgnored"
+}
+
+extension PublisherIgnoredMacro: AccessorMacro {
 
     public static func expansion(
         of _: AttributeSyntax,

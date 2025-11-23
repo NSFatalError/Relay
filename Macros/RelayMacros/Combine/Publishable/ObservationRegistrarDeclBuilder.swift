@@ -36,7 +36,8 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
             """
             private enum Observation {
 
-                nonisolated struct ObservationRegistrar: \(inheritedGlobalActorIsolation)PublishableObservationRegistrar {
+                nonisolated struct ObservationRegistrar: \
+            \(inheritedGlobalActorIsolation)PublishableObservationRegistrar {
 
                     private let underlying = SwiftObservationRegistrar()
 
