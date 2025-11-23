@@ -86,7 +86,7 @@
                     }
 
                     private final lazy var _publisher = PropertyPublisher(object: self)
-                
+
                     /// A ``PropertyPublisher`` which exposes `Combine` publishers for all mutable 
                     /// or computed instance properties of this object.
                     ///
@@ -97,28 +97,28 @@
                     public var publisher: PropertyPublisher {
                         _publisher
                     }
-                
+
                     @MainActor public final class PropertyPublisher: Relay.AnyPropertyPublisher {
-                
+
                         private final unowned let object: Person
-                
+
                         public final var personWillChange: some Publisher<Person, Never> {
                             willChange.map { [unowned object] _ in
                                 object
                             }
                         }
-                
+
                         public final var personDidChange: some Publisher<Person, Never> {
                             didChange.map { [unowned object] _ in
                                 object
                             }
                         }
-                
+
                         public init(object: Person) {
                             self.object = object
                             super.init(object: object)
                         }
-                
+
                         @MainActor deinit {
                             _age.send(completion: .finished)
                             _name.send(completion: .finished)
@@ -283,28 +283,28 @@
                 #"""
                 @CustomActor @Publishable(isolation: MainActor.self) @Observable
                 public final class Person {
-                
+
                     static var user: Person?
-                
+
                     let id: UUID
                     fileprivate(set) var age: Int
                     var name: String
-                
+
                     public var surname: String {
                         didSet {
                             print(oldValue)
                         }
                     }
-                
+
                     internal var fullName: String {
                         "\(name) \(surname)"
                     }
-                
+
                     private var initials: String {
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
-                
+
                     @Memoized(.public)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
@@ -315,35 +315,35 @@
                 #"""
                 @CustomActor @Observable
                 public final class Person {
-                
+
                     static var user: Person?
-                
+
                     let id: UUID
                     fileprivate(set) var age: Int
                     var name: String
-                
+
                     public var surname: String {
                         didSet {
                             print(oldValue)
                         }
                     }
-                
+
                     internal var fullName: String {
                         "\(name) \(surname)"
                     }
-                
+
                     private var initials: String {
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
-                
+
                     @Memoized(.public)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
                     }
-                
+
                     private final lazy var _publisher = PropertyPublisher(object: self)
-                
+
                     /// A ``PropertyPublisher`` which exposes `Combine` publishers for all mutable 
                     /// or computed instance properties of this object.
                     ///
@@ -354,34 +354,34 @@
                     public var publisher: PropertyPublisher {
                         _publisher
                     }
-                
+
                     @MainActor public final class PropertyPublisher: Relay.AnyPropertyPublisher {
-                
+
                         private final unowned let object: Person
-                
+
                         public final var personWillChange: some Publisher<Person, Never> {
                             willChange.map { [unowned object] _ in
                                 object
                             }
                         }
-                
+
                         public final var personDidChange: some Publisher<Person, Never> {
                             didChange.map { [unowned object] _ in
                                 object
                             }
                         }
-                
+
                         public init(object: Person) {
                             self.object = object
                             super.init(object: object)
                         }
-                
+
                         @MainActor deinit {
                             _age.send(completion: .finished)
                             _name.send(completion: .finished)
                             _surname.send(completion: .finished)
                         }
-                
+
                         fileprivate final let _age = PassthroughSubject<Int, Never>()
                         final var age: some Publisher<Int, Never> {
                             _storedPropertyPublisher(_age, for: \.age, object: object)
@@ -394,25 +394,25 @@
                         public final var surname: some Publisher<String, Never> {
                             _storedPropertyPublisher(_surname, for: \.surname, object: object)
                         }
-                
+
                         internal final var fullName: some Publisher<String, Never> {
                             _computedPropertyPublisher(for: \.fullName, object: object)
                         }
                         fileprivate final var initials: some Publisher<String, Never> {
                             _computedPropertyPublisher(for: \.initials, object: object)
                         }
-                
+
                         public final var label: some Publisher<String, Never> {
                             _computedPropertyPublisher(for: \.label, object: object)
                         }
                     }
-                
+
                     private enum Observation {
-                
+
                         nonisolated struct ObservationRegistrar: @MainActor PublishableObservationRegistrar {
-                
+
                             private let underlying = SwiftObservationRegistrar()
-                
+
                             @MainActor func publish(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
@@ -428,7 +428,7 @@
                                     return
                                 }
                             }
-                
+
                             @MainActor private func subject(
                                 for keyPath: KeyPath<Person, Int>,
                                 on object: Person
@@ -450,7 +450,7 @@
                                 }
                                 return nil
                             }
-                
+
                             nonisolated func willSet(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
@@ -461,7 +461,7 @@
                                     underlying.willSet(object, keyPath: keyPath)
                                 }
                             }
-                
+
                             nonisolated func didSet(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
@@ -473,14 +473,14 @@
                                     object.publisher._endModifications()
                                 }
                             }
-                
+
                             nonisolated func access(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
                             ) {
                                 underlying.access(object, keyPath: keyPath)
                             }
-                
+
                             nonisolated func withMutation<__macro_local_1TfMu_>(
                                 of object: Person,
                                 keyPath: KeyPath<Person, some Any>,
@@ -489,7 +489,7 @@
                                 nonisolated(unsafe) let mutation = mutation
                                 nonisolated(unsafe) let keyPath = keyPath
                                 nonisolated(unsafe) var result: __macro_local_1TfMu_!
-                
+
                                 try assumeIsolatedIfNeeded {
                                     object.publisher._beginModifications()
                                     defer {
@@ -502,10 +502,10 @@
                                         mutation
                                     )
                                 }
-                
+
                                 return result
                             }
-                
+
                             private nonisolated func assumeIsolatedIfNeeded(
                                 _ operation: @MainActor () throws -> Void,
                                 file: StaticString = #fileID,
@@ -514,7 +514,7 @@
                                 try withoutActuallyEscaping(operation) { operation in
                                     typealias Nonisolated = () throws -> Void
                                     let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
-                
+
                                     try MainActor.shared.assumeIsolated(
                                         { _ in
                                             try rawOperation()
@@ -527,7 +527,7 @@
                         }
                     }
                 }
-                
+
                 extension Person: @MainActor Publishable {
                 }
                 """#,
