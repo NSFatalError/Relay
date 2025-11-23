@@ -107,7 +107,7 @@ extension ObservationPublishableTests {
         nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
-        let cancellable = person?.publisher.willChange.sink(
+        let cancellable = person?.publisher.personWillChange.sink(
             receiveCompletion: { completion = $0 },
             receiveValue: { publishableQueue.append($0) }
         )
@@ -156,7 +156,7 @@ extension ObservationPublishableTests {
         nonisolated(unsafe) var observationsQueue = [Bool]()
 
         var completion: Subscribers.Completion<Never>?
-        let cancellable = person?.publisher.didChange.sink(
+        let cancellable = person?.publisher.personDidChange.sink(
             receiveCompletion: { completion = $0 },
             receiveValue: { publishableQueue.append($0) }
         )
