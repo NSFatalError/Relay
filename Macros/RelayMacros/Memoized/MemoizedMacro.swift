@@ -10,6 +10,8 @@ import SwiftSyntaxMacros
 
 public enum MemoizedMacro {
 
+    static let attribute: AttributeSyntax = "@Memoized"
+
     private struct Input {
 
         let declaration: FunctionDeclSyntax

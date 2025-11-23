@@ -85,7 +85,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
     private func memoizedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for member in declaration.memberBlock.members {
             if let functionDecl = member.decl.as(FunctionDeclSyntax.self),
-               let attribute = functionDecl.attributes.first(like: "@Memoized"),
+               let attribute = functionDecl.attributes.first(like: MemoizedMacro.attribute),
                let parameters = try? MemoizedMacro.Parameters(from: attribute),
                let trimmedReturnType = MemoizedMacro.trimmedReturnType(of: functionDecl) {
                 let globalActor = parameters.preferredGlobalActorIsolation ?? inheritedGlobalActorIsolation

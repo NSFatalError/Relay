@@ -14,6 +14,7 @@ internal struct RelayPlugin: CompilerPlugin {
 
     let providingMacros: [any Macro.Type] = [
         PublishableMacro.self,
+        PublisherIgnoredMacro.self,
         MemoizedMacro.self
     ]
 }

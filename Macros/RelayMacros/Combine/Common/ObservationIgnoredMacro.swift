@@ -1,5 +1,5 @@
 //
-//  RelayedMacro.swift
+//  ObservationIgnoredMacro.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 22/11/2025.
@@ -8,7 +8,7 @@
 
 import SwiftSyntaxMacros
 
-public enum RelayedMacro {
+enum ObservationIgnoredMacro {
 
-    static let attribute: AttributeSyntax = "@Relayed"
+    static let attribute: AttributeSyntax = "@ObservationIgnored"
 }
