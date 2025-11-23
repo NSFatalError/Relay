@@ -12,7 +12,7 @@ public enum PublishableMacro {
 
     private static func validate(
         _ declaration: some DeclGroupSyntax,
-        in context: some MacroExpansionContext
+        in _: some MacroExpansionContext
     ) throws -> ClassDeclSyntax {
         guard let declaration = declaration.as(ClassDeclSyntax.self) else {
             throw DiagnosticsError(
