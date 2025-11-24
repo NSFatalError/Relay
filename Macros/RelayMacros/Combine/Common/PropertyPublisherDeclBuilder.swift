@@ -11,7 +11,7 @@ import SwiftSyntaxMacros
 internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
-    let properties: PropertiesList
+    let trackedProperties: PropertiesList
     let trimmedSuperclassType: TypeSyntax?
     let preferredGlobalActorIsolation: GlobalActorIsolation?
 
@@ -87,14 +87,14 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     @CodeBlockItemListBuilder
     private func storedPropertiesPublishersFinishCalls() -> CodeBlockItemListSyntax {
-        for property in properties.stored.mutable.instance.all {
+        for property in trackedProperties.stored.mutable.instance.all {
             "_\(property.trimmedName).send(completion: .finished)"
         }
     }
 
     @MemberBlockItemListBuilder
     private func storedPropertiesPublishers() -> MemberBlockItemListSyntax {
-        for property in properties.stored.mutable.instance.all {
+        for property in trackedProperties.stored.mutable.instance.all {
             let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
             let name = property.trimmedName
             let type = property.inferredType
@@ -109,7 +109,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     @MemberBlockItemListBuilder
     private func computedPropertiesPublishers() -> MemberBlockItemListSyntax {
-        for property in properties.computed.instance.all {
+        for property in trackedProperties.computed.instance.all {
             let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
             let name = property.trimmedName
             let type = property.inferredType
@@ -126,14 +126,14 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
         for member in declaration.memberBlock.members {
             if let functionDecl = member.decl.as(FunctionDeclSyntax.self),
                let attribute = functionDecl.attributes.first(like: MemoizedMacro.attribute),
+               !functionDecl.attributes.contains(like: PublisherIgnoredMacro.attribute),
                let parameters = try? MemoizedMacro.Parameters(from: attribute),
-               let trimmedReturnType = MemoizedMacro.trimmedReturnType(of: functionDecl) {
-                let globalActor = parameters.preferredGlobalActorIsolation
+               let input = try? MemoizedMacro.validate(functionDecl, with: parameters) {
                 let accessControlLevel = parameters.preferredAccessControlLevel?.inheritedBySibling()
-                let name = parameters.preferredPropertyName ?? MemoizedMacro.defaultPropertyName(for: functionDecl)
-                let type = trimmedReturnType
+                let name = input.propertyName
+                let type = input.trimmedReturnType
                 """
-                \(globalActor)\(accessControlLevel)final var \(raw: name): some Publisher<\(type), Never> {
+                \(accessControlLevel)final var \(raw: name): some Publisher<\(type), Never> {
                     _computedPropertyPublisher(for: \\.\(raw: name), object: object)
                 }
                 """

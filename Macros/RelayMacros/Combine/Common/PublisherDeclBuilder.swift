@@ -11,7 +11,6 @@ import SwiftSyntaxMacros
 internal struct PublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
-    let properties: PropertiesList
     let trimmedSuperclassType: TypeSyntax?
 
     func build() -> [DeclSyntax] {

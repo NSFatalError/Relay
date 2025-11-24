@@ -13,13 +13,13 @@ public enum PublisherIgnoredMacro {
     static let attribute: AttributeSyntax = "@PublisherIgnored"
 }
 
-extension PublisherIgnoredMacro: AccessorMacro {
+extension PublisherIgnoredMacro: PeerMacro {
 
     public static func expansion(
         of _: AttributeSyntax,
-        providingAccessorsOf _: some DeclSyntaxProtocol,
+        providingPeersOf _: some DeclSyntaxProtocol,
         in _: some MacroExpansionContext
-    ) -> [AccessorDeclSyntax] {
+    ) -> [DeclSyntax] {
         []
     }
 }

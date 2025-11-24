@@ -15,20 +15,19 @@ public enum MemoizedMacro {
 
 extension MemoizedMacro {
 
-    private struct Input {
+    struct Input {
 
         let declaration: FunctionDeclSyntax
         let trimmedReturnType: TypeSyntax
         let propertyName: String
     }
 
-    private static func validate(
+    static func validate(
         _ declaration: some DeclSyntaxProtocol,
-        in context: some MacroExpansionContext,
         with parameters: Parameters
     ) throws -> Input {
         guard let declaration = declaration.as(FunctionDeclSyntax.self),
-              let trimmedReturnType = trimmedReturnType(of: declaration),
+              let trimmedReturnType = declaration.signature.returnClause?.type.trimmed,
               declaration.signature.parameterClause.parameters.isEmpty,
               declaration.signature.effectSpecifiers == nil,
               declaration.typeScopeSpecifier == nil
@@ -38,16 +37,6 @@ extension MemoizedMacro {
                 message: """
                 Memoized macro can only be applied to non-void, non-async, non-throwing \
                 methods that don't take any arguments
-                """
-            )
-        }
-
-        guard context.lexicalContext.first?.is(ClassDeclSyntax.self) == true else {
-            throw DiagnosticsError(
-                node: declaration,
-                message: """
-                Memoized macro can only be applied to methods declared \
-                in body (not extension) of Observable classes
                 """
             )
         }
@@ -64,6 +53,27 @@ extension MemoizedMacro {
         )
     }
 
+    private static func validate(
+        _ declaration: some DeclSyntaxProtocol,
+        in context: some MacroExpansionContext,
+        with parameters: Parameters
+    ) throws -> Input {
+        guard context.lexicalContext.first?.is(ClassDeclSyntax.self) == true else {
+            throw DiagnosticsError(
+                node: declaration,
+                message: """
+                    Memoized macro can only be applied to methods declared \
+                    in body (not extension) of Observable classes
+                    """
+            )
+        }
+
+        return try validate(
+            declaration,
+            with: parameters
+        )
+    }
+
     private static func validatePropertyName(
         for declaration: FunctionDeclSyntax,
         preferred: String?
@@ -75,10 +85,15 @@ extension MemoizedMacro {
                     message: "Memoized macro requires a non-empty property name"
                 )
             }
+
             return preferred
         }
 
-        let inferred = defaultPropertyName(for: declaration)
+        let functionName = declaration.name.trimmedDescription
+        var notation = CamelCaseNotation(string: functionName)
+        notation.removeFirst()
+        let inferred = notation.joined(as: .lowerCamelCase)
+
         guard !inferred.isEmpty else {
             throw DiagnosticsError(
                 node: declaration,
@@ -90,17 +105,6 @@ extension MemoizedMacro {
         }
 
         return inferred
-    }
-
-    static func defaultPropertyName(for declaration: FunctionDeclSyntax) -> String {
-        let functionName = declaration.name.trimmedDescription
-        var notation = CamelCaseNotation(string: functionName)
-        notation.removeFirst()
-        return notation.joined(as: .lowerCamelCase)
-    }
-
-    static func trimmedReturnType(of declaration: FunctionDeclSyntax) -> TypeSyntax? {
-        declaration.signature.returnClause?.type.trimmed
     }
 }
 

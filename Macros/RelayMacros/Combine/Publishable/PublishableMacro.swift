@@ -34,24 +34,26 @@ extension PublishableMacro: MemberMacro {
     ) throws -> [DeclSyntax] {
         let declaration = try validate(declaration, in: context)
         let parameters = try Parameters(from: node)
-        let properties = try PropertiesParser.parse(memberBlock: declaration.memberBlock)
         let inferredSuperclass = try declaration.inferredSuperclass(isExpected: parameters.hasSuperclass)
+
+        let trackedProperties = try PropertiesParser
+            .parse(memberBlock: declaration.memberBlock)
+            .filter { !$0.attributes.contains(like: PublisherIgnoredMacro.attribute) }
 
         let builderTypes: [any ClassDeclBuilder] = [
             PublisherDeclBuilder(
                 declaration: declaration,
-                properties: properties,
                 trimmedSuperclassType: inferredSuperclass
             ),
             PropertyPublisherDeclBuilder(
                 declaration: declaration,
-                properties: properties,
+                trackedProperties: trackedProperties,
                 trimmedSuperclassType: inferredSuperclass,
                 preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
             ),
             ObservationRegistrarDeclBuilder(
                 declaration: declaration,
-                properties: properties,
+                trackedProperties: trackedProperties,
                 preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation,
                 context: context
             )
