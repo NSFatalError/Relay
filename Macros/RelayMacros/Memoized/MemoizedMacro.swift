@@ -62,9 +62,9 @@ extension MemoizedMacro {
             throw DiagnosticsError(
                 node: declaration,
                 message: """
-                    Memoized macro can only be applied to methods declared \
-                    in body (not extension) of Observable classes
-                    """
+                Memoized macro can only be applied to methods declared \
+                in body (not extension) of Observable classes
+                """
             )
         }
 
