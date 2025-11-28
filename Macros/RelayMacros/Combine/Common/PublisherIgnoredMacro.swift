@@ -28,16 +28,16 @@ extension Property {
 
     var isStoredPublishable: Bool {
         kind == .stored
-        && mutability == .mutable
-        && underlying.typeScopeSpecifier == nil
-        && underlying.overrideSpecifier == nil
-        && !underlying.attributes.contains(like: PublisherIgnoredMacro.attribute)
+            && mutability == .mutable
+            && underlying.typeScopeSpecifier == nil
+            && underlying.overrideSpecifier == nil
+            && !underlying.attributes.contains(like: PublisherIgnoredMacro.attribute)
     }
 
     var isComputedPublishable: Bool {
         kind == .computed
-        && underlying.typeScopeSpecifier == nil
-        && underlying.overrideSpecifier == nil
-        && !underlying.attributes.contains(like: PublisherIgnoredMacro.attribute)
+            && underlying.typeScopeSpecifier == nil
+            && underlying.overrideSpecifier == nil
+            && !underlying.attributes.contains(like: PublisherIgnoredMacro.attribute)
     }
 }
