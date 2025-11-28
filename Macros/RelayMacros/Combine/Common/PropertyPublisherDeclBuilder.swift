@@ -11,7 +11,7 @@ import SwiftSyntaxMacros
 internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
-    let trackedProperties: PropertiesList
+    let properties: PropertiesList
     let trimmedSuperclassType: TypeSyntax?
     let preferredGlobalActorIsolation: GlobalActorIsolation?
 
@@ -87,14 +87,14 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     @CodeBlockItemListBuilder
     private func storedPropertiesPublishersFinishCalls() -> CodeBlockItemListSyntax {
-        for property in trackedProperties.stored.mutable.instance.all {
+        for property in properties.all where property.isStoredPublishable {
             "_\(property.trimmedName).send(completion: .finished)"
         }
     }
 
     @MemberBlockItemListBuilder
     private func storedPropertiesPublishers() -> MemberBlockItemListSyntax {
-        for property in trackedProperties.stored.mutable.instance.all {
+        for property in properties.all where property.isStoredPublishable {
             let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
             let name = property.trimmedName
             let type = property.inferredType
@@ -109,7 +109,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     @MemberBlockItemListBuilder
     private func computedPropertiesPublishers() -> MemberBlockItemListSyntax {
-        for property in trackedProperties.computed.instance.all {
+        for property in properties.all where property.isComputedPublishable {
             let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
             let name = property.trimmedName
             let type = property.inferredType
@@ -124,11 +124,8 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
     @MemberBlockItemListBuilder
     private func memoizedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for member in declaration.memberBlock.members {
-            if let functionDecl = member.decl.as(FunctionDeclSyntax.self),
-               let attribute = functionDecl.attributes.first(like: MemoizedMacro.attribute),
-               !functionDecl.attributes.contains(like: PublisherIgnoredMacro.attribute),
-               let parameters = try? MemoizedMacro.Parameters(from: attribute),
-               let input = try? MemoizedMacro.validate(functionDecl, with: parameters) {
+            if let (input, parameters) = MemoizedMacro.extract(from: member.decl),
+               !input.declaration.attributes.contains(like: PublisherIgnoredMacro.attribute) {
                 let accessControlLevel = parameters.preferredAccessControlLevel?.inheritedBySibling()
                 let name = input.propertyName
                 let type = input.trimmedReturnType

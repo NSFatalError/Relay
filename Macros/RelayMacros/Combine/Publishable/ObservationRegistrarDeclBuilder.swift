@@ -12,20 +12,19 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     let declaration: ClassDeclSyntax
     let preferredGlobalActorIsolation: GlobalActorIsolation?
-
-    private let trackedStoredMutableInstanceProperties: PropertiesList
-    private let withMutationGenericParameter: TokenSyntax
+    private let trackedProperties: PropertiesList
+    private let genericParameter: TokenSyntax
 
     init(
         declaration: ClassDeclSyntax,
-        trackedProperties: PropertiesList,
+        properties: PropertiesList,
         preferredGlobalActorIsolation: GlobalActorIsolation?,
         context: some MacroExpansionContext
     ) {
         self.declaration = declaration
         self.preferredGlobalActorIsolation = preferredGlobalActorIsolation
-        self.trackedStoredMutableInstanceProperties = trackedProperties.stored.mutable.instance
-        self.withMutationGenericParameter = context.makeUniqueName("T")
+        self.trackedProperties = properties.filter(\.isStoredPublishable)
+        self.genericParameter = context.makeUniqueName("T")
     }
 
     func build() -> [DeclSyntax] {
@@ -54,7 +53,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     private func publishNewValueFunction() -> MemberBlockItemListSyntax {
         """
-        \(inheritedGlobalActorIsolation)func publish(
+        \(inheritedGlobalActorIsolation)private func publish(
             _ object: \(trimmedType),
             keyPath: KeyPath<\(trimmedType), some Any>
         ) {
@@ -65,7 +64,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     @CodeBlockItemListBuilder
     private func publishNewValueKeyPathCasting() -> CodeBlockItemListSyntax {
-        for inferredType in trackedStoredMutableInstanceProperties.uniqueInferredTypes {
+        for inferredType in trackedProperties.uniqueInferredTypes {
             """
             if let keyPath = keyPath as? KeyPath<\(trimmedType), \(inferredType)>,
                let subject = subject(for: keyPath, on: object) {
@@ -78,7 +77,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     @MemberBlockItemListBuilder
     private func subjectFunctions() -> MemberBlockItemListSyntax {
-        for inferredType in trackedStoredMutableInstanceProperties.uniqueInferredTypes {
+        for inferredType in trackedProperties.uniqueInferredTypes {
             """
             \(inheritedGlobalActorIsolation)private func subject(
                 for keyPath: KeyPath<\(trimmedType), \(inferredType)>,
@@ -92,7 +91,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     @CodeBlockItemListBuilder
     private func subjectKeyPathCasting(for inferredType: TypeSyntax) -> CodeBlockItemListSyntax {
-        for property in trackedStoredMutableInstanceProperties.withInferredType(like: inferredType).all {
+        for property in trackedProperties.withInferredType(like: inferredType).all {
             let name = property.trimmedName
             """
             if keyPath == \\.\(name) {
@@ -141,14 +140,14 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     private func observationRegistrarWithMutationFunction() -> MemberBlockItemListSyntax {
         """
-        nonisolated func withMutation<\(withMutationGenericParameter)>(
+        nonisolated func withMutation<\(genericParameter)>(
             of object: \(trimmedType),
             keyPath: KeyPath<\(trimmedType), some Any>,
-            _ mutation: () throws -> \(withMutationGenericParameter)
-        ) rethrows -> \(withMutationGenericParameter) {
+            _ mutation: () throws -> \(genericParameter)
+        ) rethrows -> \(genericParameter) {
             nonisolated(unsafe) let mutation = mutation
             nonisolated(unsafe) let keyPath = keyPath
-            nonisolated(unsafe) var result: \(withMutationGenericParameter)!
+            nonisolated(unsafe) var result: \(genericParameter)!
 
             try assumeIsolatedIfNeeded {
                 object.publisher._beginModifications()

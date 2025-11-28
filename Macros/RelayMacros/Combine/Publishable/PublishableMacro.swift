@@ -11,15 +11,34 @@ import SwiftSyntaxMacros
 public enum PublishableMacro {
 
     private static func validate(
-        _ declaration: some DeclGroupSyntax,
-        in _: some MacroExpansionContext
+        _ node: AttributeSyntax,
+        attachedTo declaration: some DeclGroupSyntax,
+        in context: some MacroExpansionContext
     ) throws -> ClassDeclSyntax {
         guard let declaration = declaration.as(ClassDeclSyntax.self) else {
             throw DiagnosticsError(
                 node: declaration,
-                message: "Publishable macro can only be applied to Observable classes"
+                message: "@Publishable macro can only be applied to Observable classes"
             )
         }
+
+        if declaration.attributes.contains(like: "@Model") {
+            context.diagnose(
+                node: declaration,
+                warningMessage: """
+                @Publishable macro compiles when applied to PersistentModel classes, \
+                but internals of SwiftData are incompatible with custom ObservationRegistrar
+                """,
+                fixIts: [
+                    .replace(
+                        message: MacroExpansionFixItMessage("Remove @Publishable macro"),
+                        oldNode: node,
+                        newNode: "\(node.leadingTrivia)" as TokenSyntax
+                    )
+                ]
+            )
+        }
+
         return declaration
     }
 }
@@ -32,13 +51,10 @@ extension PublishableMacro: MemberMacro {
         conformingTo _: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        let declaration = try validate(declaration, in: context)
+        let declaration = try validate(node, attachedTo: declaration, in: context)
         let parameters = try Parameters(from: node)
         let inferredSuperclass = try declaration.inferredSuperclass(isExpected: parameters.hasSuperclass)
-
-        let trackedProperties = try PropertiesParser
-            .parse(memberBlock: declaration.memberBlock)
-            .filter { !$0.attributes.contains(like: PublisherIgnoredMacro.attribute) }
+        let properties = try PropertiesParser.parse(memberBlock: declaration.memberBlock)
 
         let builderTypes: [any ClassDeclBuilder] = [
             PublisherDeclBuilder(
@@ -47,13 +63,13 @@ extension PublishableMacro: MemberMacro {
             ),
             PropertyPublisherDeclBuilder(
                 declaration: declaration,
-                trackedProperties: trackedProperties,
+                properties: properties,
                 trimmedSuperclassType: inferredSuperclass,
                 preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
             ),
             ObservationRegistrarDeclBuilder(
                 declaration: declaration,
-                trackedProperties: trackedProperties,
+                properties: properties,
                 preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation,
                 context: context
             )
@@ -78,7 +94,7 @@ extension PublishableMacro: ExtensionMacro {
             return []
         }
 
-        let declaration = try validate(declaration, in: context)
+        let declaration = try validate(node, attachedTo: declaration, in: context)
         let parameters = try Parameters(from: node)
 
         let globalActorIsolation = GlobalActorIsolation.resolved(

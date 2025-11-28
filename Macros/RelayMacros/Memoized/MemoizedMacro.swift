@@ -11,19 +11,27 @@ import SwiftSyntaxMacros
 public enum MemoizedMacro {
 
     static let attribute: AttributeSyntax = "@Memoized"
+
+    static func extract(
+        from declaration: DeclSyntax
+    ) -> (input: Input, parameters: Parameters)? {
+        guard let declaration = declaration.as(FunctionDeclSyntax.self),
+              let node = declaration.attributes.first(like: attribute),
+              let parameters = try? Parameters(from: node),
+              let input = try? validateNode(attachedTo: declaration, in: nil, with: parameters)
+        else {
+            return nil
+        }
+
+        return (input, parameters)
+    }
 }
 
 extension MemoizedMacro {
 
-    struct Input {
-
-        let declaration: FunctionDeclSyntax
-        let trimmedReturnType: TypeSyntax
-        let propertyName: String
-    }
-
-    static func validate(
-        _ declaration: some DeclSyntaxProtocol,
+    private static func validateNode(
+        attachedTo declaration: some DeclSyntaxProtocol,
+        in context: (any MacroExpansionContext)?,
         with parameters: Parameters
     ) throws -> Input {
         guard let declaration = declaration.as(FunctionDeclSyntax.self),
@@ -35,10 +43,22 @@ extension MemoizedMacro {
             throw DiagnosticsError(
                 node: declaration,
                 message: """
-                Memoized macro can only be applied to non-void, non-async, non-throwing \
+                @Memoized macro can only be applied to non-void, non-async, non-throwing \
                 methods that don't take any arguments
                 """
             )
+        }
+
+        if let context {
+            guard context.lexicalContext.first?.is(ClassDeclSyntax.self) == true else {
+                throw DiagnosticsError(
+                    node: declaration,
+                    message: """
+                    @Memoized macro can only be applied to methods declared \
+                    in body (not extensions) of Observable classes
+                    """
+                )
+            }
         }
 
         let propertyName = try validatePropertyName(
@@ -53,27 +73,6 @@ extension MemoizedMacro {
         )
     }
 
-    private static func validate(
-        _ declaration: some DeclSyntaxProtocol,
-        in context: some MacroExpansionContext,
-        with parameters: Parameters
-    ) throws -> Input {
-        guard context.lexicalContext.first?.is(ClassDeclSyntax.self) == true else {
-            throw DiagnosticsError(
-                node: declaration,
-                message: """
-                Memoized macro can only be applied to methods declared \
-                in body (not extension) of Observable classes
-                """
-            )
-        }
-
-        return try validate(
-            declaration,
-            with: parameters
-        )
-    }
-
     private static func validatePropertyName(
         for declaration: FunctionDeclSyntax,
         preferred: String?
@@ -82,7 +81,7 @@ extension MemoizedMacro {
             guard !preferred.isEmpty else {
                 throw DiagnosticsError(
                     node: declaration,
-                    message: "Memoized macro requires a non-empty property name"
+                    message: "@Memoized macro requires a non-empty property name"
                 )
             }
 
@@ -98,7 +97,7 @@ extension MemoizedMacro {
             throw DiagnosticsError(
                 node: declaration,
                 message: """
-                Memoized macro requires a method name with at least two words \
+                @Memoized macro requires a method name consisting of at least two words \
                 or explicit property name
                 """
             )
@@ -116,7 +115,7 @@ extension MemoizedMacro: PeerMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         let parameters = try Parameters(from: node)
-        let input = try validate(declaration, in: context, with: parameters)
+        let input = try validateNode(attachedTo: declaration, in: context, with: parameters)
 
         let builder = MemoizedDeclBuilder(
             declaration: input.declaration,
@@ -132,6 +131,13 @@ extension MemoizedMacro: PeerMacro {
 }
 
 extension MemoizedMacro {
+
+    struct Input {
+
+        let declaration: FunctionDeclSyntax
+        let trimmedReturnType: TypeSyntax
+        let propertyName: String
+    }
 
     struct Parameters {
 
