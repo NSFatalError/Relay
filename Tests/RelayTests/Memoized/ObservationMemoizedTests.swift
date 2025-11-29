@@ -252,10 +252,17 @@ extension ObservationMemoizedTests {
             return x * y
         }
 
-        @Memoized
+        @Memoized(.fileprivate, "volume")
         func calculateVolume() -> Double {
             calculateVolumeCallsCount += 1
             return baseArea * z
         }
+
+        #if os(macOS)
+            @available(macOS 26, *) @Memoized
+            func calculateConditionalValue() -> Double {
+                volume
+            }
+        #endif
     }
 }

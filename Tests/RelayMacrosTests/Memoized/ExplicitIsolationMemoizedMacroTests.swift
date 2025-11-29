@@ -114,7 +114,7 @@
                         side * side
                     }
 
-                    @available(macOS 26, *)
+                    // Stored properties cannot be made potentially unavailable
                     @MainActor private final var _customName: Optional<Double> = nil
 
                     @available(macOS 26, *)
