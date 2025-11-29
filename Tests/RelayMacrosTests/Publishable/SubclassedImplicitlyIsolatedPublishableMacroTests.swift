@@ -28,18 +28,18 @@
                 class Dog: Animal {
 
                     var breed: String?
-                
+
                     var isBulldog: Bool {
                         breed == "Bulldog"
                     }
-                
+
                     @ObservationIgnored
                     override var age: Int {
                         didSet {
                             _ = oldValue
                         }
                     }
-                
+
                     override var description: String {
                         "\(breed ?? "Unknown"), \(age)"
                     }
@@ -49,20 +49,20 @@
                 #"""
                 @MainActor @Observable
                 class Dog: Animal {
-                
+
                     var breed: String?
-                
+
                     var isBulldog: Bool {
                         breed == "Bulldog"
                     }
-                
+
                     @ObservationIgnored
                     override var age: Int {
                         didSet {
                             _ = oldValue
                         }
                     }
-                
+
                     override var description: String {
                         "\(breed ?? "Unknown"), \(age)"
                     }
@@ -196,7 +196,7 @@
                                 try withoutActuallyEscaping(operation) { operation in
                                     typealias Nonisolated = () throws -> Void
                                     let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
-                
+
                                     try MainActor.shared.assumeIsolated(
                                         { _ in
                                             try rawOperation()

@@ -28,18 +28,18 @@
                 class Dog: Animal {
 
                     var breed: String?
-                
+
                     var isBulldog: Bool {
                         breed == "Bulldog"
                     }
-                
+
                     @ObservationIgnored
                     override var age: Int {
                         didSet {
                             _ = oldValue
                         }
                     }
-                
+
                     override var description: String {
                         "\(breed ?? "Unknown"), \(age)"
                     }
@@ -49,20 +49,20 @@
                 #"""
                 @Observable
                 class Dog: Animal {
-                
+
                     var breed: String?
-                
+
                     var isBulldog: Bool {
                         breed == "Bulldog"
                     }
-                
+
                     @ObservationIgnored
                     override var age: Int {
                         didSet {
                             _ = oldValue
                         }
                     }
-                
+
                     override var description: String {
                         "\(breed ?? "Unknown"), \(age)"
                     }
