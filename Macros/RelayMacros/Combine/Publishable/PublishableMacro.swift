@@ -50,23 +50,25 @@ extension PublishableMacro: MemberMacro {
     public static func expansion(
         of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
-        conformingTo _: [TypeSyntax],
+        conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         let declaration = try validate(node, attachedTo: declaration, in: context)
-        let parameters = try Parameters(from: node)
-        let inferredSuperclassType = try declaration.inferredSuperclassType(isExpected: parameters.hasSuperclass)
         let properties = try PropertiesParser.parse(memberBlock: declaration.memberBlock)
+        let parameters = try Parameters(from: node)
+
+        let hasPublishableSuperclass = protocols.isEmpty
+        let trimmedSuperclassType = hasPublishableSuperclass ? declaration.possibleSuperclassType : nil
 
         let builderTypes: [any ClassDeclBuilder] = [
             PublisherDeclBuilder(
                 declaration: declaration,
-                trimmedSuperclassType: inferredSuperclassType
+                trimmedSuperclassType: trimmedSuperclassType
             ),
             PropertyPublisherDeclBuilder(
                 declaration: declaration,
                 properties: properties,
-                trimmedSuperclassType: inferredSuperclassType,
+                trimmedSuperclassType: trimmedSuperclassType,
                 preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
             ),
             ObservationRegistrarDeclBuilder(
@@ -128,12 +130,10 @@ extension PublishableMacro {
 
     private struct Parameters {
 
-        let hasSuperclass: Bool?
         let preferredGlobalActorIsolation: GlobalActorIsolation?
 
         init(from node: AttributeSyntax) throws {
             let extractor = ParameterExtractor(from: node)
-            self.hasSuperclass = try extractor.rawBool(withLabel: "hasSuperclass")
             self.preferredGlobalActorIsolation = try extractor.globalActorIsolation(withLabel: "isolation")
         }
     }

@@ -1,5 +1,5 @@
 //
-//  ExplicitIsolationMemoizedMacroTests.swift
+//  ImplicitlyIsolatedMemoizedMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 12/01/2025.
@@ -11,7 +11,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class ExplicitIsolationMemoizedMacroTests: XCTestCase {
+    internal final class ImplicitlyIsolatedMemoizedMacroTests: XCTestCase {
 
         private let macros: [String: any Macro.Type] = [
             "Memoized": MemoizedMacro.self
@@ -22,12 +22,12 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @CustomActor @Observable
+                @MainActor @Observable
                 public class Square {
 
                     var side = 12.3
 
-                    @Memoized(isolation: MainActor.self)
+                    @Memoized
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -35,7 +35,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @CustomActor @Observable
+                @MainActor @Observable
                 public class Square {
 
                     var side = 12.3
@@ -90,13 +90,13 @@
         func testExpansionWithParameters() {
             assertMacroExpansion(
                 #"""
-                @CustomActor @Observable
+                @MainActor @Observable
                 public final class Square {
 
                     var side = 12.3
 
                     @available(macOS 26, *)
-                    @Memoized(.public, "customName", isolation: MainActor.self)
+                    @Memoized(.public, "customName")
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -104,7 +104,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @CustomActor @Observable
+                @MainActor @Observable
                 public final class Square {
 
                     var side = 12.3

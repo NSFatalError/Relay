@@ -58,7 +58,7 @@ extension MemoizedMacro {
                     node: declaration,
                     message: """
                     @Memoized macro can only be applied to methods declared \
-                    in body (not extensions) of Observable classes
+                    in primary definition (not extensions) of Observable classes
                     """
                 )
             }

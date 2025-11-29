@@ -1,5 +1,5 @@
 //
-//  InferredIsolationPublishableMacroTests.swift
+//  ImplicitlyIsolatedPublishableMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 24/08/2025.
@@ -13,7 +13,7 @@
     import XCTest
 
     // swiftlint:disable:next type_body_length
-    internal final class InferredIsolationPublishableMacroTests: XCTestCase {
+    internal final class ImplicitlyIsolatedPublishableMacroTests: XCTestCase {
 
         private let macroSpecs: [String: MacroSpec] = [
             "Publishable": MacroSpec(

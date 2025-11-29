@@ -25,6 +25,7 @@
 ///
 @attached(
     member,
+    conformances: Publishable,
     names: named(_publisher),
     named(publisher),
     named(PropertyPublisher),
@@ -34,9 +35,7 @@
     extension,
     conformances: Publishable
 )
-public macro Publishable(
-    hasSuperclass: Bool = false
-) = #externalMacro(
+public macro Publishable() = #externalMacro(
     module: "RelayMacros",
     type: "PublishableMacro"
 )
@@ -61,6 +60,7 @@ public macro Publishable(
 ///
 @attached(
     member,
+    conformances: Publishable,
     names: named(_publisher),
     named(publisher),
     named(PropertyPublisher),
@@ -71,7 +71,6 @@ public macro Publishable(
     conformances: Publishable
 )
 public macro Publishable(
-    hasSuperclass: Bool = false,
     isolation: (any GlobalActor.Type)?
 ) = #externalMacro(
     module: "RelayMacros",
