@@ -220,12 +220,12 @@ extension MainActorPublishableTests {
         }
 
         #if os(macOS)
-        var conditionalStoredProperty = 123
+            var conditionalStoredProperty = 123
 
-        @available(macOS 26, *)
-        var conditionalComputedProperty: Int {
-            conditionalStoredProperty
-        }
+            @available(macOS 26, *)
+            var conditionalComputedProperty: Int {
+                conditionalStoredProperty
+            }
         #endif
 
         @PublisherIgnored
