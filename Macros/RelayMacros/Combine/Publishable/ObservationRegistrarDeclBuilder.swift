@@ -36,9 +36,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
                     private let underlying = SwiftObservationRegistrar()
 
-                    \(publishNewValueFunction())
-
-                    \(subjectFunctions().formatted())
+                    \(publishFunction())
 
                     \(observationRegistrarWillSetDidSetAccessFunctions())
 
@@ -51,56 +49,38 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
         ]
     }
 
-    private func publishNewValueFunction() -> MemberBlockItemListSyntax {
+    private func publishFunction() -> MemberBlockItemListSyntax {
         """
         \(inheritedGlobalActorIsolation)private func publish(
             _ object: \(trimmedType),
             keyPath: KeyPath<\(trimmedType), some Any>
         ) {
-            \(publishNewValueKeyPathCasting().formatted())
+            \(publishKeyPathLookups().formatted())
         }
         """
     }
 
     @CodeBlockItemListBuilder
-    private func publishNewValueKeyPathCasting() -> CodeBlockItemListSyntax {
-        for inferredType in trackedProperties.uniqueInferredTypes {
-            """
-            if let keyPath = keyPath as? KeyPath<\(trimmedType), \(inferredType)>,
-               let subject = subject(for: keyPath, on: object) {
-                subject.send(object[keyPath: keyPath])
-                return
+    private func publishKeyPathLookups() -> CodeBlockItemListSyntax {
+        for property in trackedProperties {
+            let lookup = publishKeyPathLookup(for: property)
+            if let ifConfigLookup = property.underlying.applyingEnclosingIfConfig(to: lookup) {
+                ifConfigLookup
+            } else {
+                lookup
             }
-            """
         }
     }
 
-    @MemberBlockItemListBuilder
-    private func subjectFunctions() -> MemberBlockItemListSyntax {
-        for inferredType in trackedProperties.uniqueInferredTypes {
-            """
-            \(inheritedGlobalActorIsolation)private func subject(
-                for keyPath: KeyPath<\(trimmedType), \(inferredType)>,
-                on object: \(trimmedType)
-            ) -> PassthroughSubject<\(inferredType), Never>? {
-                \(subjectKeyPathCasting(for: inferredType).formatted())
-            }
-            """
-        }
-    }
+    private func publishKeyPathLookup(for property: Property) -> CodeBlockItemListSyntax {
+        // Stored properties cannot be made potentially unavailable
+        let name = property.trimmedName
 
-    @CodeBlockItemListBuilder
-    private func subjectKeyPathCasting(for inferredType: TypeSyntax) -> CodeBlockItemListSyntax {
-        for property in trackedProperties.withInferredType(like: inferredType).all {
-            let name = property.trimmedName
-            """
-            if keyPath == \\.\(name) {
-                return object.publisher._\(name)
-            }
-            """
+        return """
+        if keyPath == \\.\(name) {
+            object.publisher._\(name).send(object[keyPath: \\.\(name)])
+            return
         }
-        """
-        return nil
         """
     }
 

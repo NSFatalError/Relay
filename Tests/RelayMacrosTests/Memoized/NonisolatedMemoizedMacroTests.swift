@@ -1,5 +1,5 @@
 //
-//  MemoizedMacroTests.swift
+//  NonisolatedMemoizedMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 12/01/2025.
@@ -11,21 +11,23 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class MemoizedMacroTests: XCTestCase {
+    internal final class NonisolatedMemoizedMacroTests: XCTestCase {
 
         private let macros: [String: any Macro.Type] = [
             "Memoized": MemoizedMacro.self
         ]
 
+        // swiftlint:disable global_actor_attribute_order
+
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @MainActor @Observable
                 public class Square {
 
                     var side = 12.3
 
-                    @Memoized
+                    @Memoized(isolation: nil)
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -33,7 +35,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @MainActor @Observable
                 public class Square {
 
                     var side = 12.3
@@ -41,9 +43,9 @@
                         side * side
                     }
 
-                    private final var _area: Optional<Double> = nil
+                    nonisolated private final var _area: Optional<Double> = nil
 
-                    final var area: Double {
+                    nonisolated final var area: Double {
                         if let cached = _area {
                             access(keyPath: \._area)
                             return cached
@@ -82,13 +84,13 @@
         func testExpansionWithParameters() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @MainActor @Observable
                 public final class Square {
 
                     var side = 12.3
 
                     @available(macOS 26, *)
-                    @Memoized(.public, "customName")
+                    @Memoized(.public, "customName", isolation: nil)
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -96,7 +98,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @MainActor @Observable
                 public final class Square {
 
                     var side = 12.3
@@ -107,10 +109,10 @@
                     }
 
                     @available(macOS 26, *)
-                    private final var _customName: Optional<Double> = nil
+                    nonisolated private final var _customName: Optional<Double> = nil
 
                     @available(macOS 26, *)
-                    public final var customName: Double {
+                    nonisolated public final var customName: Double {
                         if let cached = _customName {
                             access(keyPath: \._customName)
                             return cached
@@ -145,5 +147,7 @@
                 macros: macros
             )
         }
+
+        // swiftlint:enable global_actor_attribute_order
     }
 #endif

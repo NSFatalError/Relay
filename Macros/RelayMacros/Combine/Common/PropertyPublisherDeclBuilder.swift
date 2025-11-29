@@ -80,61 +80,108 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
     private func deinitializer() -> MemberBlockItemListSyntax {
         """
         \(inheritedGlobalActorIsolation)deinit {
-            \(storedPropertiesPublishersFinishCalls().formatted())
+            \(storedPropertiesSubjectsFinishCalls().formatted())
         }
         """
     }
 
     @CodeBlockItemListBuilder
-    private func storedPropertiesPublishersFinishCalls() -> CodeBlockItemListSyntax {
+    private func storedPropertiesSubjectsFinishCalls() -> CodeBlockItemListSyntax {
         for property in properties.all where property.isStoredPublishable {
-            "_\(property.trimmedName).send(completion: .finished)"
+            let call = storedPropertySubjectFinishCall(for: property)
+            if let ifConfigCall = property.underlying.applyingEnclosingIfConfig(to: call) {
+                ifConfigCall
+            } else {
+                call
+            }
         }
+    }
+
+    private func storedPropertySubjectFinishCall(for property: Property) -> CodeBlockItemListSyntax {
+        "_\(property.trimmedName).send(completion: .finished)"
     }
 
     @MemberBlockItemListBuilder
     private func storedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.all where property.isStoredPublishable {
-            let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
-            let name = property.trimmedName
-            let type = property.inferredType
-            """
-            fileprivate final let _\(name) = PassthroughSubject<\(type), Never>()
-            \(accessControlLevel)final var \(name): some Publisher<\(type), Never> {
-                _storedPropertyPublisher(_\(name), for: \\.\(name), object: object)
+            let publisher = storedPropertyPublisher(for: property)
+            if let ifConfigPublisher = property.underlying.applyingEnclosingIfConfig(to: publisher) {
+                ifConfigPublisher
+            } else {
+                publisher
             }
-            """
         }
+    }
+
+    private func storedPropertyPublisher(for property: Property) -> MemberBlockItemListSyntax {
+        // Stored properties cannot be made potentially unavailable
+        let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
+        let name = property.trimmedName
+        let type = property.inferredType
+
+        return """
+        fileprivate final let _\(name) = PassthroughSubject<\(type), Never>()
+        \(accessControlLevel)final var \(name): some Publisher<\(type), Never> {
+            _storedPropertyPublisher(_\(name), for: \\.\(name), object: object)
+        }
+        """
     }
 
     @MemberBlockItemListBuilder
     private func computedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.all where property.isComputedPublishable {
-            let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
-            let name = property.trimmedName
-            let type = property.inferredType
-            """
-            \(accessControlLevel)final var \(name): some Publisher<\(type), Never> {
-                _computedPropertyPublisher(for: \\.\(name), object: object)
+            let publisher = computedPropertyPublisher(for: property)
+            if let ifConfigPublisher = property.underlying.applyingEnclosingIfConfig(to: publisher) {
+                ifConfigPublisher
+            } else {
+                publisher
             }
-            """
         }
+    }
+
+    private func computedPropertyPublisher(for property: Property) -> MemberBlockItemListSyntax {
+        let accessControlLevel = AccessControlLevel.forSibling(of: property.underlying)
+        let availability = property.availability?.trimmed.withTrailingNewline
+        let name = property.trimmedName
+        let type = property.inferredType
+
+        return """
+        \(availability)\(accessControlLevel)final var \(name): some Publisher<\(type), Never> {
+            _computedPropertyPublisher(for: \\.\(name), object: object)
+        }
+        """
     }
 
     @MemberBlockItemListBuilder
     private func memoizedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for member in declaration.memberBlock.members {
-            if let (input, parameters) = MemoizedMacro.extract(from: member.decl),
-               !input.declaration.attributes.contains(like: PublisherIgnoredMacro.attribute) {
-                let accessControlLevel = parameters.preferredAccessControlLevel?.inheritedBySibling()
-                let name = input.propertyName
-                let type = input.trimmedReturnType
-                """
-                \(accessControlLevel)final var \(raw: name): some Publisher<\(type), Never> {
-                    _computedPropertyPublisher(for: \\.\(raw: name), object: object)
+            if let extractionResult = MemoizedMacro.extract(from: member.decl) {
+                let declaration = extractionResult.declaration
+
+                if !declaration.attributes.contains(like: PublisherIgnoredMacro.attribute) {
+                    let publisher = memoizedPropertyPublisher(for: extractionResult)
+                    if let ifConfigPublisher = declaration.applyingEnclosingIfConfig(to: publisher) {
+                        ifConfigPublisher
+                    } else {
+                        publisher
+                    }
                 }
-                """
             }
         }
+    }
+
+    private func memoizedPropertyPublisher(
+        for extractionResult: MemoizedMacro.ExtractionResult
+    ) -> MemberBlockItemListSyntax {
+        let accessControlLevel = extractionResult.preferredAccessControlLevel?.inheritedBySibling()
+        let availability = extractionResult.declaration.availability?.trimmed.withTrailingNewline
+        let name = extractionResult.propertyName
+        let type = extractionResult.trimmedReturnType
+
+        return """
+        \(availability)\(accessControlLevel)final var \(raw: name): some Publisher<\(type), Never> {
+            _computedPropertyPublisher(for: \\.\(raw: name), object: object)
+        }
+        """
     }
 }

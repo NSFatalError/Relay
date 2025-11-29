@@ -24,6 +24,7 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
+                @available(iOS 26, macOS 26, *)
                 @Publishable @Observable
                 public final class Person {
 
@@ -47,15 +48,38 @@
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
+                
+                    #if os(macOS)
+                    var conditionalStoredProperty = 123
+                    
+                    @available(macOS 26, *)
+                    var conditionalComputedProperty: Int {
+                        conditionalStoredProperty
+                    }
+                    #endif
+                
+                    @PublisherIgnored
+                    var ignoredStoredProperty = 123
+                    
+                    @PublisherIgnored
+                    var ignoredComputedProperty: Int {
+                        ignoredStoredProperty
+                    }
 
-                    @Memoized(.public)
+                    @available(iOS 26, *) @Memoized(.private)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
+                    }
+                
+                    @Memoized @PublisherIgnored
+                    func makeIgnoredMemoizedProperty() -> Int {
+                        ignoredStoredProperty
                     }
                 }
                 """#,
                 expandedSource:
                 #"""
+                @available(iOS 26, macOS 26, *)
                 @Observable
                 public final class Person {
 
@@ -79,10 +103,32 @@
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
+                
+                    #if os(macOS)
+                    var conditionalStoredProperty = 123
+                    
+                    @available(macOS 26, *)
+                    var conditionalComputedProperty: Int {
+                        conditionalStoredProperty
+                    }
+                    #endif
+                
+                    @PublisherIgnored
+                    var ignoredStoredProperty = 123
+                    
+                    @PublisherIgnored
+                    var ignoredComputedProperty: Int {
+                        ignoredStoredProperty
+                    }
 
-                    @Memoized(.public)
+                    @available(iOS 26, *) @Memoized(.private)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
+                    }
+                
+                    @Memoized @PublisherIgnored
+                    func makeIgnoredMemoizedProperty() -> Int {
+                        ignoredStoredProperty
                     }
 
                     private final lazy var _publisher = PropertyPublisher(object: self)
@@ -123,6 +169,9 @@
                             _age.send(completion: .finished)
                             _name.send(completion: .finished)
                             _surname.send(completion: .finished)
+                            #if os(macOS)
+                            _conditionalStoredProperty.send(completion: .finished)
+                            #endif
                         }
 
                         fileprivate final let _age = PassthroughSubject<Int, Never>()
@@ -137,6 +186,12 @@
                         public final var surname: some Publisher<String, Never> {
                             _storedPropertyPublisher(_surname, for: \.surname, object: object)
                         }
+                        #if os(macOS)
+                        fileprivate final let _conditionalStoredProperty = PassthroughSubject<Int, Never>()
+                        final var conditionalStoredProperty: some Publisher<Int, Never> {
+                            _storedPropertyPublisher(_conditionalStoredProperty, for: \.conditionalStoredProperty, object: object)
+                        }
+                        #endif
 
                         internal final var fullName: some Publisher<String, Never> {
                             _computedPropertyPublisher(for: \.fullName, object: object)
@@ -144,8 +199,15 @@
                         fileprivate final var initials: some Publisher<String, Never> {
                             _computedPropertyPublisher(for: \.initials, object: object)
                         }
+                        #if os(macOS)
+                        @available(macOS 26, *)
+                        final var conditionalComputedProperty: some Publisher<Int, Never> {
+                            _computedPropertyPublisher(for: \.conditionalComputedProperty, object: object)
+                        }
+                        #endif
 
-                        public final var label: some Publisher<String, Never> {
+                        @available(iOS 26, *)
+                        fileprivate final var label: some Publisher<String, Never> {
                             _computedPropertyPublisher(for: \.label, object: object)
                         }
                     }
@@ -156,42 +218,28 @@
 
                             private let underlying = SwiftObservationRegistrar()
 
-                            func publish(
+                            private func publish(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
                             ) {
-                                if let keyPath = keyPath as? KeyPath<Person, Int>,
-                                   let subject = subject(for: keyPath, on: object) {
-                                    subject.send(object[keyPath: keyPath])
-                                    return
-                                }
-                                if let keyPath = keyPath as? KeyPath<Person, String>,
-                                   let subject = subject(for: keyPath, on: object) {
-                                    subject.send(object[keyPath: keyPath])
-                                    return
-                                }
-                            }
-
-                            private func subject(
-                                for keyPath: KeyPath<Person, Int>,
-                                on object: Person
-                            ) -> PassthroughSubject<Int, Never>? {
                                 if keyPath == \.age {
-                                    return object.publisher._age
+                                    object.publisher._age.send(object[keyPath: \.age])
+                                    return
                                 }
-                                return nil
-                            }
-                            private func subject(
-                                for keyPath: KeyPath<Person, String>,
-                                on object: Person
-                            ) -> PassthroughSubject<String, Never>? {
                                 if keyPath == \.name {
-                                    return object.publisher._name
+                                    object.publisher._name.send(object[keyPath: \.name])
+                                    return
                                 }
                                 if keyPath == \.surname {
-                                    return object.publisher._surname
+                                    object.publisher._surname.send(object[keyPath: \.surname])
+                                    return
                                 }
-                                return nil
+                                #if os(macOS)
+                                if keyPath == \.conditionalStoredProperty {
+                                    object.publisher._conditionalStoredProperty.send(object[keyPath: \.conditionalStoredProperty])
+                                    return
+                                }
+                                #endif
                             }
 
                             nonisolated func willSet(
@@ -258,7 +306,7 @@
                     }
                 }
 
-                extension Person: Publishable {
+                @available(iOS 26, macOS 26, *) extension Person: Publishable {
                 }
                 """#,
                 macroSpecs: macroSpecs

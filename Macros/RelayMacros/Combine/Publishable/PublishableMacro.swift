@@ -10,6 +10,8 @@ import SwiftSyntaxMacros
 
 public enum PublishableMacro {
 
+    static let attribute: AttributeSyntax = "@Publishable"
+
     private static func validate(
         _ node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
@@ -22,11 +24,11 @@ public enum PublishableMacro {
             )
         }
 
-        if declaration.attributes.contains(like: "@Model") {
+        if declaration.attributes.contains(like: SwiftDataModelMacro.attribute) {
             context.diagnose(
                 node: declaration,
                 warningMessage: """
-                @Publishable macro compiles when applied to PersistentModel classes, \
+                @Publishable macro compiles when applied to @Model classes, \
                 but internals of SwiftData are incompatible with custom ObservationRegistrar
                 """,
                 fixIts: [
@@ -53,18 +55,18 @@ extension PublishableMacro: MemberMacro {
     ) throws -> [DeclSyntax] {
         let declaration = try validate(node, attachedTo: declaration, in: context)
         let parameters = try Parameters(from: node)
-        let inferredSuperclass = try declaration.inferredSuperclass(isExpected: parameters.hasSuperclass)
+        let inferredSuperclassType = try declaration.inferredSuperclassType(isExpected: parameters.hasSuperclass)
         let properties = try PropertiesParser.parse(memberBlock: declaration.memberBlock)
 
         let builderTypes: [any ClassDeclBuilder] = [
             PublisherDeclBuilder(
                 declaration: declaration,
-                trimmedSuperclassType: inferredSuperclass
+                trimmedSuperclassType: inferredSuperclassType
             ),
             PropertyPublisherDeclBuilder(
                 declaration: declaration,
                 properties: properties,
-                trimmedSuperclassType: inferredSuperclass,
+                trimmedSuperclassType: inferredSuperclassType,
                 preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
             ),
             ObservationRegistrarDeclBuilder(
@@ -104,6 +106,7 @@ extension PublishableMacro: ExtensionMacro {
 
         return [
             .init(
+                attributes: declaration.availability ?? [],
                 extendedType: type,
                 inheritanceClause: .init(
                     inheritedTypes: [

@@ -21,11 +21,11 @@ internal struct MemoizedDeclBuilder: FunctionDeclBuilder, PeerBuilding {
     func build() -> [DeclSyntax] {
         [
             """
-            \(inheritedGlobalActorIsolation)private final \
+            \(inheritedAvailability)\(inheritedGlobalActorIsolation)private final \
             var _\(raw: propertyName): Optional<\(trimmedReturnType)> = nil
             """,
             """
-            \(inheritedGlobalActorIsolation)\(preferredAccessControlLevel)final \
+            \(inheritedAvailability)\(inheritedGlobalActorIsolation)\(preferredAccessControlLevel)final \
             var \(raw: propertyName): \(trimmedReturnType) {
                 if let cached = _\(raw: propertyName) {
                     access(keyPath: \\._\(raw: propertyName))

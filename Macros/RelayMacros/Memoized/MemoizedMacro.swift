@@ -14,16 +14,19 @@ public enum MemoizedMacro {
 
     static func extract(
         from declaration: DeclSyntax
-    ) -> (input: Input, parameters: Parameters)? {
+    ) -> ExtractionResult? {
         guard let declaration = declaration.as(FunctionDeclSyntax.self),
               let node = declaration.attributes.first(like: attribute),
               let parameters = try? Parameters(from: node),
-              let input = try? validateNode(attachedTo: declaration, in: nil, with: parameters)
+              let validationResult = try? validateNode(attachedTo: declaration, in: nil, with: parameters)
         else {
             return nil
         }
 
-        return (input, parameters)
+        return ExtractionResult(
+            validationResult: validationResult,
+            parameters: parameters
+        )
     }
 }
 
@@ -33,7 +36,7 @@ extension MemoizedMacro {
         attachedTo declaration: some DeclSyntaxProtocol,
         in context: (any MacroExpansionContext)?,
         with parameters: Parameters
-    ) throws -> Input {
+    ) throws -> ValidationResult {
         guard let declaration = declaration.as(FunctionDeclSyntax.self),
               let trimmedReturnType = declaration.signature.returnClause?.type.trimmed,
               declaration.signature.parameterClause.parameters.isEmpty,
@@ -66,7 +69,7 @@ extension MemoizedMacro {
             preferred: parameters.preferredPropertyName
         )
 
-        return Input(
+        return ValidationResult(
             declaration: declaration,
             trimmedReturnType: trimmedReturnType,
             propertyName: propertyName
@@ -115,12 +118,12 @@ extension MemoizedMacro: PeerMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         let parameters = try Parameters(from: node)
-        let input = try validateNode(attachedTo: declaration, in: context, with: parameters)
+        let validationResult = try validateNode(attachedTo: declaration, in: context, with: parameters)
 
         let builder = MemoizedDeclBuilder(
-            declaration: input.declaration,
-            trimmedReturnType: input.trimmedReturnType,
-            propertyName: input.propertyName,
+            declaration: validationResult.declaration,
+            trimmedReturnType: validationResult.trimmedReturnType,
+            propertyName: validationResult.propertyName,
             lexicalContext: context.lexicalContext,
             preferredAccessControlLevel: parameters.preferredAccessControlLevel,
             preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
@@ -132,7 +135,22 @@ extension MemoizedMacro: PeerMacro {
 
 extension MemoizedMacro {
 
-    struct Input {
+    @dynamicMemberLookup
+    struct ExtractionResult {
+
+        let validationResult: ValidationResult
+        let parameters: Parameters
+
+        subscript<T>(dynamicMember keyPath: KeyPath<ValidationResult, T>) -> T {
+            validationResult[keyPath: keyPath]
+        }
+
+        subscript<T>(dynamicMember keyPath: KeyPath<Parameters, T>) -> T {
+            parameters[keyPath: keyPath]
+        }
+    }
+
+    struct ValidationResult {
 
         let declaration: FunctionDeclSyntax
         let trimmedReturnType: TypeSyntax
