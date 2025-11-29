@@ -49,7 +49,7 @@
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
-                
+
                     #if os(macOS)
                     var conditionalStoredProperty = 123
                     
@@ -58,7 +58,7 @@
                         conditionalStoredProperty
                     }
                     #endif
-                
+
                     @PublisherIgnored
                     var ignoredStoredProperty = 123
                     
@@ -66,12 +66,12 @@
                     var ignoredComputedProperty: Int {
                         ignoredStoredProperty
                     }
-                
+
                     @available(iOS 26, *) @Memoized(.private)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
                     }
-                
+
                     @Memoized @PublisherIgnored
                     func makeIgnoredMemoizedProperty() -> Int {
                         ignoredStoredProperty
@@ -113,7 +113,7 @@
                         conditionalStoredProperty
                     }
                     #endif
-                
+
                     @PublisherIgnored
                     var ignoredStoredProperty = 123
                     
@@ -121,12 +121,12 @@
                     var ignoredComputedProperty: Int {
                         ignoredStoredProperty
                     }
-                
+
                     @available(iOS 26, *) @Memoized(.private)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
                     }
-                
+
                     @Memoized @PublisherIgnored
                     func makeIgnoredMemoizedProperty() -> Int {
                         ignoredStoredProperty
@@ -206,7 +206,7 @@
                             _computedPropertyPublisher(for: \.conditionalComputedProperty, object: object)
                         }
                         #endif
-                
+
                         @available(iOS 26, *)
                         fileprivate final var label: some Publisher<String, Never> {
                             _computedPropertyPublisher(for: \.label, object: object)

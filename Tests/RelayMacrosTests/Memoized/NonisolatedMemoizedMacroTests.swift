@@ -102,7 +102,7 @@
                 public final class Square {
 
                     var side = 12.3
-                
+
                     @available(macOS 26, *)
                     private func calculateArea() -> Double {
                         side * side

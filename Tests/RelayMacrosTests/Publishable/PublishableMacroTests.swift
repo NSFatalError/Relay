@@ -48,7 +48,7 @@
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
-                
+
                     #if os(macOS)
                     var conditionalStoredProperty = 123
                     
@@ -57,7 +57,7 @@
                         conditionalStoredProperty
                     }
                     #endif
-                
+
                     @PublisherIgnored
                     var ignoredStoredProperty = 123
                     
@@ -70,7 +70,7 @@
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
                     }
-                
+
                     @Memoized @PublisherIgnored
                     func makeIgnoredMemoizedProperty() -> Int {
                         ignoredStoredProperty
@@ -103,7 +103,7 @@
                         get { "\(name.prefix(1))\(surname.prefix(1))" }
                         set { _ = newValue }
                     }
-                
+
                     #if os(macOS)
                     var conditionalStoredProperty = 123
                     
@@ -112,7 +112,7 @@
                         conditionalStoredProperty
                     }
                     #endif
-                
+
                     @PublisherIgnored
                     var ignoredStoredProperty = 123
                     
@@ -125,7 +125,7 @@
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
                     }
-                
+
                     @Memoized @PublisherIgnored
                     func makeIgnoredMemoizedProperty() -> Int {
                         ignoredStoredProperty

@@ -26,7 +26,7 @@
                 #"""
                 @Publishable @Observable
                 class Dog: Animal {
-                
+
                     var name: String
                     
                     override var age: Int {
@@ -91,10 +91,10 @@
                         final var name: some Publisher<String, Never> {
                             _storedPropertyPublisher(_name, for: \.name, object: object)
                         }
-                
-                
-                
-                
+
+
+
+
                     }
 
                     private enum Observation {
@@ -186,7 +186,7 @@
                 #"""
                 @Publishable(hasSuperclass: true) @Observable
                 class Dog: Animal {
-                
+
                     var name: String
                 }
                 """#,
@@ -194,11 +194,11 @@
                 #"""
                 @Observable
                 class Dog: Animal {
-                
+
                     var name: String
-                
+
                     private final lazy var _publisher = PropertyPublisher(object: self)
-                
+
                     /// A ``PropertyPublisher`` which exposes `Combine` publishers for all mutable 
                     /// or computed instance properties of this object.
                     ///
@@ -209,48 +209,48 @@
                     override var publisher: PropertyPublisher {
                         _publisher
                     }
-                
+
                     class PropertyPublisher: Animal.PropertyPublisher {
-                
+
                         private final unowned let object: Dog
-                
+
                         final var dogWillChange: some Publisher<Dog, Never> {
                             willChange.map { [unowned object] _ in
                                 object
                             }
                         }
-                
+
                         final var dogDidChange: some Publisher<Dog, Never> {
                             didChange.map { [unowned object] _ in
                                 object
                             }
                         }
-                
+
                         init(object: Dog) {
                             self.object = object
                             super.init(object: object)
                         }
-                
+
                         deinit {
                             _name.send(completion: .finished)
                         }
-                
+
                         fileprivate final let _name = PassthroughSubject<String, Never>()
                         final var name: some Publisher<String, Never> {
                             _storedPropertyPublisher(_name, for: \.name, object: object)
                         }
-                
-                
-                
-                
+
+
+
+
                     }
-                
+
                     private enum Observation {
-                
+
                         nonisolated struct ObservationRegistrar: PublishableObservationRegistrar {
-                
+
                             private let underlying = SwiftObservationRegistrar()
-                
+
                             private func publish(
                                 _ object: Dog,
                                 keyPath: KeyPath<Dog, some Any>
@@ -260,7 +260,7 @@
                                     return
                                 }
                             }
-                
+
                             nonisolated func willSet(
                                 _ object: Dog,
                                 keyPath: KeyPath<Dog, some Any>
@@ -271,7 +271,7 @@
                                     underlying.willSet(object, keyPath: keyPath)
                                 }
                             }
-                
+
                             nonisolated func didSet(
                                 _ object: Dog,
                                 keyPath: KeyPath<Dog, some Any>
@@ -283,14 +283,14 @@
                                     object.publisher._endModifications()
                                 }
                             }
-                
+
                             nonisolated func access(
                                 _ object: Dog,
                                 keyPath: KeyPath<Dog, some Any>
                             ) {
                                 underlying.access(object, keyPath: keyPath)
                             }
-                
+
                             nonisolated func withMutation<__macro_local_1TfMu_>(
                                 of object: Dog,
                                 keyPath: KeyPath<Dog, some Any>,
@@ -299,7 +299,7 @@
                                 nonisolated(unsafe) let mutation = mutation
                                 nonisolated(unsafe) let keyPath = keyPath
                                 nonisolated(unsafe) var result: __macro_local_1TfMu_!
-                
+
                                 try assumeIsolatedIfNeeded {
                                     object.publisher._beginModifications()
                                     defer {
@@ -312,10 +312,10 @@
                                         mutation
                                     )
                                 }
-                
+
                                 return result
                             }
-                
+
                             private nonisolated func assumeIsolatedIfNeeded(
                                 _ operation: () throws -> Void
                             ) rethrows {
@@ -334,9 +334,9 @@
                 #"""
                 @Publishable(hasSuperclass: false) @Observable
                 class Dog: Animal {
-                
+
                     var name: String
-                
+
                     override var age: Int {
                         willSet {
                             print(newValue)
@@ -348,17 +348,17 @@
                 #"""
                 @Observable
                 class Dog: Animal {
-                
+
                     var name: String
-                
+
                     override var age: Int {
                         willSet {
                             print(newValue)
                         }
                     }
-                
+
                     private final lazy var _publisher = PropertyPublisher(object: self)
-                
+
                     /// A ``PropertyPublisher`` which exposes `Combine` publishers for all mutable 
                     /// or computed instance properties of this object.
                     ///
@@ -369,48 +369,48 @@
                     var publisher: PropertyPublisher {
                         _publisher
                     }
-                
+
                     class PropertyPublisher: Relay.AnyPropertyPublisher {
-                
+
                         private final unowned let object: Dog
-                
+
                         final var dogWillChange: some Publisher<Dog, Never> {
                             willChange.map { [unowned object] _ in
                                 object
                             }
                         }
-                
+
                         final var dogDidChange: some Publisher<Dog, Never> {
                             didChange.map { [unowned object] _ in
                                 object
                             }
                         }
-                
+
                         init(object: Dog) {
                             self.object = object
                             super.init(object: object)
                         }
-                
+
                         deinit {
                             _name.send(completion: .finished)
                         }
-                
+
                         fileprivate final let _name = PassthroughSubject<String, Never>()
                         final var name: some Publisher<String, Never> {
                             _storedPropertyPublisher(_name, for: \.name, object: object)
                         }
-                
-                
-                
-                
+
+
+
+
                     }
-                
+
                     private enum Observation {
-                
+
                         nonisolated struct ObservationRegistrar: PublishableObservationRegistrar {
-                
+
                             private let underlying = SwiftObservationRegistrar()
-                
+
                             private func publish(
                                 _ object: Dog,
                                 keyPath: KeyPath<Dog, some Any>
@@ -420,7 +420,7 @@
                                     return
                                 }
                             }
-                
+
                             nonisolated func willSet(
                                 _ object: Dog,
                                 keyPath: KeyPath<Dog, some Any>
@@ -431,7 +431,7 @@
                                     underlying.willSet(object, keyPath: keyPath)
                                 }
                             }
-                
+
                             nonisolated func didSet(
                                 _ object: Dog,
                                 keyPath: KeyPath<Dog, some Any>
@@ -443,14 +443,14 @@
                                     object.publisher._endModifications()
                                 }
                             }
-                
+
                             nonisolated func access(
                                 _ object: Dog,
                                 keyPath: KeyPath<Dog, some Any>
                             ) {
                                 underlying.access(object, keyPath: keyPath)
                             }
-                
+
                             nonisolated func withMutation<__macro_local_1TfMu_>(
                                 of object: Dog,
                                 keyPath: KeyPath<Dog, some Any>,
@@ -459,7 +459,7 @@
                                 nonisolated(unsafe) let mutation = mutation
                                 nonisolated(unsafe) let keyPath = keyPath
                                 nonisolated(unsafe) var result: __macro_local_1TfMu_!
-                
+
                                 try assumeIsolatedIfNeeded {
                                     object.publisher._beginModifications()
                                     defer {
@@ -472,10 +472,10 @@
                                         mutation
                                     )
                                 }
-                
+
                                 return result
                             }
-                
+
                             private nonisolated func assumeIsolatedIfNeeded(
                                 _ operation: () throws -> Void
                             ) rethrows {
