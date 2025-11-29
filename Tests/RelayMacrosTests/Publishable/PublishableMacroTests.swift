@@ -50,11 +50,11 @@
                     }
 
                     #if os(macOS)
-                    var conditionalStoredProperty = 123
+                    var platformStoredProperty = 123
                     
                     @available(macOS 26, *)
-                    var conditionalComputedProperty: Int {
-                        conditionalStoredProperty
+                    var platformComputedProperty: Int {
+                        platformStoredProperty
                     }
                     #endif
 
@@ -105,11 +105,11 @@
                     }
 
                     #if os(macOS)
-                    var conditionalStoredProperty = 123
+                    var platformStoredProperty = 123
                     
                     @available(macOS 26, *)
-                    var conditionalComputedProperty: Int {
-                        conditionalStoredProperty
+                    var platformComputedProperty: Int {
+                        platformStoredProperty
                     }
                     #endif
 
@@ -170,7 +170,7 @@
                             _name.send(completion: .finished)
                             _surname.send(completion: .finished)
                             #if os(macOS)
-                            _conditionalStoredProperty.send(completion: .finished)
+                            _platformStoredProperty.send(completion: .finished)
                             #endif
                         }
 
@@ -187,9 +187,9 @@
                             _storedPropertyPublisher(_surname, for: \.surname, object: object)
                         }
                         #if os(macOS)
-                        fileprivate final let _conditionalStoredProperty = PassthroughSubject<Int, Never>()
-                        final var conditionalStoredProperty: some Publisher<Int, Never> {
-                            _storedPropertyPublisher(_conditionalStoredProperty, for: \.conditionalStoredProperty, object: object)
+                        fileprivate final let _platformStoredProperty = PassthroughSubject<Int, Never>()
+                        final var platformStoredProperty: some Publisher<Int, Never> {
+                            _storedPropertyPublisher(_platformStoredProperty, for: \.platformStoredProperty, object: object)
                         }
                         #endif
 
@@ -201,8 +201,8 @@
                         }
                         #if os(macOS)
                         @available(macOS 26, *)
-                        final var conditionalComputedProperty: some Publisher<Int, Never> {
-                            _computedPropertyPublisher(for: \.conditionalComputedProperty, object: object)
+                        final var platformComputedProperty: some Publisher<Int, Never> {
+                            _computedPropertyPublisher(for: \.platformComputedProperty, object: object)
                         }
                         #endif
 
@@ -235,8 +235,8 @@
                                     return
                                 }
                                 #if os(macOS)
-                                if keyPath == \.conditionalStoredProperty {
-                                    object.publisher._conditionalStoredProperty.send(object[keyPath: \.conditionalStoredProperty])
+                                if keyPath == \.platformStoredProperty {
+                                    object.publisher._platformStoredProperty.send(object[keyPath: \.platformStoredProperty])
                                     return
                                 }
                                 #endif

@@ -219,11 +219,11 @@ extension ObservationPublishableTests {
         }
 
         #if os(macOS)
-            var conditionalStoredProperty = 123
+            var platformStoredProperty = 123
 
             @available(macOS 26, *)
-            var conditionalComputedProperty: Int {
-                conditionalStoredProperty
+            var platformComputedProperty: Int {
+                platformStoredProperty
             }
         #endif
 

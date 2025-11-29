@@ -192,9 +192,14 @@ extension PublishableMemoizedTests {
             return baseArea * z
         }
 
+        @Memoized @PublisherIgnored
+        func calculateIgnoredValue() -> Double {
+            volume
+        }
+
         #if os(macOS)
             @available(macOS 26, *) @Memoized
-            func calculateConditionalValue() -> Double {
+            func calculatePlatformValue() -> Double {
                 volume
             }
         #endif

@@ -260,7 +260,7 @@ extension ObservationMemoizedTests {
 
         #if os(macOS)
             @available(macOS 26, *) @Memoized
-            func calculateConditionalValue() -> Double {
+            func calculatePlatformValue() -> Double {
                 volume
             }
         #endif
