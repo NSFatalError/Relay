@@ -217,5 +217,22 @@ extension ObservationPublishableTests {
             get { "\(name.prefix(1))\(surname.prefix(1))" }
             set { _ = newValue }
         }
+
+        #if os(macOS)
+        var conditionalStoredProperty = 123
+
+        @available(macOS 26, *)
+        var conditionalComputedProperty: Int {
+            conditionalStoredProperty
+        }
+        #endif
+
+        @PublisherIgnored
+        var ignoredStoredProperty = 123
+
+        @PublisherIgnored
+        var ignoredComputedProperty: Int {
+            ignoredStoredProperty
+        }
     }
 }
