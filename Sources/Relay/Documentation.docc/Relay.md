@@ -6,3 +6,7 @@ Essential tools that extend the capabilities of `Observation`.
 
 - <doc:PublishableMacros>
 - <doc:MemoizedMacros>
+
+## Changelog
+
+- <doc:Changelog>
