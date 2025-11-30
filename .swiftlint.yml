@@ -8,7 +8,7 @@ opt_in_rules:
     - anonymous_argument_in_multiline_closure
     - array_init
     - async_without_await
-    # attributes
+    # attributes (swiftformat)
     # balanced_xctest_lifecycle
     # closure_body_length
     - closure_end_indentation
@@ -55,9 +55,9 @@ opt_in_rules:
     - ibinspectable_in_extension
     - identical_operands
     - implicit_return
-    # implicitly_unwrapped_optional
+    - implicitly_unwrapped_optional
     # incompatible_concurrency_annotation
-    # indentation_width
+    # indentation_width (swiftformat)
     - joined_default_parameter
     - last_where
     - legacy_multiple
@@ -67,7 +67,7 @@ opt_in_rules:
     - local_doc_comment
     - lower_acl_than_parent
     # missing_docs
-    # modifier_order
+    # modifier_order (swiftformat)
     - multiline_arguments
     - multiline_arguments_brackets
     - multiline_function_chains
@@ -144,7 +144,7 @@ opt_in_rules:
     # vertical_whitespace_opening_braces
     - weak_delegate
     - xct_specific_matcher
-    # yoda_condition
+    # yoda_condition (swiftformat)
 
 analyzer_rules:
     - capture_variable
