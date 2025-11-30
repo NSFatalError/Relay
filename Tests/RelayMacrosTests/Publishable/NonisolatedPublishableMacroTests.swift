@@ -308,7 +308,7 @@
                     }
                 }
 
-                @available(iOS 26, macOS 26, *) extension Person: nonisolated Publishable {
+                @available(iOS 26, macOS 26, *) extension Person: nonisolated Relay.Publishable {
                 }
                 """#,
                 macroSpecs: macroSpecs

@@ -12,7 +12,6 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    // swiftlint:disable:next type_body_length
     internal final class ExplicitlyIsolatedPublishableMacroTests: XCTestCase {
 
         private let macroSpecs: [String: MacroSpec] = [
@@ -322,7 +321,7 @@
                     }
                 }
 
-                @available(iOS 26, macOS 26, *) extension Person: @MainActor Publishable {
+                @available(iOS 26, macOS 26, *) extension Person: @MainActor Relay.Publishable {
                 }
                 """#,
                 macroSpecs: macroSpecs

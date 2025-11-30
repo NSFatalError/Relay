@@ -100,8 +100,8 @@ extension MemoizedMacro {
             throw DiagnosticsError(
                 node: declaration,
                 message: """
-                @Memoized macro requires a method name consisting of at least two words \
-                or explicit property name
+                @Memoized macro requires a method name consisting of \
+                at least two words or an explicit property name
                 """
             )
         }

@@ -12,7 +12,7 @@ public enum PublishableMacro {
 
     static let attribute: AttributeSyntax = "@Publishable"
 
-    private static func validate(
+    private static func validateNode(
         _ node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext
@@ -32,10 +32,9 @@ public enum PublishableMacro {
                 but internals of SwiftData are incompatible with custom ObservationRegistrar
                 """,
                 fixIts: [
-                    .replace(
-                        message: MacroExpansionFixItMessage("Remove @Publishable macro"),
-                        oldNode: node,
-                        newNode: "\(node.leadingTrivia)" as TokenSyntax
+                    .remove(
+                        message: "Remove @Publishable macro",
+                        oldNode: node
                     )
                 ]
             )
@@ -53,7 +52,7 @@ extension PublishableMacro: MemberMacro {
         conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        let declaration = try validate(node, attachedTo: declaration, in: context)
+        let declaration = try validateNode(node, attachedTo: declaration, in: context)
         let properties = try PropertiesParser.parse(memberBlock: declaration.memberBlock)
         let parameters = try Parameters(from: node)
 
@@ -98,7 +97,7 @@ extension PublishableMacro: ExtensionMacro {
             return []
         }
 
-        let declaration = try validate(node, attachedTo: declaration, in: context)
+        let declaration = try validateNode(node, attachedTo: declaration, in: context)
         let parameters = try Parameters(from: node)
 
         let globalActorIsolation = GlobalActorIsolation.resolved(
@@ -107,15 +106,15 @@ extension PublishableMacro: ExtensionMacro {
         )
 
         return [
-            .init(
+            ExtensionDeclSyntax(
                 attributes: declaration.availability ?? [],
                 extendedType: type,
-                inheritanceClause: .init(
+                inheritanceClause: InheritanceClauseSyntax(
                     inheritedTypes: [
                         InheritedTypeSyntax(
                             type: AttributedTypeSyntax(
                                 globalActorIsolation: globalActorIsolation,
-                                baseType: IdentifierTypeSyntax(name: "Publishable")
+                                baseType: "Relay.Publishable"
                             )
                         )
                     ]
