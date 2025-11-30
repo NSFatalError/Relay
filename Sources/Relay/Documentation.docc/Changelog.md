@@ -19,4 +19,5 @@ now emits a warning when applied to `@Model` classes.
 
 ## Version 2.0
 
+- Renamed library from `Publishable` to `Relay`.
 - `swift-tools-version` changed from 6.1 to 6.2.
