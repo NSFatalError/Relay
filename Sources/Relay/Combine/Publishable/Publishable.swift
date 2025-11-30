@@ -20,6 +20,9 @@
 /// If a property’s type conforms to `Equatable`, its publisher automatically removes duplicate values.
 /// Just like the `Published` property wrapper, subscribing to any of the exposed publishers immediately emits the current value.
 ///
+/// Classes to which the `@Publishable` macro has been attached can be subclassed. To generate publishers for any properties added in a subclass,
+/// the macro must be applied again to the subclass definition. Subclasses should either be isolated to the same global actor as their superclass or remain nonisolated.
+///
 /// - Important: Swift Macros do not have access to full type information of expressions used in the code they’re applied to.
 /// Since working with `Combine` requires knowledge of concrete types, this macro attempts to infer the types of properties when they are not explicitly specified.
 /// However, this inference may fail in non-trivial cases. If the generated code fails to compile, explicitly specifying the type of the affected property should resolve the issue.
@@ -55,6 +58,9 @@ public macro Publishable() = #externalMacro(
 ///
 /// If a property’s type conforms to `Equatable`, its publisher automatically removes duplicate values.
 /// Just like the `Published` property wrapper, subscribing to any of the exposed publishers immediately emits the current value.
+/// 
+/// Classes to which the `@Publishable` macro has been attached can be subclassed. To generate publishers for any properties added in a subclass,
+/// the macro must be applied again to the subclass definition. Subclasses should either be isolated to the same global actor as their superclass or remain nonisolated.
 ///
 /// - Important: Swift Macros do not have access to full type information of expressions used in the code they’re applied to.
 /// Since working with `Combine` requires knowledge of concrete types, this macro attempts to infer the types of properties when they are not explicitly specified.
