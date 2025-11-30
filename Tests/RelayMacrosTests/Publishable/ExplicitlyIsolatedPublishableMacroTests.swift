@@ -1,8 +1,8 @@
 //
-//  PublishableMacroTests.swift
+//  ExplicitlyIsolatedPublishableMacroTests.swift
 //  Relay
 //
-//  Created by Kamil Strzelecki on 12/01/2025.
+//  Created by Kamil Strzelecki on 23/11/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
@@ -12,7 +12,8 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class PublishableMacroTests: XCTestCase {
+    // swiftlint:disable:next type_body_length
+    internal final class ExplicitlyIsolatedPublishableMacroTests: XCTestCase {
 
         private let macroSpecs: [String: MacroSpec] = [
             "Publishable": MacroSpec(
@@ -25,7 +26,7 @@
             assertMacroExpansion(
                 #"""
                 @available(iOS 26, macOS 26, *)
-                @Publishable @Observable
+                @CustomActor @Publishable(isolation: MainActor.self) @Observable
                 public final class Person {
 
                     static var user: Person?
@@ -66,7 +67,7 @@
                         ignoredStoredProperty
                     }
 
-                    @available(iOS 26, *) 
+                    @available(iOS 26, *)
                     @Memoized(.private)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
@@ -81,7 +82,7 @@
                 expandedSource:
                 #"""
                 @available(iOS 26, macOS 26, *)
-                @Observable
+                @CustomActor @Observable
                 public final class Person {
 
                     static var user: Person?
@@ -122,7 +123,7 @@
                         ignoredStoredProperty
                     }
 
-                    @available(iOS 26, *) 
+                    @available(iOS 26, *)
                     @Memoized(.private)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
@@ -146,7 +147,7 @@
                         _publisher
                     }
 
-                    public final class PropertyPublisher: Relay.AnyPropertyPublisher {
+                    @MainActor public final class PropertyPublisher: Relay.AnyPropertyPublisher {
 
                         private final unowned let object: Person
 
@@ -167,7 +168,7 @@
                             super.init(object: object)
                         }
 
-                        deinit {
+                        @MainActor deinit {
                             _age.send(completion: .finished)
                             _name.send(completion: .finished)
                             _surname.send(completion: .finished)
@@ -220,7 +221,7 @@
 
                             private let underlying = SwiftObservationRegistrar()
 
-                            private func publish(
+                            @MainActor private func publish(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
                             ) {
@@ -300,15 +301,28 @@
                             }
 
                             private nonisolated func assumeIsolatedIfNeeded(
-                                _ operation: () throws -> Void
+                                _ operation: @MainActor () throws -> Void,
+                                file: StaticString = #fileID,
+                                line: UInt = #line
                             ) rethrows {
-                                try operation()
+                                try withoutActuallyEscaping(operation) { operation in
+                                    typealias Nonisolated = () throws -> Void
+                                    let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
+
+                                    try MainActor.shared.assumeIsolated(
+                                        { _ in
+                                            try rawOperation()
+                                        },
+                                        file: file,
+                                        line: line
+                                    )
+                                }
                             }
                         }
                     }
                 }
 
-                @available(iOS 26, macOS 26, *) extension Person: Publishable {
+                @available(iOS 26, macOS 26, *) extension Person: @MainActor Publishable {
                 }
                 """#,
                 macroSpecs: macroSpecs

@@ -11,11 +11,20 @@ import SwiftSyntaxMacros
 internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     let declaration: ClassDeclSyntax
-    let properties: PropertiesList
     let preferredGlobalActorIsolation: GlobalActorIsolation?
+    private let trackedProperties: PropertiesList
+    private let genericParameter: TokenSyntax
 
-    private var registeredProperties: PropertiesList {
-        properties.stored.mutable.instance
+    init(
+        declaration: ClassDeclSyntax,
+        properties: PropertiesList,
+        preferredGlobalActorIsolation: GlobalActorIsolation?,
+        context: some MacroExpansionContext
+    ) {
+        self.declaration = declaration
+        self.preferredGlobalActorIsolation = preferredGlobalActorIsolation
+        self.trackedProperties = properties.filter(\.isStoredPublisherTracked)
+        self.genericParameter = context.makeUniqueName("T")
     }
 
     func build() -> [DeclSyntax] {
@@ -23,13 +32,11 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
             """
             private enum Observation {
 
-                struct ObservationRegistrar: \(inheritedGlobalActorIsolation)PublishableObservationRegistrar {
+                nonisolated struct ObservationRegistrar: PublishableObservationRegistrar {
 
                     private let underlying = SwiftObservationRegistrar()
 
-                    \(publishNewValueFunction())
-
-                    \(subjectFunctions().formatted())
+                    \(publishFunction())
 
                     \(observationRegistrarWillSetDidSetAccessFunctions())
 
@@ -42,56 +49,38 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
         ]
     }
 
-    private func publishNewValueFunction() -> MemberBlockItemListSyntax {
+    private func publishFunction() -> MemberBlockItemListSyntax {
         """
-        \(inheritedGlobalActorIsolation)func publish(
+        \(inheritedGlobalActorIsolation)private func publish(
             _ object: \(trimmedType),
             keyPath: KeyPath<\(trimmedType), some Any>
         ) {
-            \(publishNewValueKeyPathCasting().formatted())
+            \(publishKeyPathLookups().formatted())
         }
         """
     }
 
     @CodeBlockItemListBuilder
-    private func publishNewValueKeyPathCasting() -> CodeBlockItemListSyntax {
-        for inferredType in registeredProperties.uniqueInferredTypes {
-            """
-            if let keyPath = keyPath as? KeyPath<\(trimmedType), \(inferredType)>,
-               let subject = subject(for: keyPath, on: object) {
-                subject.send(object[keyPath: keyPath])
-                return
+    private func publishKeyPathLookups() -> CodeBlockItemListSyntax {
+        for property in trackedProperties {
+            let lookup = publishKeyPathLookup(for: property)
+            if let ifConfigLookup = property.underlying.applyingEnclosingIfConfig(to: lookup) {
+                ifConfigLookup
+            } else {
+                lookup
             }
-            """
         }
     }
 
-    @MemberBlockItemListBuilder
-    private func subjectFunctions() -> MemberBlockItemListSyntax {
-        for inferredType in registeredProperties.uniqueInferredTypes {
-            """
-            \(inheritedGlobalActorIsolation)private func subject(
-                for keyPath: KeyPath<\(trimmedType), \(inferredType)>,
-                on object: \(trimmedType)
-            ) -> PassthroughSubject<\(inferredType), Never>? {
-                \(subjectKeyPathCasting(for: inferredType).formatted())
-            }
-            """
-        }
-    }
+    private func publishKeyPathLookup(for property: Property) -> CodeBlockItemListSyntax {
+        // Stored properties cannot be made potentially unavailable
+        let name = property.trimmedName
 
-    @CodeBlockItemListBuilder
-    private func subjectKeyPathCasting(for inferredType: TypeSyntax) -> CodeBlockItemListSyntax {
-        for property in registeredProperties.withInferredType(like: inferredType).all {
-            let name = property.trimmedName
-            """
-            if keyPath == \\.\(name) {
-                return object.publisher._\(name)
-            }
-            """
+        return """
+        if keyPath == \\.\(name) {
+            object.publisher._\(name).send(object[keyPath: \\.\(name)])
+            return
         }
-        """
-        return nil
         """
     }
 
@@ -131,14 +120,14 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
 
     private func observationRegistrarWithMutationFunction() -> MemberBlockItemListSyntax {
         """
-        nonisolated func withMutation<T>(
+        nonisolated func withMutation<\(genericParameter)>(
             of object: \(trimmedType),
             keyPath: KeyPath<\(trimmedType), some Any>,
-            _ mutation: () throws -> T
-        ) rethrows -> T {
+            _ mutation: () throws -> \(genericParameter)
+        ) rethrows -> \(genericParameter) {
             nonisolated(unsafe) let mutation = mutation
             nonisolated(unsafe) let keyPath = keyPath
-            nonisolated(unsafe) var result: T!
+            nonisolated(unsafe) var result: \(genericParameter)!
 
             try assumeIsolatedIfNeeded {
                 object.publisher._beginModifications()

@@ -10,20 +10,37 @@ import SwiftSyntaxMacros
 
 public enum PublishableMacro {
 
+    static let attribute: AttributeSyntax = "@Publishable"
+
     private static func validate(
-        _ declaration: some DeclGroupSyntax,
+        _ node: AttributeSyntax,
+        attachedTo declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext
-    ) -> ClassDeclSyntax? {
-        guard let declaration = declaration.as(ClassDeclSyntax.self),
-              declaration.attributes.contains(likeOneOf: "@Observable", "@Model"),
-              declaration.isFinal
-        else {
+    ) throws -> ClassDeclSyntax {
+        guard let declaration = declaration.as(ClassDeclSyntax.self) else {
+            throw DiagnosticsError(
+                node: declaration,
+                message: "@Publishable macro can only be applied to Observable classes"
+            )
+        }
+
+        if declaration.attributes.contains(like: SwiftDataModelMacro.attribute) {
             context.diagnose(
                 node: declaration,
-                errorMessage: "Publishable macro can only be applied to final @Observable or @Model classes"
+                warningMessage: """
+                @Publishable macro compiles when applied to @Model classes, \
+                but internals of SwiftData are incompatible with custom ObservationRegistrar
+                """,
+                fixIts: [
+                    .replace(
+                        message: MacroExpansionFixItMessage("Remove @Publishable macro"),
+                        oldNode: node,
+                        newNode: "\(node.leadingTrivia)" as TokenSyntax
+                    )
+                ]
             )
-            return nil
         }
+
         return declaration
     }
 }
@@ -33,33 +50,32 @@ extension PublishableMacro: MemberMacro {
     public static func expansion(
         of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
-        conformingTo _: [TypeSyntax],
+        conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        guard let declaration = validate(declaration, in: context) else {
-            return []
-        }
-
+        let declaration = try validate(node, attachedTo: declaration, in: context)
+        let properties = try PropertiesParser.parse(memberBlock: declaration.memberBlock)
         let parameters = try Parameters(from: node)
-        let properties = PropertiesParser.parse(
-            memberBlock: declaration.memberBlock,
-            in: context
-        )
+
+        let hasPublishableSuperclass = protocols.isEmpty
+        let trimmedSuperclassType = hasPublishableSuperclass ? declaration.possibleSuperclassType : nil
 
         let builderTypes: [any ClassDeclBuilder] = [
             PublisherDeclBuilder(
                 declaration: declaration,
-                properties: properties
+                trimmedSuperclassType: trimmedSuperclassType
             ),
             PropertyPublisherDeclBuilder(
                 declaration: declaration,
                 properties: properties,
+                trimmedSuperclassType: trimmedSuperclassType,
                 preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
             ),
             ObservationRegistrarDeclBuilder(
                 declaration: declaration,
                 properties: properties,
-                preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
+                preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation,
+                context: context
             )
         ]
 
@@ -75,14 +91,16 @@ extension PublishableMacro: ExtensionMacro {
         of node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
         providingExtensionsOf type: some TypeSyntaxProtocol,
-        conformingTo _: [TypeSyntax],
+        conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [ExtensionDeclSyntax] {
-        guard let declaration = validate(declaration, in: context) else {
+        guard !protocols.isEmpty else {
             return []
         }
 
+        let declaration = try validate(node, attachedTo: declaration, in: context)
         let parameters = try Parameters(from: node)
+
         let globalActorIsolation = GlobalActorIsolation.resolved(
             for: declaration,
             preferred: parameters.preferredGlobalActorIsolation
@@ -90,6 +108,7 @@ extension PublishableMacro: ExtensionMacro {
 
         return [
             .init(
+                attributes: declaration.availability ?? [],
                 extendedType: type,
                 inheritanceClause: .init(
                     inheritedTypes: [

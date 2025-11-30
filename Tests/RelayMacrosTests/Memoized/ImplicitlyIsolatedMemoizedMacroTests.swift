@@ -1,5 +1,5 @@
 //
-//  MemoizedMacroTests.swift
+//  ImplicitlyIsolatedMemoizedMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 12/01/2025.
@@ -11,7 +11,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class MemoizedMacroTests: XCTestCase {
+    internal final class ImplicitlyIsolatedMemoizedMacroTests: XCTestCase {
 
         private let macros: [String: any Macro.Type] = [
             "Memoized": MemoizedMacro.self
@@ -20,7 +20,7 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @MainActor @Observable
                 public class Square {
 
                     var side = 12.3
@@ -33,7 +33,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @MainActor @Observable
                 public class Square {
 
                     var side = 12.3
@@ -41,9 +41,9 @@
                         side * side
                     }
 
-                    private final var _area: Optional<Double> = nil
+                    @MainActor private final var _area: Optional<Double> = nil
 
-                    final var area: Double {
+                    @MainActor final var area: Double {
                         if let cached = _area {
                             access(keyPath: \._area)
                             return cached
@@ -52,9 +52,15 @@
                         nonisolated(unsafe) weak var instance = self
 
                         @Sendable nonisolated func assumeIsolatedIfNeeded(
-                            _ operation: () -> Void
+                            _ operation: @MainActor () -> Void
                         ) {
-                            operation()
+                            withoutActuallyEscaping(operation) { operation in
+                                typealias Nonisolated = () -> Void
+                                let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
+                                MainActor.shared.assumeIsolated { _ in
+                                    rawOperation()
+                                }
+                            }
                         }
 
                         @Sendable nonisolated func invalidateCache() {
@@ -82,7 +88,7 @@
         func testExpansionWithParameters() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @MainActor @Observable
                 public final class Square {
 
                     var side = 12.3
@@ -96,7 +102,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @MainActor @Observable
                 public final class Square {
 
                     var side = 12.3
@@ -107,10 +113,10 @@
                     }
 
                     // Stored properties cannot be made potentially unavailable
-                    private final var _customName: Optional<Double> = nil
+                    @MainActor private final var _customName: Optional<Double> = nil
 
                     @available(macOS 26, *)
-                    public final var customName: Double {
+                    @MainActor public final var customName: Double {
                         if let cached = _customName {
                             access(keyPath: \._customName)
                             return cached
@@ -119,9 +125,15 @@
                         nonisolated(unsafe) weak var instance = self
 
                         @Sendable nonisolated func assumeIsolatedIfNeeded(
-                            _ operation: () -> Void
+                            _ operation: @MainActor () -> Void
                         ) {
-                            operation()
+                            withoutActuallyEscaping(operation) { operation in
+                                typealias Nonisolated = () -> Void
+                                let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
+                                MainActor.shared.assumeIsolated { _ in
+                                    rawOperation()
+                                }
+                            }
                         }
 
                         @Sendable nonisolated func invalidateCache() {

@@ -1,5 +1,5 @@
 //
-//  MainActorPublishableMacroTests.swift
+//  ImplicitlyIsolatedPublishableMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 24/08/2025.
@@ -8,18 +8,24 @@
 
 #if canImport(RelayMacros)
     import RelayMacros
+    import SwiftSyntaxMacroExpansion
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class MainActorPublishableMacroTests: XCTestCase {
+    // swiftlint:disable:next type_body_length
+    internal final class ImplicitlyIsolatedPublishableMacroTests: XCTestCase {
 
-        private let macros: [String: any Macro.Type] = [
-            "Publishable": PublishableMacro.self
+        private let macroSpecs: [String: MacroSpec] = [
+            "Publishable": MacroSpec(
+                type: PublishableMacro.self,
+                conformances: ["Publishable"]
+            )
         ]
 
         func testExpansion() {
             assertMacroExpansion(
                 #"""
+                @available(iOS 26, macOS 26, *)
                 @MainActor @Publishable @Observable
                 public final class Person {
 
@@ -44,14 +50,38 @@
                         set { _ = newValue }
                     }
 
-                    @Memoized(.public)
+                    #if os(macOS)
+                    var platformStoredProperty = 123
+                    
+                    @available(macOS 26, *)
+                    var platformComputedProperty: Int {
+                        platformStoredProperty
+                    }
+                    #endif
+
+                    @PublisherIgnored
+                    var ignoredStoredProperty = 123
+                    
+                    @PublisherIgnored
+                    var ignoredComputedProperty: Int {
+                        ignoredStoredProperty
+                    }
+
+                    @available(iOS 26, *)
+                    @Memoized(.private)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
+                    }
+
+                    @Memoized @PublisherIgnored
+                    func makeIgnoredMemoizedProperty() -> Int {
+                        ignoredStoredProperty
                     }
                 }
                 """#,
                 expandedSource:
                 #"""
+                @available(iOS 26, macOS 26, *)
                 @MainActor @Observable
                 public final class Person {
 
@@ -76,10 +106,35 @@
                         set { _ = newValue }
                     }
 
-                    @Memoized(.public)
+                    #if os(macOS)
+                    var platformStoredProperty = 123
+                    
+                    @available(macOS 26, *)
+                    var platformComputedProperty: Int {
+                        platformStoredProperty
+                    }
+                    #endif
+
+                    @PublisherIgnored
+                    var ignoredStoredProperty = 123
+                    
+                    @PublisherIgnored
+                    var ignoredComputedProperty: Int {
+                        ignoredStoredProperty
+                    }
+
+                    @available(iOS 26, *)
+                    @Memoized(.private)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
                     }
+
+                    @Memoized @PublisherIgnored
+                    func makeIgnoredMemoizedProperty() -> Int {
+                        ignoredStoredProperty
+                    }
+
+                    private final lazy var _publisher = PropertyPublisher(object: self)
 
                     /// A ``PropertyPublisher`` which exposes `Combine` publishers for all mutable 
                     /// or computed instance properties of this object.
@@ -88,83 +143,106 @@
                     /// the original object has been deallocated may result in a crash. Always access it directly 
                     /// through the object that exposes it.
                     ///
-                    public private(set) lazy var publisher = PropertyPublisher(object: self)
+                    public var publisher: PropertyPublisher {
+                        _publisher
+                    }
 
-                    public final class PropertyPublisher: AnyPropertyPublisher<Person> {
+                    @MainActor public final class PropertyPublisher: Relay.AnyPropertyPublisher {
 
-                        deinit {
+                        private final unowned let object: Person
+
+                        public final var personWillChange: some Publisher<Person, Never> {
+                            willChange.map { [unowned object] _ in
+                                object
+                            }
+                        }
+
+                        public final var personDidChange: some Publisher<Person, Never> {
+                            didChange.map { [unowned object] _ in
+                                object
+                            }
+                        }
+
+                        public init(object: Person) {
+                            self.object = object
+                            super.init(object: object)
+                        }
+
+                        @MainActor deinit {
                             _age.send(completion: .finished)
                             _name.send(completion: .finished)
                             _surname.send(completion: .finished)
+                            #if os(macOS)
+                            _platformStoredProperty.send(completion: .finished)
+                            #endif
                         }
 
-                        fileprivate let _age = PassthroughSubject<Int, Never>()
-                        @MainActor var age: AnyPublisher<Int, Never> {
-                            _storedPropertyPublisher(_age, for: \.age)
+                        fileprivate final let _age = PassthroughSubject<Int, Never>()
+                        final var age: some Publisher<Int, Never> {
+                            _storedPropertyPublisher(_age, for: \.age, object: object)
                         }
-                        fileprivate let _name = PassthroughSubject<String, Never>()
-                        @MainActor var name: AnyPublisher<String, Never> {
-                            _storedPropertyPublisher(_name, for: \.name)
+                        fileprivate final let _name = PassthroughSubject<String, Never>()
+                        final var name: some Publisher<String, Never> {
+                            _storedPropertyPublisher(_name, for: \.name, object: object)
                         }
-                        fileprivate let _surname = PassthroughSubject<String, Never>()
-                        @MainActor public var surname: AnyPublisher<String, Never> {
-                            _storedPropertyPublisher(_surname, for: \.surname)
+                        fileprivate final let _surname = PassthroughSubject<String, Never>()
+                        public final var surname: some Publisher<String, Never> {
+                            _storedPropertyPublisher(_surname, for: \.surname, object: object)
                         }
+                        #if os(macOS)
+                        fileprivate final let _platformStoredProperty = PassthroughSubject<Int, Never>()
+                        final var platformStoredProperty: some Publisher<Int, Never> {
+                            _storedPropertyPublisher(_platformStoredProperty, for: \.platformStoredProperty, object: object)
+                        }
+                        #endif
 
-                        @MainActor internal var fullName: AnyPublisher<String, Never> {
-                            _computedPropertyPublisher(for: \.fullName)
+                        internal final var fullName: some Publisher<String, Never> {
+                            _computedPropertyPublisher(for: \.fullName, object: object)
                         }
-                        @MainActor fileprivate var initials: AnyPublisher<String, Never> {
-                            _computedPropertyPublisher(for: \.initials)
+                        fileprivate final var initials: some Publisher<String, Never> {
+                            _computedPropertyPublisher(for: \.initials, object: object)
                         }
+                        #if os(macOS)
+                        @available(macOS 26, *)
+                        final var platformComputedProperty: some Publisher<Int, Never> {
+                            _computedPropertyPublisher(for: \.platformComputedProperty, object: object)
+                        }
+                        #endif
 
-                        @MainActor public var label: AnyPublisher<String, Never> {
-                            _computedPropertyPublisher(for: \.label)
+                        @available(iOS 26, *)
+                        fileprivate final var label: some Publisher<String, Never> {
+                            _computedPropertyPublisher(for: \.label, object: object)
                         }
                     }
 
                     private enum Observation {
 
-                        struct ObservationRegistrar: @MainActor PublishableObservationRegistrar {
+                        nonisolated struct ObservationRegistrar: PublishableObservationRegistrar {
 
                             private let underlying = SwiftObservationRegistrar()
 
-                            @MainActor func publish(
+                            @MainActor private func publish(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
                             ) {
-                                if let keyPath = keyPath as? KeyPath<Person, Int>,
-                                   let subject = subject(for: keyPath, on: object) {
-                                    subject.send(object[keyPath: keyPath])
-                                    return
-                                }
-                                if let keyPath = keyPath as? KeyPath<Person, String>,
-                                   let subject = subject(for: keyPath, on: object) {
-                                    subject.send(object[keyPath: keyPath])
-                                    return
-                                }
-                            }
-
-                            @MainActor private func subject(
-                                for keyPath: KeyPath<Person, Int>,
-                                on object: Person
-                            ) -> PassthroughSubject<Int, Never>? {
                                 if keyPath == \.age {
-                                    return object.publisher._age
+                                    object.publisher._age.send(object[keyPath: \.age])
+                                    return
                                 }
-                                return nil
-                            }
-                            @MainActor private func subject(
-                                for keyPath: KeyPath<Person, String>,
-                                on object: Person
-                            ) -> PassthroughSubject<String, Never>? {
                                 if keyPath == \.name {
-                                    return object.publisher._name
+                                    object.publisher._name.send(object[keyPath: \.name])
+                                    return
                                 }
                                 if keyPath == \.surname {
-                                    return object.publisher._surname
+                                    object.publisher._surname.send(object[keyPath: \.surname])
+                                    return
                                 }
-                                return nil
+                                #if os(macOS)
+                                if keyPath == \.platformStoredProperty {
+                                    object.publisher._platformStoredProperty.send(object[keyPath: \.platformStoredProperty])
+                                    return
+                                }
+                                #endif
                             }
 
                             nonisolated func willSet(
@@ -197,14 +275,14 @@
                                 underlying.access(object, keyPath: keyPath)
                             }
 
-                            nonisolated func withMutation<T>(
+                            nonisolated func withMutation<__macro_local_1TfMu_>(
                                 of object: Person,
                                 keyPath: KeyPath<Person, some Any>,
-                                _ mutation: () throws -> T
-                            ) rethrows -> T {
+                                _ mutation: () throws -> __macro_local_1TfMu_
+                            ) rethrows -> __macro_local_1TfMu_ {
                                 nonisolated(unsafe) let mutation = mutation
                                 nonisolated(unsafe) let keyPath = keyPath
-                                nonisolated(unsafe) var result: T!
+                                nonisolated(unsafe) var result: __macro_local_1TfMu_!
 
                                 try assumeIsolatedIfNeeded {
                                     object.publisher._beginModifications()
@@ -244,10 +322,10 @@
                     }
                 }
 
-                extension Person: @MainActor Publishable {
+                @available(iOS 26, macOS 26, *) extension Person: @MainActor Publishable {
                 }
                 """#,
-                macros: macros
+                macroSpecs: macroSpecs
             )
         }
     }

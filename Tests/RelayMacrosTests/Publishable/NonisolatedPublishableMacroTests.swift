@@ -1,8 +1,8 @@
 //
-//  PublishableMacroTests.swift
+//  NonisolatedPublishableMacroTests.swift
 //  Relay
 //
-//  Created by Kamil Strzelecki on 12/01/2025.
+//  Created by Kamil Strzelecki on 23/11/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
@@ -12,7 +12,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class PublishableMacroTests: XCTestCase {
+    internal final class NonisolatedPublishableMacroTests: XCTestCase {
 
         private let macroSpecs: [String: MacroSpec] = [
             "Publishable": MacroSpec(
@@ -25,7 +25,7 @@
             assertMacroExpansion(
                 #"""
                 @available(iOS 26, macOS 26, *)
-                @Publishable @Observable
+                @Publishable(isolation: nil) @Observable
                 public final class Person {
 
                     static var user: Person?
@@ -146,7 +146,7 @@
                         _publisher
                     }
 
-                    public final class PropertyPublisher: Relay.AnyPropertyPublisher {
+                    nonisolated public final class PropertyPublisher: Relay.AnyPropertyPublisher {
 
                         private final unowned let object: Person
 
@@ -167,7 +167,7 @@
                             super.init(object: object)
                         }
 
-                        deinit {
+                        nonisolated deinit {
                             _age.send(completion: .finished)
                             _name.send(completion: .finished)
                             _surname.send(completion: .finished)
@@ -220,7 +220,7 @@
 
                             private let underlying = SwiftObservationRegistrar()
 
-                            private func publish(
+                            nonisolated private func publish(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
                             ) {
@@ -308,7 +308,7 @@
                     }
                 }
 
-                @available(iOS 26, macOS 26, *) extension Person: Publishable {
+                @available(iOS 26, macOS 26, *) extension Person: nonisolated Publishable {
                 }
                 """#,
                 macroSpecs: macroSpecs

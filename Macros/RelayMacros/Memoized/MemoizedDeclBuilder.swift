@@ -21,11 +21,11 @@ internal struct MemoizedDeclBuilder: FunctionDeclBuilder, PeerBuilding {
     func build() -> [DeclSyntax] {
         [
             """
-            \(inheritedGlobalActorIsolation)private \
+            \(raw: storedPropertyAvailabilityComment())\(inheritedGlobalActorIsolation)private final \
             var _\(raw: propertyName): Optional<\(trimmedReturnType)> = nil
             """,
             """
-            \(inheritedGlobalActorIsolation)\(preferredAccessControlLevel)\
+            \(inheritedAvailability)\(inheritedGlobalActorIsolation)\(preferredAccessControlLevel)final \
             var \(raw: propertyName): \(trimmedReturnType) {
                 if let cached = _\(raw: propertyName) {
                     access(keyPath: \\._\(raw: propertyName))
@@ -42,6 +42,14 @@ internal struct MemoizedDeclBuilder: FunctionDeclBuilder, PeerBuilding {
             }
             """
         ]
+    }
+
+    private func storedPropertyAvailabilityComment() -> String {
+        if inheritedAvailability != nil {
+            "// Stored properties cannot be made potentially unavailable\n"
+        } else {
+            ""
+        }
     }
 
     private func observationTrackingBlock() -> CodeBlockItemSyntax {

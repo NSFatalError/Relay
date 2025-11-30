@@ -11,7 +11,7 @@ import Observation
 @_documentation(visibility: private)
 public protocol PublishableObservationRegistrar {
 
-    associatedtype Object: Publishable, Observable
+    associatedtype Object: Observable
 
     init()
 

@@ -8,7 +8,7 @@ opt_in_rules:
     - anonymous_argument_in_multiline_closure
     - array_init
     - async_without_await
-    # attributes
+    # attributes (swiftformat)
     # balanced_xctest_lifecycle
     # closure_body_length
     - closure_end_indentation
@@ -27,7 +27,7 @@ opt_in_rules:
     - discouraged_assert
     - discouraged_none_name
     - discouraged_object_literal
-    - discouraged_optional_boolean
+    # discouraged_optional_boolean
     - discouraged_optional_collection
     - empty_collection_literal
     - empty_count
@@ -55,9 +55,9 @@ opt_in_rules:
     - ibinspectable_in_extension
     - identical_operands
     - implicit_return
-    # implicitly_unwrapped_optional
+    - implicitly_unwrapped_optional
     # incompatible_concurrency_annotation
-    # indentation_width
+    # indentation_width (swiftformat)
     - joined_default_parameter
     - last_where
     - legacy_multiple
@@ -67,7 +67,7 @@ opt_in_rules:
     - local_doc_comment
     - lower_acl_than_parent
     # missing_docs
-    - modifier_order
+    # modifier_order (swiftformat)
     - multiline_arguments
     - multiline_arguments_brackets
     - multiline_function_chains
@@ -144,7 +144,7 @@ opt_in_rules:
     # vertical_whitespace_opening_braces
     - weak_delegate
     - xct_specific_matcher
-    # yoda_condition
+    # yoda_condition (swiftformat)
 
 analyzer_rules:
     - capture_variable
@@ -173,6 +173,7 @@ identifier_name:
     excluded: [id, ui, x, y, z, dx, dy, dz]
 
 line_length:
+    ignores_multiline_strings: true
     ignores_comments: true
 
 nesting:
@@ -189,10 +190,6 @@ type_contents_order:
     order: [[case], [type_alias, associated_type], [subtype], [type_property], [instance_property], [ib_inspectable], [ib_outlet], [initializer], [deinitializer], [type_method], [view_life_cycle_method], [ib_action, ib_segue_action], [other_method], [subscript]]
 
 custom_rules:
-    global_actor_attribute_order:
-        name: "Global actor attribute order"
-        message: "Global actor should be the first attribute."
-        regex: "(?-s)(@.+[^,\\s]\\s+@.*Actor\\s)"
     sendable_attribute_order:
         name: "Sendable attribute order"
         message: "Sendable should be the first attribute."
@@ -204,4 +201,4 @@ custom_rules:
     empty_line_after_type_declaration:
         name: "Empty line after type declaration"
         message: "Type declaration should start with an empty line."
-        regex: "( |^)(actor|class|struct|enum|protocol|extension) (?!var)[^\\{]*? \\{(?!\\s*\\}) *\\n? *\\S"
+        regex: "( |^)(actor|class|struct|enum|protocol|extension) (?!var)[^\\n\\{]*? \\{(?!\\s*\\}) *\\n? *\\S"

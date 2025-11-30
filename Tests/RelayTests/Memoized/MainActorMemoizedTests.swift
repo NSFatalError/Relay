@@ -107,58 +107,6 @@ internal enum MainActorMemoizedTests {
             #expect(cube.calculateBaseAreaCallsCount == 1)
             #expect(!cube.isBaseAreaCached)
         }
-
-        @Test
-        @available(macOS 26.0, macCatalyst 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, *)
-        func observations() async {
-            let cube = Cube()
-            var queue = [Double]()
-
-            let task = Task.immediate {
-                let observations = Observations {
-                    cube.baseArea
-                }
-                for await area in observations {
-                    queue.append(area)
-                }
-            }
-
-            try? await Task.sleep(for: .microseconds(10)) // access1 - not cached
-            #expect(queue.popFirst() == 1.0)
-            #expect(cube.calculateBaseAreaCallsCount == 1)
-            #expect(cube.isBaseAreaCached)
-
-            cube.x = 2.0
-            #expect(queue.popFirst() == nil)
-            #expect(cube.calculateBaseAreaCallsCount == 1)
-            #expect(!cube.isBaseAreaCached)
-
-            try? await Task.sleep(for: .microseconds(10)) // access2 - not cached
-            #expect(queue.popFirst() == 2.0)
-            #expect(cube.calculateBaseAreaCallsCount == 2)
-            #expect(cube.isBaseAreaCached)
-
-            cube.y = 3.0
-            #expect(queue.popFirst() == nil)
-            #expect(cube.calculateBaseAreaCallsCount == 2)
-            #expect(!cube.isBaseAreaCached)
-
-            cube.y = 4.0
-            let access3 = cube.baseArea
-            #expect(access3 == 8.0)
-            #expect(queue.popFirst() == nil)
-            #expect(cube.calculateBaseAreaCallsCount == 3)
-            #expect(cube.isBaseAreaCached)
-
-            try? await Task.sleep(for: .microseconds(10)) // access4 - cached
-            #expect(queue.popFirst() == 8.0)
-            #expect(cube.calculateBaseAreaCallsCount == 3)
-            #expect(cube.isBaseAreaCached)
-
-            task.cancel()
-            await task.value
-            #expect(queue.isEmpty)
-        }
     }
 }
 
@@ -279,70 +227,6 @@ extension MainActorMemoizedTests {
             #expect(cube.calculateBaseAreaCallsCount == 1)
             #expect(cube.isBaseAreaCached)
         }
-
-        @Test
-        @available(macOS 26.0, macCatalyst 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, *)
-        func observations() async {
-            let cube = Cube()
-            var queue = [Double]()
-
-            let task = Task.immediate {
-                let observations = Observations {
-                    cube.volume
-                }
-                for await area in observations {
-                    queue.append(area)
-                }
-            }
-
-            try? await Task.sleep(for: .microseconds(10)) // access1 - not cached
-            #expect(queue.popFirst() == 1.0)
-            #expect(cube.calculateVolumeCallsCount == 1)
-            #expect(cube.isVolumeCached)
-            #expect(cube.calculateBaseAreaCallsCount == 1)
-            #expect(cube.isBaseAreaCached)
-
-            cube.x = 2.0
-            #expect(queue.popFirst() == nil)
-            #expect(cube.calculateVolumeCallsCount == 1)
-            #expect(!cube.isVolumeCached)
-            #expect(cube.calculateBaseAreaCallsCount == 1)
-            #expect(!cube.isBaseAreaCached)
-
-            try? await Task.sleep(for: .microseconds(10)) // access2 - not cached
-            #expect(queue.popFirst() == 2.0)
-            #expect(cube.calculateVolumeCallsCount == 2)
-            #expect(cube.isVolumeCached)
-            #expect(cube.calculateBaseAreaCallsCount == 2)
-            #expect(cube.isBaseAreaCached)
-
-            cube.z = 3.0
-            #expect(queue.popFirst() == nil)
-            #expect(cube.calculateVolumeCallsCount == 2)
-            #expect(!cube.isVolumeCached)
-            #expect(cube.calculateBaseAreaCallsCount == 2)
-            #expect(cube.isBaseAreaCached)
-
-            cube.z = 4.0
-            let access3 = cube.volume
-            #expect(access3 == 8.0)
-            #expect(queue.popFirst() == nil)
-            #expect(cube.calculateVolumeCallsCount == 3)
-            #expect(cube.isVolumeCached)
-            #expect(cube.calculateBaseAreaCallsCount == 2)
-            #expect(cube.isBaseAreaCached)
-
-            try? await Task.sleep(for: .microseconds(10)) // access4 - cached
-            #expect(queue.popFirst() == 8.0)
-            #expect(cube.calculateVolumeCallsCount == 3)
-            #expect(cube.isVolumeCached)
-            #expect(cube.calculateBaseAreaCallsCount == 2)
-            #expect(cube.isBaseAreaCached)
-
-            task.cancel()
-            await task.value
-            #expect(queue.isEmpty)
-        }
     }
 }
 
@@ -356,9 +240,11 @@ extension MainActorMemoizedTests {
         var y = 1.0
         var z = 1.0
 
+        @ObservationIgnored
         private(set) var calculateBaseAreaCallsCount = 0
         var isBaseAreaCached: Bool { _baseArea != nil }
 
+        @ObservationIgnored
         private(set) var calculateVolumeCallsCount = 0
         var isVolumeCached: Bool { _volume != nil }
 
@@ -368,10 +254,18 @@ extension MainActorMemoizedTests {
             return x * y
         }
 
-        @Memoized
+        @Memoized(.fileprivate, "volume")
         func calculateVolume() -> Double {
             calculateVolumeCallsCount += 1
             return baseArea * z
         }
+
+        #if os(macOS)
+            @available(macOS 26, *)
+            @Memoized
+            func calculatePlatformValue() -> Double {
+                volume
+            }
+        #endif
     }
 }

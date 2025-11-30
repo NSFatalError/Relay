@@ -10,58 +10,66 @@ import SwiftSyntaxMacros
 
 public enum MemoizedMacro {
 
-    private struct Input {
+    static let attribute: AttributeSyntax = "@Memoized"
 
-        let declaration: FunctionDeclSyntax
-        let trimmedReturnType: TypeSyntax
-        let propertyName: String
-    }
-
-    private static func validate(
-        _ declaration: some DeclSyntaxProtocol,
-        in context: some MacroExpansionContext,
-        with parameters: Parameters
-    ) -> Input? {
+    static func extract(
+        from declaration: DeclSyntax
+    ) -> ExtractionResult? {
         guard let declaration = declaration.as(FunctionDeclSyntax.self),
-              let trimmedReturnType = trimmedReturnType(of: declaration),
+              let node = declaration.attributes.first(like: attribute),
+              let parameters = try? Parameters(from: node),
+              let validationResult = try? validateNode(attachedTo: declaration, in: nil, with: parameters)
+        else {
+            return nil
+        }
+
+        return ExtractionResult(
+            validationResult: validationResult,
+            parameters: parameters
+        )
+    }
+}
+
+extension MemoizedMacro {
+
+    private static func validateNode(
+        attachedTo declaration: some DeclSyntaxProtocol,
+        in context: (any MacroExpansionContext)?,
+        with parameters: Parameters
+    ) throws -> ValidationResult {
+        guard let declaration = declaration.as(FunctionDeclSyntax.self),
+              let trimmedReturnType = declaration.signature.returnClause?.type.trimmed,
               declaration.signature.parameterClause.parameters.isEmpty,
               declaration.signature.effectSpecifiers == nil,
               declaration.typeScopeSpecifier == nil
         else {
-            context.diagnose(
+            throw DiagnosticsError(
                 node: declaration,
-                errorMessage: """
-                Memoized macro can only be applied to non-void, non-async, non-throwing \
+                message: """
+                @Memoized macro can only be applied to non-void, non-async, non-throwing \
                 methods that don't take any arguments
                 """
             )
-            return nil
         }
 
-        guard let scope = context.lexicalContext.first?.as(ClassDeclSyntax.self),
-              scope.attributes.contains(likeOneOf: "@Observable", "@Model")
-        else {
-            context.diagnose(
-                node: declaration,
-                errorMessage: """
-                Memoized macro can only be applied to methods declared in body (not extension) \
-                of @Observable or @Model classes
-                """
-            )
-            return nil
+        if let context {
+            guard context.lexicalContext.first?.is(ClassDeclSyntax.self) == true else {
+                throw DiagnosticsError(
+                    node: declaration,
+                    message: """
+                    @Memoized macro can only be applied to methods declared \
+                    in primary definition (not extensions) of Observable classes
+                    """
+                )
+            }
         }
 
-        let propertyName = validatePropertyName(
+        let propertyName = try validatePropertyName(
             for: declaration,
-            in: context,
             preferred: parameters.preferredPropertyName
         )
 
-        guard let propertyName else {
-            return nil
-        }
-
-        return Input(
+        return ValidationResult(
             declaration: declaration,
             trimmedReturnType: trimmedReturnType,
             propertyName: propertyName
@@ -70,44 +78,35 @@ public enum MemoizedMacro {
 
     private static func validatePropertyName(
         for declaration: FunctionDeclSyntax,
-        in context: some MacroExpansionContext,
         preferred: String?
-    ) -> String? {
+    ) throws -> String {
         if let preferred {
             guard !preferred.isEmpty else {
-                context.diagnose(
+                throw DiagnosticsError(
                     node: declaration,
-                    errorMessage: "Memoized macro requires a non-empty property name"
+                    message: "@Memoized macro requires a non-empty property name"
                 )
-                return nil
             }
+
             return preferred
         }
 
-        let inferred = defaultPropertyName(for: declaration)
-        guard !inferred.isEmpty else {
-            context.diagnose(
-                node: declaration,
-                errorMessage: """
-                Memoized macro requires a method name with at least two words \
-                or explicit property name
-                """
-            )
-            return nil
-        }
-
-        return inferred
-    }
-
-    static func defaultPropertyName(for declaration: FunctionDeclSyntax) -> String {
         let functionName = declaration.name.trimmedDescription
         var notation = CamelCaseNotation(string: functionName)
         notation.removeFirst()
-        return notation.joined(as: .lowerCamelCase)
-    }
+        let inferred = notation.joined(as: .lowerCamelCase)
 
-    static func trimmedReturnType(of declaration: FunctionDeclSyntax) -> TypeSyntax? {
-        declaration.signature.returnClause?.type.trimmed
+        guard !inferred.isEmpty else {
+            throw DiagnosticsError(
+                node: declaration,
+                message: """
+                @Memoized macro requires a method name consisting of at least two words \
+                or explicit property name
+                """
+            )
+        }
+
+        return inferred
     }
 }
 
@@ -119,16 +118,12 @@ extension MemoizedMacro: PeerMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         let parameters = try Parameters(from: node)
-        let input = validate(declaration, in: context, with: parameters)
-
-        guard let input else {
-            return []
-        }
+        let validationResult = try validateNode(attachedTo: declaration, in: context, with: parameters)
 
         let builder = MemoizedDeclBuilder(
-            declaration: input.declaration,
-            trimmedReturnType: input.trimmedReturnType,
-            propertyName: input.propertyName,
+            declaration: validationResult.declaration,
+            trimmedReturnType: validationResult.trimmedReturnType,
+            propertyName: validationResult.propertyName,
             lexicalContext: context.lexicalContext,
             preferredAccessControlLevel: parameters.preferredAccessControlLevel,
             preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
@@ -139,6 +134,28 @@ extension MemoizedMacro: PeerMacro {
 }
 
 extension MemoizedMacro {
+
+    @dynamicMemberLookup
+    struct ExtractionResult {
+
+        let validationResult: ValidationResult
+        let parameters: Parameters
+
+        subscript<T>(dynamicMember keyPath: KeyPath<ValidationResult, T>) -> T {
+            validationResult[keyPath: keyPath]
+        }
+
+        subscript<T>(dynamicMember keyPath: KeyPath<Parameters, T>) -> T {
+            parameters[keyPath: keyPath]
+        }
+    }
+
+    struct ValidationResult {
+
+        let declaration: FunctionDeclSyntax
+        let trimmedReturnType: TypeSyntax
+        let propertyName: String
+    }
 
     struct Parameters {
 
