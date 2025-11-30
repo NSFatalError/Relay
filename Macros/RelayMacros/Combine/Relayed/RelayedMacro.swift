@@ -1,40 +1,36 @@
 //
-//  PublishableMacro.swift
+//  RelayedMacro.swift
 //  Relay
 //
-//  Created by Kamil Strzelecki on 12/01/2025.
+//  Created by Kamil Strzelecki on 22/11/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
 import SwiftSyntaxMacros
 
-public enum PublishableMacro {
+public enum RelayedMacro {
 
-    static let attribute: AttributeSyntax = "@Publishable"
+    static let attribute: AttributeSyntax = "@Relayed"
 
     private static func validateNode(
-        _ node: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
         in context: some MacroExpansionContext
     ) throws -> ClassDeclSyntax {
         guard let declaration = declaration.as(ClassDeclSyntax.self) else {
             throw DiagnosticsError(
                 node: declaration,
-                message: "@Publishable macro can only be applied to Observable classes"
+                message: "@Relayed macro can only be applied to classes"
             )
         }
 
-        if declaration.attributes.contains(like: SwiftDataModelMacro.attribute) {
-            context.diagnose(
+        if let observableAttribute = declaration.attributes.first(like: ObservableMacro.attribute) {
+            throw DiagnosticsError(
                 node: declaration,
-                warningMessage: """
-                @Publishable macro compiles when applied to @Model classes, \
-                but internals of SwiftData are incompatible with custom ObservationRegistrar
-                """,
+                message: "@Relayed macro generates its own Observable protocol conformance",
                 fixIts: [
                     .remove(
-                        message: "Remove @Publishable macro",
-                        oldNode: node
+                        message: "Remove @Observable macro",
+                        oldNode: observableAttribute
                     )
                 ]
             )
@@ -44,7 +40,7 @@ public enum PublishableMacro {
     }
 }
 
-extension PublishableMacro: MemberMacro {
+extension RelayedMacro: MemberMacro {
 
     public static func expansion(
         of node: AttributeSyntax,
@@ -52,11 +48,11 @@ extension PublishableMacro: MemberMacro {
         conformingTo protocols: [TypeSyntax],
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        let declaration = try validateNode(node, attachedTo: declaration, in: context)
+        let declaration = try validateNode(attachedTo: declaration, in: context)
         let properties = try PropertiesParser.parse(memberBlock: declaration.memberBlock)
         let parameters = try Parameters(from: node)
 
-        let hasPublishableSuperclass = protocols.isEmpty
+        let hasPublishableSuperclass = !protocols.contains { $0.isLike("Publishable") }
         let trimmedSuperclassType = hasPublishableSuperclass ? declaration.possibleSuperclassType : nil
 
         let builders: [any ClassDeclBuilder] = [
@@ -70,10 +66,8 @@ extension PublishableMacro: MemberMacro {
                 trimmedSuperclassType: trimmedSuperclassType,
                 preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation
             ),
-            ObservationRegistrarDeclBuilder(
+            ObservableDeclBuilder(
                 declaration: declaration,
-                properties: properties,
-                preferredGlobalActorIsolation: parameters.preferredGlobalActorIsolation,
                 context: context
             )
         ]
@@ -84,7 +78,23 @@ extension PublishableMacro: MemberMacro {
     }
 }
 
-extension PublishableMacro: ExtensionMacro {
+extension RelayedMacro: MemberAttributeMacro {
+
+    public static func expansion(
+        of node: AttributeSyntax,
+        attachedTo declaration: some DeclGroupSyntax,
+        providingAttributesFor member: some DeclSyntaxProtocol,
+        in context: some MacroExpansionContext
+    ) throws -> [AttributeSyntax] {
+        if try RelayedPropertyMacro.shouldAttach(to: declaration) {
+            [RelayedPropertyMacro.attribute]
+        } else {
+            []
+        }
+    }
+}
+
+extension RelayedMacro: ExtensionMacro {
 
     public static func expansion(
         of node: AttributeSyntax,
@@ -97,35 +107,48 @@ extension PublishableMacro: ExtensionMacro {
             return []
         }
 
-        let declaration = try validateNode(node, attachedTo: declaration, in: context)
+        let declaration = try validateNode(attachedTo: declaration, in: context)
         let parameters = try Parameters(from: node)
+        var inheritedTypes = [AttributedTypeSyntax]()
 
-        let globalActorIsolation = GlobalActorIsolation.resolved(
-            for: declaration,
-            preferred: parameters.preferredGlobalActorIsolation
-        )
+        if protocols.contains(where: { $0.isLike("Publishable") }) {
+            let globalActorIsolation = GlobalActorIsolation.resolved(
+                for: declaration,
+                preferred: parameters.preferredGlobalActorIsolation
+            )
 
-        return [
+            inheritedTypes.append(
+                AttributedTypeSyntax(
+                    globalActorIsolation: globalActorIsolation,
+                    baseType: "Relay.Publishable"
+                )
+            )
+        }
+
+        if protocols.contains(where: { $0.isLike("Observable") }) {
+            inheritedTypes.append(
+                AttributedTypeSyntax(
+                    globalActorIsolation: .nonisolated,
+                    baseType: "Observation.Observable"
+                )
+
+            )
+        }
+
+        return inheritedTypes.map { inheritedType in
             ExtensionDeclSyntax(
                 attributes: declaration.availability ?? [],
                 extendedType: type,
                 inheritanceClause: InheritanceClauseSyntax(
-                    inheritedTypes: [
-                        InheritedTypeSyntax(
-                            type: AttributedTypeSyntax(
-                                globalActorIsolation: globalActorIsolation,
-                                baseType: "Relay.Publishable"
-                            )
-                        )
-                    ]
+                    inheritedTypes: [InheritedTypeSyntax(type: inheritedType)]
                 ),
                 memberBlock: "{}"
             )
-        ]
+        }
     }
 }
 
-extension PublishableMacro {
+extension RelayedMacro {
 
     private struct Parameters {
 
