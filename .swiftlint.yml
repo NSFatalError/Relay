@@ -173,6 +173,7 @@ identifier_name:
     excluded: [id, ui, x, y, z, dx, dy, dz]
 
 line_length:
+    ignores_multiline_strings: true
     ignores_comments: true
 
 nesting:
@@ -189,10 +190,6 @@ type_contents_order:
     order: [[case], [type_alias, associated_type], [subtype], [type_property], [instance_property], [ib_inspectable], [ib_outlet], [initializer], [deinitializer], [type_method], [view_life_cycle_method], [ib_action, ib_segue_action], [other_method], [subscript]]
 
 custom_rules:
-    global_actor_attribute_order:
-        name: "Global actor attribute order"
-        message: "Global actor should be the first attribute."
-        regex: "(?-s)(@.+[^,\\s]\\s+@.*Actor\\s)"
     sendable_attribute_order:
         name: "Sendable attribute order"
         message: "Sendable should be the first attribute."

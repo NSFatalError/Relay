@@ -264,7 +264,8 @@ extension SwiftDataMemoizedTests {
         }
 
         #if os(macOS)
-            @available(macOS 26, *) @Memoized
+            @available(macOS 26, *)
+            @Memoized
             func calculatePlatformValue() -> Double {
                 volume
             }

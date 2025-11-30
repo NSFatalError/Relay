@@ -66,7 +66,8 @@
                         ignoredStoredProperty
                     }
 
-                    @available(iOS 26, *) @Memoized(.private)
+                    @available(iOS 26, *) 
+                    @Memoized(.private)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
                     }
@@ -121,7 +122,8 @@
                         ignoredStoredProperty
                     }
 
-                    @available(iOS 26, *) @Memoized(.private)
+                    @available(iOS 26, *) 
+                    @Memoized(.private)
                     func makeLabel() -> String {
                         "\(fullName), \(age)"
                     }
