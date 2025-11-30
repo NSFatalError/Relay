@@ -14,7 +14,7 @@ public enum RelayedMacro {
 
     private static func validateNode(
         attachedTo declaration: some DeclGroupSyntax,
-        in context: some MacroExpansionContext
+        in _: some MacroExpansionContext
     ) throws -> ClassDeclSyntax {
         guard let declaration = declaration.as(ClassDeclSyntax.self) else {
             throw DiagnosticsError(
@@ -72,7 +72,7 @@ extension RelayedMacro: MemberMacro {
             )
         ]
 
-        return try builders.flatMap{ builder in
+        return try builders.flatMap { builder in
             try builder.build()
         }
     }
@@ -81,10 +81,10 @@ extension RelayedMacro: MemberMacro {
 extension RelayedMacro: MemberAttributeMacro {
 
     public static func expansion(
-        of node: AttributeSyntax,
+        of _: AttributeSyntax,
         attachedTo declaration: some DeclGroupSyntax,
-        providingAttributesFor member: some DeclSyntaxProtocol,
-        in context: some MacroExpansionContext
+        providingAttributesFor _: some DeclSyntaxProtocol,
+        in _: some MacroExpansionContext
     ) throws -> [AttributeSyntax] {
         if try RelayedPropertyMacro.shouldAttach(to: declaration) {
             [RelayedPropertyMacro.attribute]
@@ -131,7 +131,6 @@ extension RelayedMacro: ExtensionMacro {
                     globalActorIsolation: .nonisolated,
                     baseType: "Observation.Observable"
                 )
-
             )
         }
 

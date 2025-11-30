@@ -78,7 +78,7 @@ extension PublishableMacro: MemberMacro {
             )
         ]
 
-        return try builders.flatMap{ builder in
+        return try builders.flatMap { builder in
             try builder.build()
         }
     }

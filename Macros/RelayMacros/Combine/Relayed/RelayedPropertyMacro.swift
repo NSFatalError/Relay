@@ -46,9 +46,9 @@ extension RelayedPropertyMacro {
 extension RelayedPropertyMacro: AccessorMacro {
 
     public static func expansion(
-        of node: AttributeSyntax,
+        of _: AttributeSyntax,
         providingAccessorsOf declaration: some DeclSyntaxProtocol,
-        in context: some MacroExpansionContext
+        in _: some MacroExpansionContext
     ) throws -> [AccessorDeclSyntax] {
         guard let property = try validateNode(attachedTo: declaration) else {
             return []
@@ -62,9 +62,9 @@ extension RelayedPropertyMacro: AccessorMacro {
 extension RelayedPropertyMacro: PeerMacro {
 
     public static func expansion(
-        of node: AttributeSyntax,
+        of _: AttributeSyntax,
         providingPeersOf declaration: some DeclSyntaxProtocol,
-        in context: some MacroExpansionContext
+        in _: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         guard let property = try validateNode(attachedTo: declaration) else {
             return []
