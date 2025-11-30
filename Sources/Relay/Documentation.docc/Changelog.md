@@ -4,7 +4,7 @@ Summary of breaking changes between major releases.
 
 ## Version 3.0
 
-- All generated publishers now return an opaque `some Publisher<Output, Never>` type instread of an erased `AnyPublisher<Output, Never>`.
+- All generated publishers now return an opaque `some Publisher<Output, Never>` type instead of an erased `AnyPublisher<Output, Never>`.
 
 - ``AnyPropertyPublisher`` is no longer generic, allowing subclassing of ``Publishable`` types.
 As a consequence, its ``AnyPropertyPublisher/willChange`` and ``AnyPropertyPublisher/didChange`` publishers now output `Void`

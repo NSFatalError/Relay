@@ -10,5 +10,5 @@ import SwiftSyntaxMacros
 
 internal enum ObservableMacro {
 
-    static let attribute: AttributeSyntax = "@Observation"
+    static let attribute: AttributeSyntax = "@Observable"
 }
