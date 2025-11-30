@@ -15,7 +15,7 @@ internal enum ObservationIgnoredMacro {
 
 extension Property {
 
-    var isStoredObservable: Bool {
+    var isStoredObservationTracked: Bool {
         kind == .stored
             && mutability == .mutable
             && underlying.typeScopeSpecifier == nil

@@ -26,7 +26,7 @@ extension PublisherIgnoredMacro: PeerMacro {
 
 extension Property {
 
-    var isStoredPublishable: Bool {
+    var isStoredPublisherTracked: Bool {
         kind == .stored
             && mutability == .mutable
             && underlying.typeScopeSpecifier == nil
@@ -34,7 +34,7 @@ extension Property {
             && !underlying.attributes.contains(like: PublisherIgnoredMacro.attribute)
     }
 
-    var isComputedPublishable: Bool {
+    var isComputedPublisherTracked: Bool {
         kind == .computed
             && underlying.typeScopeSpecifier == nil
             && underlying.overrideSpecifier == nil

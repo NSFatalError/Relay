@@ -87,7 +87,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     @CodeBlockItemListBuilder
     private func storedPropertiesSubjectsFinishCalls() -> CodeBlockItemListSyntax {
-        for property in properties.all where property.isStoredPublishable {
+        for property in properties.all where property.isStoredPublisherTracked {
             let call = storedPropertySubjectFinishCall(for: property)
             if let ifConfigCall = property.underlying.applyingEnclosingIfConfig(to: call) {
                 ifConfigCall
@@ -103,7 +103,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     @MemberBlockItemListBuilder
     private func storedPropertiesPublishers() -> MemberBlockItemListSyntax {
-        for property in properties.all where property.isStoredPublishable {
+        for property in properties.all where property.isStoredPublisherTracked {
             let publisher = storedPropertyPublisher(for: property)
             if let ifConfigPublisher = property.underlying.applyingEnclosingIfConfig(to: publisher) {
                 ifConfigPublisher
@@ -129,7 +129,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     @MemberBlockItemListBuilder
     private func computedPropertiesPublishers() -> MemberBlockItemListSyntax {
-        for property in properties.all where property.isComputedPublishable {
+        for property in properties.all where property.isComputedPublisherTracked {
             let publisher = computedPropertyPublisher(for: property)
             if let ifConfigPublisher = property.underlying.applyingEnclosingIfConfig(to: publisher) {
                 ifConfigPublisher

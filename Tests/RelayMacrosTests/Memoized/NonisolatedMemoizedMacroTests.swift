@@ -17,8 +17,6 @@
             "Memoized": MemoizedMacro.self
         ]
 
-        // swiftlint:disable global_actor_attribute_order
-
         func testExpansion() {
             assertMacroExpansion(
                 #"""
@@ -147,7 +145,5 @@
                 macros: macros
             )
         }
-
-        // swiftlint:enable global_actor_attribute_order
     }
 #endif

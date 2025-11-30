@@ -1,5 +1,5 @@
 //
-//  SubclassedMainActorPublishable.swift
+//  SubclassedMainActorPublishableTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 29/11/2025.

@@ -23,7 +23,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
     ) {
         self.declaration = declaration
         self.preferredGlobalActorIsolation = preferredGlobalActorIsolation
-        self.trackedProperties = properties.filter(\.isStoredPublishable)
+        self.trackedProperties = properties.filter(\.isStoredPublisherTracked)
         self.genericParameter = context.makeUniqueName("T")
     }
 
