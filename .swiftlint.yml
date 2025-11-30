@@ -201,4 +201,4 @@ custom_rules:
     empty_line_after_type_declaration:
         name: "Empty line after type declaration"
         message: "Type declaration should start with an empty line."
-        regex: "( |^)(actor|class|struct|enum|protocol|extension) (?!var)[^\\{]*? \\{(?!\\s*\\}) *\\n? *\\S"
+        regex: "( |^)(actor|class|struct|enum|protocol|extension) (?!var)[^\\n\\{]*? \\{(?!\\s*\\}) *\\n? *\\S"
