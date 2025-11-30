@@ -6,12 +6,13 @@
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-/// A macro that adds ``Publishable-protocol`` conformance to `Observable` types.
+/// A macro that adds ``Publishable`` conformance to `Observable` types.
 ///
 /// - Note: This macro infers the global actor isolation of the type and applies it to the generated declarations.
 /// If this causes compilation errors, use ``Publishable(isolation:)`` instead.
 ///
-/// - Note: This macro works only with `final` classes to which the `@Observable` or `@Model` macro has been applied.
+/// - Note: This macro works with `Observable` classes, but it does not generate `Observable` conformance by itself.
+/// To make the two compatible, apply another macro - such as `@Observable` - to the type alongside `@Publishable`.
 ///
 /// The `@Publishable` macro adds a new `publisher` property to your type,
 /// which exposes `Combine` publishers for all mutable or computed instance properties.
@@ -40,13 +41,14 @@ public macro Publishable() = #externalMacro(
     type: "PublishableMacro"
 )
 
-/// A macro that adds ``Publishable-protocol`` conformance to `Observable` types.
+/// A macro that adds ``Publishable`` conformance to `Observable` types.
 ///
 /// - Parameter isolation: The global actor to which the type is isolated.
 /// If set to `nil`, the generated members are `nonisolated`.
 /// To infer isolation automatically, use the ``Publishable()`` macro instead.
 ///
-/// - Note: This macro works only with `final` classes to which the `@Observable` or `@Model` macro has been applied directly.
+/// - Note: This macro works with `Observable` classes, but it does not generate `Observable` conformance by itself.
+/// To make the two compatible, apply another macro - such as `@Observable` - to the type alongside `@Publishable`.
 ///
 /// The `@Publishable` macro adds a new `publisher` property to your type,
 /// which exposes `Combine` publishers for all mutable or computed instance properties.

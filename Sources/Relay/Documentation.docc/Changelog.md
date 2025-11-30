@@ -4,14 +4,18 @@ Summary of breaking changes between major releases.
 
 ## Version 3.0
 
-- ``AnyPropertyPublisher`` is no longer generic in order to allow subclassing of ``Publishable-protocol`` types. 
-In consequence, its ``AnyPropertyPublisher/willChange`` and ``AnyPropertyPublisher/didChange`` publishers changed their output type 
-from the specialized `Object` type to `Void`. Generated ``AnyPropertyPublisher`` subclasses still expose specialized publishers
-with class names as their prefix, so an example class named `Person` will expose `personWillChange` and `personDidChange` publishers.
-- Calling `@Model` macro compatible with `@Publishable` was unfortunately premature. SwiftData uses reflection to find property named
-`_$observationRegistrar` and asserts if it cannot cast it to the default `ObservationRegistrar` type. Although its possible to circumvent 
-this assertion, for example by making `Publishable` types conform to `CustomReflectable`, internals of the framework won't be able to send values
-through the generated publishers. Thus, `@Publishable` macro now emits a warning when applied to `@Model` classes.
+- All generated publishers now return an opaque `some Publisher<Output, Never>` type instread of an erased `AnyPublisher<Output, Never>`.
+
+- ``AnyPropertyPublisher`` is no longer generic, allowing subclassing of ``Publishable`` types.
+As a consequence, its ``AnyPropertyPublisher/willChange`` and ``AnyPropertyPublisher/didChange`` publishers now output `Void`
+instead of the specialized `Object` type. Generated subclasses still expose specialized publishers using the class name as a prefix.
+For example, a class named `Person` will provide `personWillChange` and `personDidChange` publishers.
+
+- Calling the `@Model` macro compatible with ``Publishable()`` turned out to be premature. `SwiftData` uses reflection
+to find property named `_$observationRegistrar` and asserts if it cannot cast it to the default `ObservationRegistrar` type.
+Although it's technically possible to bypass this assertion (for example, by making ``Publishable`` types conform to `CustomReflectable`),
+the framework internals would still fail to send values through the generated publishers. Therefore, the ``Publishable()`` macro
+now emits a warning when applied to `@Model` classes.
 
 ## Version 2.0
 

@@ -24,9 +24,9 @@ as it publishes the updates via an `AsyncSequence`.
 
 In some scenarios, however, developers need to perform actions synchronously - immediately after a change occurs.
 
-This is where `@Publishable` macro comes in. It allows `Observation` and `Combine` to coexist within a single type, letting you 
-take advantage of the latest `Observable` features, while processing changes synchronously when needed. It integrates 
-with both the `@Observable` and `@Model` macros and could be extended to support other types built on top of `Observation`:
+This is where the `@Publishable` macro comes in. It allows `Observation` and `Combine` to coexist within a single type, letting you 
+take advantage of the latest `Observable` features while processing changes synchronously when needed. It integrates with the `@Observable` 
+macro and is designed to be compatible with other macros built on top of `Observation`:
 
 ```swift
 import Relay 
@@ -76,7 +76,7 @@ By leveraging these facts, the `@Publishable` macro can overload the default `Ob
 While I acknowledge that this usage might not have been intended by the authors, I would refrain from calling it a hack.
 It relies solely on well-understood behaviors of Swift and its public APIs.
 
-This approach has been carefully tested and verified to work with both `@Observable` and `@Model` macros.
+This approach has been carefully tested and verified to work with the `@Observable` macro.
 
 </details>
 

@@ -18,13 +18,19 @@ open class AnyPropertyPublisher {
     private final let _willChange = PassthroughSubject<Void, Never>()
     private final let _didChange = PassthroughSubject<Void, Never>()
 
-    /// Emits the `Object` **before** any of its stored properties are assigned a new value.
+    /// Emits **before** any of the ``Publishable`` object's stored properties are assigned a new value.
+    ///
+    /// Generated subclasses also expose specialized publisher that emits the ``Publishable`` object itself,
+    /// named using the class name as a prefix. For example, a class named `Person` will provide a `personWillChange` publisher.
     ///
     public final var willChange: some Publisher<Void, Never> {
         _willChange
     }
 
-    /// Emits the `Object` **after** any of its stored properties are assigned a new value.
+    /// Emits **after** any of the ``Publishable`` object's stored properties are assigned a new value.
+    ///
+    /// Generated subclasses also expose specialized publisher that emits the ``Publishable`` object itself,
+    /// named using the class name as a prefix. For example, a class named `Person` will provide a `personDidChange` publisher.
     ///
     public final var didChange: some Publisher<Void, Never> {
         _didChange
