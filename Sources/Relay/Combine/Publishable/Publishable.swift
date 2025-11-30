@@ -58,7 +58,7 @@ public macro Publishable() = #externalMacro(
 ///
 /// If a property’s type conforms to `Equatable`, its publisher automatically removes duplicate values.
 /// Just like the `Published` property wrapper, subscribing to any of the exposed publishers immediately emits the current value.
-/// 
+///
 /// Classes to which the `@Publishable` macro has been attached can be subclassed. To generate publishers for any properties added in a subclass,
 /// the macro must be applied again to the subclass definition. Subclasses should either be isolated to the same global actor as their superclass or remain nonisolated.
 ///
