@@ -53,7 +53,7 @@ internal struct SubclassedMainActorPublishableTests {
     }
 
     @Test
-    func storedOverridenProperty() {
+    func overridenStoredProperty() {
         var dog: Dog? = .init()
         var publishableQueue = [Int]()
         nonisolated(unsafe) var observationsQueue = [Bool]()
@@ -141,7 +141,7 @@ extension SubclassedMainActorPublishableTests {
     }
 
     @Test
-    func computedOverridenProperty() {
+    func overridenComputedProperty() {
         var dog: Dog? = .init()
         var publishableQueue = [String]()
         nonisolated(unsafe) var observationsQueue = [Bool]()
