@@ -18,13 +18,23 @@ public enum MemoizedMacro {
         guard let declaration = declaration.as(FunctionDeclSyntax.self),
               let node = declaration.attributes.first(like: attribute),
               let parameters = try? Parameters(from: node),
-              let validationResult = try? validateNode(attachedTo: declaration, in: nil, with: parameters)
+              let declarationValidationResult = try? validateDeclaration(declaration)
         else {
             return nil
         }
 
+        let propertyName = try? validatePropertyName(
+            for: declarationValidationResult.declaration,
+            preferred: parameters.preferredPropertyName
+        )
+
+        guard let propertyName else {
+            return nil
+        }
+
         return ExtractionResult(
-            validationResult: validationResult,
+            declarationValidationResult: declarationValidationResult,
+            propertyName: propertyName,
             parameters: parameters
         )
     }
@@ -34,9 +44,36 @@ extension MemoizedMacro {
 
     private static func validateNode(
         attachedTo declaration: some DeclSyntaxProtocol,
-        in context: (any MacroExpansionContext)?,
+        in context: some MacroExpansionContext,
         with parameters: Parameters
     ) throws -> ValidationResult {
+        guard let enclosingClassDeclaration = context.lexicalContext.first?.as(ClassDeclSyntax.self) else {
+            throw DiagnosticsError(
+                node: declaration,
+                message: """
+                @Memoized macro can only be applied to methods declared \
+                in primary definition (not extensions) of Observable classes
+                """
+            )
+        }
+
+        let declarationValidationResult = try validateDeclaration(declaration)
+        let propertyName = try validatePropertyName(
+            for: declarationValidationResult.declaration,
+            preferred: parameters.preferredPropertyName
+        )
+
+        return ValidationResult(
+            declaration: declarationValidationResult.declaration,
+            enclosingClassDeclaration: enclosingClassDeclaration,
+            trimmedReturnType: declarationValidationResult.trimmedReturnType,
+            propertyName: propertyName
+        )
+    }
+
+    private static func validateDeclaration(
+        _ declaration: some DeclSyntaxProtocol
+    ) throws -> DeclarationValidationResult {
         guard let declaration = declaration.as(FunctionDeclSyntax.self),
               let trimmedReturnType = declaration.signature.returnClause?.type.trimmed,
               declaration.signature.parameterClause.parameters.isEmpty,
@@ -52,27 +89,9 @@ extension MemoizedMacro {
             )
         }
 
-        if let context {
-            guard context.lexicalContext.first?.is(ClassDeclSyntax.self) == true else {
-                throw DiagnosticsError(
-                    node: declaration,
-                    message: """
-                    @Memoized macro can only be applied to methods declared \
-                    in primary definition (not extensions) of Observable classes
-                    """
-                )
-            }
-        }
-
-        let propertyName = try validatePropertyName(
-            for: declaration,
-            preferred: parameters.preferredPropertyName
-        )
-
-        return ValidationResult(
+        return DeclarationValidationResult(
             declaration: declaration,
-            trimmedReturnType: trimmedReturnType,
-            propertyName: propertyName
+            trimmedReturnType: trimmedReturnType
         )
     }
 
@@ -122,6 +141,7 @@ extension MemoizedMacro: PeerMacro {
 
         let builder = MemoizedDeclBuilder(
             declaration: validationResult.declaration,
+            enclosingClassDeclaration: validationResult.enclosingClassDeclaration,
             trimmedReturnType: validationResult.trimmedReturnType,
             propertyName: validationResult.propertyName,
             lexicalContext: context.lexicalContext,
@@ -138,11 +158,12 @@ extension MemoizedMacro {
     @dynamicMemberLookup
     struct ExtractionResult {
 
-        let validationResult: ValidationResult
+        let declarationValidationResult: DeclarationValidationResult
+        let propertyName: String
         let parameters: Parameters
 
-        subscript<T>(dynamicMember keyPath: KeyPath<ValidationResult, T>) -> T {
-            validationResult[keyPath: keyPath]
+        subscript<T>(dynamicMember keyPath: KeyPath<DeclarationValidationResult, T>) -> T {
+            declarationValidationResult[keyPath: keyPath]
         }
 
         subscript<T>(dynamicMember keyPath: KeyPath<Parameters, T>) -> T {
@@ -150,9 +171,16 @@ extension MemoizedMacro {
         }
     }
 
+    struct DeclarationValidationResult {
+
+        let declaration: FunctionDeclSyntax
+        let trimmedReturnType: TypeSyntax
+    }
+
     struct ValidationResult {
 
         let declaration: FunctionDeclSyntax
+        let enclosingClassDeclaration: ClassDeclSyntax
         let trimmedReturnType: TypeSyntax
         let propertyName: String
     }
