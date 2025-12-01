@@ -7,12 +7,12 @@
 Essential tools that extend the capabilities of `Observation`.
 
 #### Contents
-- [Publishable](#publishable)
+- [Relayed and Publishable](#relayed-and-publishable)
 - [Memoized](#memoized)
 - [Documentation](#documentation)
 - [Installation](#installation)
 
-## Publishable
+## Relayed and Publishable
 
 <details>
 <summary> Observe changes to Observable types synchronously with Combine. </summary>
@@ -24,14 +24,14 @@ as it publishes the updates via an `AsyncSequence`.
 
 In some scenarios, however, developers need to perform actions synchronously - immediately after a change occurs.
 
-This is where the `@Publishable` macro comes in. It allows `Observation` and `Combine` to coexist within a single type, letting you 
-take advantage of the latest `Observable` features while processing changes synchronously when needed. It integrates with the `@Observable` 
-macro and is designed to be compatible with other macros built on top of `Observation`:
+This is where the `Publishable` protocol comes in. It allows `Observation` and `Combine` to coexist within a single type, letting you 
+take advantage of the latest `Observable` features while processing changes synchronously when needed. Classes can gain `Publishable` 
+conformance by attaching either the `@Relayed` or `@Publishable` macro:
 
 ```swift
 import Relay 
 
-@Publishable @Observable
+@Relayed
 final class Person {
     var name = "John"
     var surname = "Doe"
@@ -62,21 +62,6 @@ person.surname = "Strzelecki"
 // Prints:
 // Full name - Kamil Strzelecki
 ```
-
-### How Publishable Works?
-
-The `@Publishable` macro relies on two key properties of Swift Macros and `Observation` module:
-- Macro expansions are compiled in the context of the module where they’re used. This allows references in the macro to be overloaded by locally available symbols.
-- Swift exposes `ObservationRegistrar` as a documented, public API, making it possible to use it safely and directly.
-
-By leveraging these facts, the `@Publishable` macro can overload the default `ObservationRegistrar` with a custom one that:
-- Forwards changes to Swift’s native `ObservationRegistrar`
-- Simultaneously emits values through generated `Combine` publishers
-
-While I acknowledge that this usage might not have been intended by the authors, I would refrain from calling it a hack.
-It relies solely on well-understood behaviors of Swift and its public APIs.
-
-This approach has been carefully tested and verified to work with the `@Observable` macro.
 
 </details>
 

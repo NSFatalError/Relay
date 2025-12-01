@@ -4,7 +4,7 @@ Essential tools that extend the capabilities of `Observation`.
 
 ## Topics
 
-- <doc:CombineMacros>
+- <doc:RelayedAndPublishableMacros>
 - <doc:MemoizedMacros>
 
 ## Changelog

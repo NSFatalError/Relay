@@ -1,4 +1,4 @@
-# Combine
+# Relayed and Publishable
 
 Observe changes to `Observable` types synchronously with `Combine`.
 
@@ -10,14 +10,14 @@ as it publishes the updates via an `AsyncSequence`.
 
 In some scenarios, however, developers need to perform actions synchronously - immediately after a change occurs.
 
-This is where the ``Publishable()`` macro comes in. It allows `Observation` and `Combine` to coexist within a single type, letting you 
-take advantage of the latest `Observable` features while processing changes synchronously when needed. It integrates with the `@Observable` 
-macro and is designed to be compatible with other macros built on top of `Observation`:
+This is where the ``Publishable`` protocol comes in. It allows `Observation` and `Combine` to coexist within a single type, letting you 
+take advantage of the latest `Observable` features while processing changes synchronously when needed. Classes can gain ``Publishable`` 
+conformance by attaching either the ``Relayed()`` or ``Publishable()`` macro:
 
 ```swift
 import Relay 
 
-@Publishable @Observable
+@Relayed
 final class Person {
     var name = "John"
     var surname = "Doe"
@@ -53,7 +53,7 @@ person.surname = "Strzelecki"
 
 ### Making Types Publishable
 
-- <doc:ChoosingBetweenRelayedAndPublished>
+- <doc:ChoosingBetweenRelayedAndPublishableMacros>
 - ``Relayed()``
 - ``Relayed(isolation:)``
 - ``Publishable()``
