@@ -34,8 +34,8 @@ public enum PublishableMacro {
                 fixIts: [
                     .replace(
                         message: MacroExpansionFixItMessage("Apply @Relayed macro"),
-                        oldNode: node,
-                        newNode: RelayedMacro.attribute.withTrivia(from: node)
+                        oldNode: node.attributeName,
+                        newNode: RelayedMacro.attribute.attributeName.withTrivia(from: node.attributeName)
                     )
                 ]
             )
