@@ -27,6 +27,7 @@
                 @MainActor @Publishable @CustomObservable
                 class Dog: Animal {
 
+                    let id: UUID
                     var breed: String?
 
                     var isBulldog: Bool {
@@ -50,6 +51,7 @@
                 @MainActor @CustomObservable
                 class Dog: Animal {
 
+                    let id: UUID
                     var breed: String?
 
                     var isBulldog: Bool {
