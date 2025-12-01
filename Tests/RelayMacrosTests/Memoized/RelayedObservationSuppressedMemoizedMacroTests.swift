@@ -1,5 +1,5 @@
 //
-//  ObservationSupressedMemoizedMacroTests.swift
+//  RelayedObservationSuppressedMemoizedMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 12/01/2025.
@@ -11,7 +11,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class ObservationSupressedMemoizedMacroTests: XCTestCase {
+    internal final class RelayedObservationSuppressedMemoizedMacroTests: XCTestCase {
 
         private let macros: [String: any Macro.Type] = [
             "Memoized": MemoizedMacro.self
@@ -20,12 +20,12 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @Relayed
                 public class Square {
 
                     var side = 12.3
 
-                    @Memoized @ObservationSupressed
+                    @Memoized @ObservationSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -33,12 +33,12 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @Relayed
                 public class Square {
 
                     var side = 12.3
 
-                    @ObservationSupressed
+                    @ObservationSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -60,7 +60,9 @@
 
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
+                                instance?.publisher._beginModifications()
                                 instance?._area = nil
+                                instance?.publisher._endModifications()
                             }
                         }
 
@@ -81,14 +83,14 @@
         func testExpansionWithParameters() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @Relayed
                 public final class Square {
 
                     var side = 12.3
 
                     @available(macOS 26, *)
                     @Memoized(.public, "customName")
-                    @ObservationSupressed
+                    @ObservationSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -96,13 +98,13 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @Relayed
                 public final class Square {
 
                     var side = 12.3
 
                     @available(macOS 26, *)
-                    @ObservationSupressed
+                    @ObservationSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -126,7 +128,9 @@
 
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
+                                instance?.publisher._beginModifications()
                                 instance?._customName = nil
+                                instance?.publisher._endModifications()
                             }
                         }
 

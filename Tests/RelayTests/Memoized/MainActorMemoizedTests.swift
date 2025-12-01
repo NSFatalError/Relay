@@ -260,7 +260,7 @@ extension MainActorMemoizedTests {
             return baseArea * z
         }
 
-        @Memoized @ObservationSupressed
+        @Memoized @ObservationSuppressed
         func calculateIgnoredValue() -> Double {
             volume
         }

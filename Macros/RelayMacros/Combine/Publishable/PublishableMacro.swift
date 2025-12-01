@@ -24,6 +24,23 @@ public enum PublishableMacro {
             )
         }
 
+        if declaration.attributes.contains(like: ObservableMacro.attribute) {
+            context.diagnose(
+                node: declaration,
+                warningMessage: """
+                @Publishable macro should be used with macros other than @Observable, \
+                that supply their own Observable protocol conformance
+                """,
+                fixIts: [
+                    .replace(
+                        message: MacroExpansionFixItMessage("Apply @Relayed macro"),
+                        oldNode: node,
+                        newNode: RelayedMacro.attribute.withTrivia(from: node)
+                    )
+                ]
+            )
+        }
+
         if declaration.attributes.contains(like: SwiftDataModelMacro.attribute) {
             context.diagnose(
                 node: declaration,

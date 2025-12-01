@@ -53,7 +53,7 @@ person.surname = "Strzelecki"
 
 ### Making Types Publishable
 
-- <doc:HowPublishableWorks>
+- <doc:ChoosingBetweenRelayedAndPublished>
 - ``Relayed()``
 - ``Relayed(isolation:)``
 - ``Publishable()``
@@ -61,8 +61,8 @@ person.surname = "Strzelecki"
 
 ### Customizing Generated Declarations
 
-- ``ObservationSupressed()``
-- ``PublisherSupressed()``
+- ``ObservationSuppressed()``
+- ``PublisherSuppressed()``
 
 ### Observing Changes with Combine
 

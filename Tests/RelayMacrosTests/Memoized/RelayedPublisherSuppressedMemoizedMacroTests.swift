@@ -1,5 +1,5 @@
 //
-//  RelayedObservationSupressedMemoizedMacroTests.swift
+//  RelayedPublisherSuppressedMemoizedMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 12/01/2025.
@@ -11,7 +11,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class RelayedObservationSupressedMemoizedMacroTests: XCTestCase {
+    internal final class RelayedPublisherSuppressedMemoizedMacroTests: XCTestCase {
 
         private let macros: [String: any Macro.Type] = [
             "Memoized": MemoizedMacro.self
@@ -25,7 +25,7 @@
 
                     var side = 12.3
 
-                    @Memoized @ObservationSupressed
+                    @Memoized @PublisherSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -38,7 +38,7 @@
 
                     var side = 12.3
 
-                    @ObservationSupressed
+                    @PublisherSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -47,6 +47,7 @@
 
                     final var area: Double {
                         if let cached = _area {
+                            _$observationRegistrar.access(self, keyPath: \.area)
                             return cached
                         }
 
@@ -60,9 +61,12 @@
 
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
-                                instance?.publisher._beginModifications()
-                                instance?._area = nil
-                                instance?.publisher._endModifications()
+                                guard let instance else {
+                                    return
+                                }
+                                instance._$observationRegistrar.willSet(instance, keyPath: \.area)
+                                instance._area = nil
+                                instance._$observationRegistrar.didSet(instance, keyPath: \.area)
                             }
                         }
 
@@ -90,7 +94,7 @@
 
                     @available(macOS 26, *)
                     @Memoized(.public, "customName")
-                    @ObservationSupressed
+                    @PublisherSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -104,7 +108,7 @@
                     var side = 12.3
 
                     @available(macOS 26, *)
-                    @ObservationSupressed
+                    @PublisherSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -115,6 +119,7 @@
                     @available(macOS 26, *)
                     public final var customName: Double {
                         if let cached = _customName {
+                            _$observationRegistrar.access(self, keyPath: \.customName)
                             return cached
                         }
 
@@ -128,9 +133,12 @@
 
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
-                                instance?.publisher._beginModifications()
-                                instance?._customName = nil
-                                instance?.publisher._endModifications()
+                                guard let instance else {
+                                    return
+                                }
+                                instance._$observationRegistrar.willSet(instance, keyPath: \.customName)
+                                instance._customName = nil
+                                instance._$observationRegistrar.didSet(instance, keyPath: \.customName)
                             }
                         }
 

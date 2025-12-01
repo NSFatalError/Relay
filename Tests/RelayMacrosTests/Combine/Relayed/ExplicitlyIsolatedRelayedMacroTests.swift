@@ -63,16 +63,16 @@
                     }
                     #endif
 
-                    @ObservationSupressed @PublisherSupressed
+                    @ObservationSuppressed @PublisherSuppressed
                     var ignoredStoredProperty = 123
 
-                    @ObservationSupressed
+                    @ObservationSuppressed
                     var observationIgnoredStoredProperty = 123
 
-                    @PublisherSupressed
+                    @PublisherSuppressed
                     var publisherIgnoredStoredProperty = 123
                     
-                    @PublisherSupressed
+                    @PublisherSuppressed
                     var publisherIgnoredComputedProperty: Int {
                         publisherIgnoredStoredProperty
                     }
@@ -83,7 +83,7 @@
                         "\(fullName), \(age)"
                     }
 
-                    @Memoized @PublisherSupressed
+                    @Memoized @PublisherSuppressed
                     func makeIgnoredMemoizedProperty() -> Int {
                         publisherIgnoredStoredProperty
                     }
@@ -133,18 +133,18 @@
                     }
                     #endif
 
-                    @ObservationSupressed @PublisherSupressed
+                    @ObservationSuppressed @PublisherSuppressed
                     var ignoredStoredProperty = 123
 
-                    @ObservationSupressed
+                    @ObservationSuppressed
                     @RelayedProperty
                     var observationIgnoredStoredProperty = 123
 
-                    @PublisherSupressed
+                    @PublisherSuppressed
                     @RelayedProperty
                     var publisherIgnoredStoredProperty = 123
                     
-                    @PublisherSupressed
+                    @PublisherSuppressed
                     var publisherIgnoredComputedProperty: Int {
                         publisherIgnoredStoredProperty
                     }
@@ -155,7 +155,7 @@
                         "\(fullName), \(age)"
                     }
 
-                    @Memoized @PublisherSupressed
+                    @Memoized @PublisherSuppressed
                     func makeIgnoredMemoizedProperty() -> Int {
                         publisherIgnoredStoredProperty
                     }

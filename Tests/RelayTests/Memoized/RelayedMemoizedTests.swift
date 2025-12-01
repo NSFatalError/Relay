@@ -172,11 +172,11 @@ extension RelayedMemoizedTests {
         var y = 1.0
         var z = 1.0
 
-        @ObservationSupressed
+        @ObservationSuppressed
         private(set) var calculateBaseAreaCallsCount = 0
         var isBaseAreaCached: Bool { _baseArea != nil }
 
-        @ObservationSupressed
+        @ObservationSuppressed
         private(set) var calculateVolumeCallsCount = 0
         var isVolumeCached: Bool { _volume != nil }
 
@@ -192,17 +192,17 @@ extension RelayedMemoizedTests {
             return baseArea * z
         }
 
-        @Memoized @ObservationSupressed
+        @Memoized @ObservationSuppressed
         func calculateObservationIgnoredValue() -> Double {
             volume
         }
 
-        @Memoized @PublisherSupressed
+        @Memoized @PublisherSuppressed
         func calculatePublisherIgnoredValue() -> Double {
             volume
         }
 
-        @Memoized @ObservationSupressed @PublisherSupressed
+        @Memoized @ObservationSuppressed @PublisherSuppressed
         func calculateIgnoredValue() -> Double {
             volume
         }

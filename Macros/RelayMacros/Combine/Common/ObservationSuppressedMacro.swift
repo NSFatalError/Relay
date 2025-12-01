@@ -1,5 +1,5 @@
 //
-//  ObservationSupressedMacro.swift
+//  ObservationSuppressedMacro.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 01/12/2025.
@@ -8,12 +8,12 @@
 
 import SwiftSyntaxMacros
 
-public enum ObservationSupressedMacro {
+public enum ObservationSuppressedMacro {
 
-    static let attribute: AttributeSyntax = "@ObservationSupressed"
+    static let attribute: AttributeSyntax = "@ObservationSuppressed"
 }
 
-extension ObservationSupressedMacro: PeerMacro {
+extension ObservationSuppressedMacro: PeerMacro {
 
     public static func expansion(
         of _: AttributeSyntax,
@@ -32,7 +32,7 @@ extension Property {
             && underlying.typeScopeSpecifier == nil
             && underlying.overrideSpecifier == nil
             && !underlying.attributes.contains(like: ObservationIgnoredMacro.attribute)
-            && !underlying.attributes.contains(like: ObservationSupressedMacro.attribute)
+            && !underlying.attributes.contains(like: ObservationSuppressedMacro.attribute)
     }
 }
 
@@ -40,6 +40,6 @@ extension FunctionDeclSyntax {
 
     var isObservationTracked: Bool {
         !attributes.contains(like: ObservationIgnoredMacro.attribute)
-            && !attributes.contains(like: ObservationSupressedMacro.attribute)
+            && !attributes.contains(like: ObservationSuppressedMacro.attribute)
     }
 }

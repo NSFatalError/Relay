@@ -232,10 +232,10 @@ extension ObservablePublishableTests {
             }
         #endif
 
-        @PublisherSupressed
+        @PublisherSuppressed
         var ignoredStoredProperty = 123
 
-        @PublisherSupressed
+        @PublisherSuppressed
         var ignoredComputedProperty: Int {
             ignoredStoredProperty
         }
@@ -246,7 +246,7 @@ extension ObservablePublishableTests {
             "\(fullName), \(age)"
         }
 
-        @Memoized @PublisherSupressed
+        @Memoized @PublisherSuppressed
         func makeIgnoredMemoizedProperty() -> Int {
             ignoredStoredProperty
         }

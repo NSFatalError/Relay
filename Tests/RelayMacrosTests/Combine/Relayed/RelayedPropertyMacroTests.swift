@@ -85,11 +85,11 @@
             )
         }
 
-        func testPublisherSupressedExpansion() {
+        func testPublisherSuppressedExpansion() {
             assertMacroExpansion(
                 #"""
                 @MainActor
-                @RelayedProperty @PublisherSupressed
+                @RelayedProperty @PublisherSuppressed
                 public internal(set) final var name = 123 {
                     didSet {
                         _ = newValue
@@ -99,7 +99,7 @@
                 expandedSource:
                 #"""
                 @MainActor
-                @PublisherSupressed
+                @PublisherSuppressed
                 public internal(set) final var name {
                     didSet {
                         _ = newValue
@@ -137,7 +137,7 @@
                     }
                 }
 
-                @MainActor @PublisherSupressed private final var _name = 123 {
+                @MainActor @PublisherSuppressed private final var _name = 123 {
                     didSet {
                         _ = newValue
                     }
@@ -147,11 +147,11 @@
             )
         }
 
-        func testObservationSupressedExpansion() {
+        func testObservationSuppressedExpansion() {
             assertMacroExpansion(
                 #"""
                 @MainActor
-                @RelayedProperty @ObservationSupressed
+                @RelayedProperty @ObservationSuppressed
                 public internal(set) final var name = 123 {
                     didSet {
                         _ = newValue
@@ -161,7 +161,7 @@
                 expandedSource:
                 #"""
                 @MainActor
-                @ObservationSupressed
+                @ObservationSuppressed
                 public internal(set) final var name {
                     didSet {
                         _ = newValue
@@ -199,7 +199,7 @@
                     }
                 }
 
-                @MainActor @ObservationSupressed private final var _name = 123 {
+                @MainActor @ObservationSuppressed private final var _name = 123 {
                     didSet {
                         _ = newValue
                     }

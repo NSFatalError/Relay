@@ -24,7 +24,7 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @MainActor @Publishable @Observable
+                @MainActor @Publishable @CustomObservable
                 class Dog: Animal {
 
                     var breed: String?
@@ -47,7 +47,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @MainActor @Observable
+                @MainActor @CustomObservable
                 class Dog: Animal {
 
                     var breed: String?

@@ -232,16 +232,16 @@ extension RelayedTests {
             }
         #endif
 
-        @ObservationSupressed @PublisherSupressed
+        @ObservationSuppressed @PublisherSuppressed
         var ignoredStoredProperty = 123
 
-        @ObservationSupressed
+        @ObservationSuppressed
         var observationIgnoredStoredProperty = 123
 
-        @PublisherSupressed
+        @PublisherSuppressed
         var publisherIgnoredStoredProperty = 123
 
-        @PublisherSupressed
+        @PublisherSuppressed
         var publisherIgnoredComputedProperty: Int {
             publisherIgnoredStoredProperty
         }
@@ -252,7 +252,7 @@ extension RelayedTests {
             "\(fullName), \(age)"
         }
 
-        @Memoized @PublisherSupressed
+        @Memoized @PublisherSuppressed
         func makeIgnoredMemoizedProperty() -> Int {
             ignoredStoredProperty
         }

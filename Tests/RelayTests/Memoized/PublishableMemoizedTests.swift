@@ -192,17 +192,17 @@ extension PublishableMemoizedTests {
             return baseArea * z
         }
 
-        @Memoized @ObservationSupressed
+        @Memoized @ObservationSuppressed
         func calculateObservationIgnoredValue() -> Double {
             volume
         }
 
-        @Memoized @PublisherSupressed
+        @Memoized @PublisherSuppressed
         func calculatePublisherIgnoredValue() -> Double {
             volume
         }
 
-        @Memoized @ObservationSupressed @PublisherSupressed
+        @Memoized @ObservationSuppressed @PublisherSuppressed
         func calculateIgnoredValue() -> Double {
             volume
         }

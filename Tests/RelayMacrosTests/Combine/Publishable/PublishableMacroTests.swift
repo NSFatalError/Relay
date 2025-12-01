@@ -25,7 +25,7 @@
             assertMacroExpansion(
                 #"""
                 @available(iOS 26, macOS 26, *)
-                @Publishable @Observable
+                @Publishable @CustomObservable
                 public final class Person {
 
                     static var user: Person?
@@ -63,10 +63,10 @@
                     }
                     #endif
 
-                    @PublisherSupressed
+                    @PublisherSuppressed
                     var ignoredStoredProperty = 123
                     
-                    @PublisherSupressed
+                    @PublisherSuppressed
                     var ignoredComputedProperty: Int {
                         ignoredStoredProperty
                     }
@@ -77,7 +77,7 @@
                         "\(fullName), \(age)"
                     }
 
-                    @Memoized @PublisherSupressed
+                    @Memoized @PublisherSuppressed
                     func makeIgnoredMemoizedProperty() -> Int {
                         ignoredStoredProperty
                     }
@@ -86,7 +86,7 @@
                 expandedSource:
                 #"""
                 @available(iOS 26, macOS 26, *)
-                @Observable
+                @CustomObservable
                 public final class Person {
 
                     static var user: Person?
@@ -124,10 +124,10 @@
                     }
                     #endif
 
-                    @PublisherSupressed
+                    @PublisherSuppressed
                     var ignoredStoredProperty = 123
                     
-                    @PublisherSupressed
+                    @PublisherSuppressed
                     var ignoredComputedProperty: Int {
                         ignoredStoredProperty
                     }
@@ -138,7 +138,7 @@
                         "\(fullName), \(age)"
                     }
 
-                    @Memoized @PublisherSupressed
+                    @Memoized @PublisherSuppressed
                     func makeIgnoredMemoizedProperty() -> Int {
                         ignoredStoredProperty
                     }
