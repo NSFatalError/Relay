@@ -1,4 +1,4 @@
-# Publishable
+# Combine
 
 Observe changes to `Observable` types synchronously with `Combine`.
 
@@ -53,10 +53,16 @@ person.surname = "Strzelecki"
 
 ### Making Types Publishable
 
+- <doc:HowPublishableWorks>
+- ``Relayed()``
+- ``Relayed(isolation:)``
 - ``Publishable()``
 - ``Publishable(isolation:)``
+
+### Customizing Generated Declarations
+
+- ``ObservationSupressed()``
 - ``PublisherSupressed()``
-- <doc:HowPublishableWorks>
 
 ### Observing Changes with Combine
 
