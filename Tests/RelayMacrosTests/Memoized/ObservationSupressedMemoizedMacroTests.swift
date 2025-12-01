@@ -37,7 +37,7 @@
                 public class Square {
 
                     var side = 12.3
-                
+
                     @ObservationSupressed
                     private func calculateArea() -> Double {
                         side * side

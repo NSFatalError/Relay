@@ -22,9 +22,9 @@
                 #"""
                 @Relayed
                 public class Square {
-                
+
                     var side = 12.3
-                
+
                     @Memoized
                     private func calculateArea() -> Double {
                         side * side
@@ -35,28 +35,28 @@
                 #"""
                 @Relayed
                 public class Square {
-                
+
                     var side = 12.3
                     private func calculateArea() -> Double {
                         side * side
                     }
-                
+
                     private final var _area: Optional<Double> = nil
-                
+
                     final var area: Double {
                         if let cached = _area {
                             _$observationRegistrar.access(self, keyPath: \.area)
                             return cached
                         }
-                
+
                         nonisolated(unsafe) weak var instance = self
-                
+
                         @Sendable nonisolated func assumeIsolatedIfNeeded(
                             _ operation: () -> Void
                         ) {
                             operation()
                         }
-                
+
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
                                 guard let instance else {
@@ -69,7 +69,7 @@
                                 instance.publisher._endModifications()
                             }
                         }
-                
+
                         return withObservationTracking {
                             let result = calculateArea()
                             _area = result
@@ -89,9 +89,9 @@
                 #"""
                 @Relayed
                 public final class Square {
-                
+
                     var side = 12.3
-                
+
                     @available(macOS 26, *)
                     @Memoized(.public, "customName")
                     private func calculateArea() -> Double {
@@ -103,32 +103,32 @@
                 #"""
                 @Relayed
                 public final class Square {
-                
+
                     var side = 12.3
-                
+
                     @available(macOS 26, *)
                     private func calculateArea() -> Double {
                         side * side
                     }
-                
+
                     // Stored properties cannot be made potentially unavailable
                     private final var _customName: Optional<Double> = nil
-                
+
                     @available(macOS 26, *)
                     public final var customName: Double {
                         if let cached = _customName {
                             _$observationRegistrar.access(self, keyPath: \.customName)
                             return cached
                         }
-                
+
                         nonisolated(unsafe) weak var instance = self
-                
+
                         @Sendable nonisolated func assumeIsolatedIfNeeded(
                             _ operation: () -> Void
                         ) {
                             operation()
                         }
-                
+
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
                                 guard let instance else {
@@ -141,7 +141,7 @@
                                 instance.publisher._endModifications()
                             }
                         }
-                
+
                         return withObservationTracking {
                             let result = calculateArea()
                             _customName = result
