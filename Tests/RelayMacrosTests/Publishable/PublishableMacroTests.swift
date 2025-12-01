@@ -56,7 +56,7 @@
                     var platformComputedProperty: Int {
                         platformStoredProperty
                     }
-                
+
                     @Memoized
                     func makePlatformMemoizedProperty() -> Int {
                         platformStoredProperty
@@ -117,7 +117,7 @@
                     var platformComputedProperty: Int {
                         platformStoredProperty
                     }
-                
+
                     @Memoized
                     func makePlatformMemoizedProperty() -> Int {
                         platformStoredProperty
