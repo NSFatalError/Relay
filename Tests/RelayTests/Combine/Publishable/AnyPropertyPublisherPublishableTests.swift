@@ -17,7 +17,7 @@ internal enum AnyPropertyPublisherPublishableTests {
 
         fileprivate final class NonEquatableClass {}
 
-        @Publishable @Observable
+        @Publishable @_Observable
         fileprivate final class Object {
 
             var unrelatedProperty = 0
@@ -212,7 +212,7 @@ extension AnyPropertyPublisherPublishableTests {
             }
         }
 
-        @Publishable @Observable
+        @Publishable @_Observable
         fileprivate final class Object {
 
             var unrelatedProperty = 0

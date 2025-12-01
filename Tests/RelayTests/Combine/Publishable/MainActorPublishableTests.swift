@@ -202,7 +202,7 @@ extension MainActorPublishableTests {
 
 extension MainActorPublishableTests {
 
-    @MainActor @Publishable @Observable
+    @MainActor @Publishable @_Observable
     final class Person {
 
         let id = UUID()

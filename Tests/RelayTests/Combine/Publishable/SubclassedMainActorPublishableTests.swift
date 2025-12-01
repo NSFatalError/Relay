@@ -289,7 +289,7 @@ extension SubclassedMainActorPublishableTests {
 
 extension SubclassedMainActorPublishableTests {
 
-    @MainActor @Publishable @Observable
+    @MainActor @Publishable @_Observable
     class PublishableAnimal {
 
         var name = "Unknown"
@@ -300,7 +300,7 @@ extension SubclassedMainActorPublishableTests {
         }
     }
 
-    @MainActor @Publishable @Observable
+    @MainActor @Publishable @_Observable
     final class Dog: PublishableAnimal {
 
         var breed: String?
@@ -335,7 +335,7 @@ extension SubclassedMainActorPublishableTests {
         }
     }
 
-    @MainActor @Publishable @Observable
+    @MainActor @Publishable @_Observable
     final class Cat: NonPublishableAnimal {
 
         var breed: String?

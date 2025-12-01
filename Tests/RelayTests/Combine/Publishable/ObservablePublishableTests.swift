@@ -201,7 +201,7 @@ extension ObservablePublishableTests {
 
 extension ObservablePublishableTests {
 
-    @Publishable @Observable
+    @Publishable @_Observable
     final class Person {
 
         let id = UUID()

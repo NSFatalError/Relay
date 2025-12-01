@@ -164,7 +164,7 @@ internal struct PublishableMemoizedTests {
 
 extension PublishableMemoizedTests {
 
-    @Publishable @Observable
+    @Publishable @_Observable
     final class Cube {
 
         var offset = 0.0
