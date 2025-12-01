@@ -49,7 +49,7 @@
                 @MainActor
                 class Dog: Animal {
                     @RelayedProperty
-                
+
                     var breed: String?
 
                     var isBulldog: Bool {
@@ -117,28 +117,28 @@
                     }
 
                     private let _$observationRegistrar = Observation.ObservationRegistrar()
-                
+
                     private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_>(
                         _ lhs: __macro_local_1TfMu_,
                         _ rhs: __macro_local_1TfMu_
                     ) -> Bool {
                         true
                     }
-                
+
                     private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_: Equatable>(
                         _ lhs: __macro_local_1TfMu_,
                         _ rhs: __macro_local_1TfMu_
                     ) -> Bool {
                         lhs != rhs
                     }
-                
+
                     private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_: AnyObject>(
                         _ lhs: __macro_local_1TfMu_,
                         _ rhs: __macro_local_1TfMu_
                     ) -> Bool {
                         lhs !== rhs
                     }
-                
+
                     private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_: AnyObject & Equatable>(
                         _ lhs: __macro_local_1TfMu_,
                         _ rhs: __macro_local_1TfMu_

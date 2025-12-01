@@ -62,10 +62,10 @@
                         platformStoredProperty
                     }
                     #endif
-                
+
                     @ObservationSupressed @PublisherSupressed
                     var ignoredStoredProperty = 123
-                
+
                     @ObservationSupressed
                     var observationIgnoredStoredProperty = 123
 
@@ -132,10 +132,10 @@
                         platformStoredProperty
                     }
                     #endif
-                
+
                     @ObservationSupressed @PublisherSupressed
                     var ignoredStoredProperty = 123
-                
+
                     @ObservationSupressed
                     @RelayedProperty
                     var observationIgnoredStoredProperty = 123
@@ -250,30 +250,30 @@
                             _computedPropertyPublisher(for: \.memoizedProperty, object: object)
                         }
                     }
-                
+
                     private let _$observationRegistrar = Observation.ObservationRegistrar()
-                
+
                     private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_>(
                         _ lhs: __macro_local_1TfMu_,
                         _ rhs: __macro_local_1TfMu_
                     ) -> Bool {
                         true
                     }
-                
+
                     private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_: Equatable>(
                         _ lhs: __macro_local_1TfMu_,
                         _ rhs: __macro_local_1TfMu_
                     ) -> Bool {
                         lhs != rhs
                     }
-                
+
                     private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_: AnyObject>(
                         _ lhs: __macro_local_1TfMu_,
                         _ rhs: __macro_local_1TfMu_
                     ) -> Bool {
                         lhs !== rhs
                     }
-                
+
                     private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_: AnyObject & Equatable>(
                         _ lhs: __macro_local_1TfMu_,
                         _ rhs: __macro_local_1TfMu_
@@ -284,7 +284,7 @@
 
                 @available(iOS 26, macOS 26, *) extension Person: @MainActor Relay.Publishable {
                 }
-                
+
                 @available(iOS 26, macOS 26, *) extension Person: nonisolated Observation.Observable {
                 }
                 """#,
