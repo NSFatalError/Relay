@@ -48,7 +48,7 @@
                 expandedSource:
                 #"""
                 class Dog: Animal {
-                
+
                     let id: UUID
                     @RelayedProperty
                     var breed: String?
