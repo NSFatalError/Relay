@@ -1,5 +1,5 @@
 //
-//  SubclassedPublishableTests.swift
+//  SubclassedRelayedTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 23/11/2025.
@@ -9,7 +9,7 @@
 import Relay
 import Testing
 
-internal struct SubclassedPublishableTests {
+internal struct SubclassedRelayedTests {
 
     @Test
     func storedProperty() {
@@ -92,7 +92,7 @@ internal struct SubclassedPublishableTests {
     }
 }
 
-extension SubclassedPublishableTests {
+extension SubclassedRelayedTests {
 
     @Test
     func computedProperty() {
@@ -185,7 +185,7 @@ extension SubclassedPublishableTests {
     }
 }
 
-extension SubclassedPublishableTests {
+extension SubclassedRelayedTests {
 
     @Test
     func willChange() {
@@ -286,9 +286,9 @@ extension SubclassedPublishableTests {
     }
 }
 
-extension SubclassedPublishableTests {
+extension SubclassedRelayedTests {
 
-    @Publishable @Observable
+    @Relayed
     class PublishableAnimal {
 
         var name = "Unknown"
@@ -299,7 +299,7 @@ extension SubclassedPublishableTests {
         }
     }
 
-    @Publishable @Observable
+    @Relayed
     final class Dog: PublishableAnimal {
 
         var breed: String?
@@ -308,7 +308,6 @@ extension SubclassedPublishableTests {
             breed == "Bulldog"
         }
 
-        @ObservationIgnored
         override var age: Int {
             didSet {
                 _ = oldValue
@@ -321,8 +320,9 @@ extension SubclassedPublishableTests {
     }
 }
 
-extension SubclassedPublishableTests {
+extension SubclassedRelayedTests {
 
+    @Observable
     class NonPublishableAnimal {
 
         var name = "Unknown"
@@ -333,7 +333,7 @@ extension SubclassedPublishableTests {
         }
     }
 
-    @Publishable @Observable
+    @Relayed
     final class Cat: NonPublishableAnimal {
 
         var breed: String?
@@ -342,7 +342,6 @@ extension SubclassedPublishableTests {
             breed == "Sphynx"
         }
 
-        @ObservationIgnored
         override var age: Int {
             didSet {
                 _ = oldValue
