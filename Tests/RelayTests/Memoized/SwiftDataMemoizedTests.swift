@@ -263,6 +263,11 @@ extension SwiftDataMemoizedTests {
             return baseArea * z
         }
 
+        @Memoized @ObservationSupressed
+        func calculateIgnoredValue() -> Double {
+            volume
+        }
+
         #if os(macOS)
             @available(macOS 26, *)
             @Memoized
