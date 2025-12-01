@@ -45,7 +45,7 @@
 
                     @MainActor final var area: Double {
                         if let cached = _area {
-                            access(keyPath: \._area)
+                            _$observationRegistrar.access(self, keyPath: \.area)
                             return cached
                         }
 
@@ -65,9 +65,12 @@
 
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
-                                instance?.withMutation(keyPath: \._area) {
-                                    instance?._area = nil
+                                guard let instance else {
+                                    return
                                 }
+                                instance._$observationRegistrar.willSet(instance, keyPath: \.area)
+                                instance._area = nil
+                                instance._$observationRegistrar.didSet(instance, keyPath: \.area)
                             }
                         }
 
@@ -118,7 +121,7 @@
                     @available(macOS 26, *)
                     @MainActor public final var customName: Double {
                         if let cached = _customName {
-                            access(keyPath: \._customName)
+                            _$observationRegistrar.access(self, keyPath: \.customName)
                             return cached
                         }
 
@@ -138,9 +141,12 @@
 
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
-                                instance?.withMutation(keyPath: \._customName) {
-                                    instance?._customName = nil
+                                guard let instance else {
+                                    return
                                 }
+                                instance._$observationRegistrar.willSet(instance, keyPath: \.customName)
+                                instance._customName = nil
+                                instance._$observationRegistrar.didSet(instance, keyPath: \.customName)
                             }
                         }
 

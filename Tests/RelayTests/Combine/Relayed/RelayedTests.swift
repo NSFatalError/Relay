@@ -225,6 +225,11 @@ extension RelayedTests {
             var platformComputedProperty: Int {
                 platformStoredProperty
             }
+
+            @Memoized
+            func makePlatformMemoizedProperty() -> Int {
+                platformStoredProperty
+            }
         #endif
 
         @PublisherSupressed
@@ -232,6 +237,17 @@ extension RelayedTests {
 
         @PublisherSupressed
         var ignoredComputedProperty: Int {
+            ignoredStoredProperty
+        }
+
+        @available(iOS 26, *)
+        @Memoized(.private)
+        func makeMemoizedProperty() -> String {
+            "\(fullName), \(age)"
+        }
+
+        @Memoized @PublisherSupressed
+        func makeIgnoredMemoizedProperty() -> Int {
             ignoredStoredProperty
         }
     }

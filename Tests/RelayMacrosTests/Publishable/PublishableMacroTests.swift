@@ -56,6 +56,11 @@
                     var platformComputedProperty: Int {
                         platformStoredProperty
                     }
+                
+                    @Memoized
+                    func makePlatformMemoizedProperty() -> Int {
+                        platformStoredProperty
+                    }
                     #endif
 
                     @PublisherSupressed
@@ -110,6 +115,11 @@
                     
                     @available(macOS 26, *)
                     var platformComputedProperty: Int {
+                        platformStoredProperty
+                    }
+                
+                    @Memoized
+                    func makePlatformMemoizedProperty() -> Int {
                         platformStoredProperty
                     }
                     #endif
@@ -208,6 +218,11 @@
                         }
                         #endif
 
+                        #if os(macOS)
+                        final var platformMemoizedProperty: some Publisher<Int, Never> {
+                            _computedPropertyPublisher(for: \.platformMemoizedProperty, object: object)
+                        }
+                        #endif
                         @available(iOS 26, *)
                         fileprivate final var memoizedProperty: some Publisher<String, Never> {
                             _computedPropertyPublisher(for: \.memoizedProperty, object: object)
