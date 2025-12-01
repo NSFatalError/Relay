@@ -64,8 +64,8 @@ extension RelayedPropertyMacro: PeerMacro {
             return []
         }
 
-        let attributes = property.attributes.filter {
-            $0.attribute?.isLike(RelayedPropertyMacro.attribute) != true
+        let attributes = property.attributes.filter { attribute in
+            attribute.attribute?.isLike(RelayedPropertyMacro.attribute) != true
         }
 
         let modifiers = property.modifiers.withAccessControlLevel(.private)

@@ -226,11 +226,6 @@ extension MainActorRelayedTests {
             var platformComputedProperty: Int {
                 platformStoredProperty
             }
-
-            @Memoized
-            func makePlatformMemoizedProperty() -> Int {
-                platformStoredProperty
-            }
         #endif
 
         @ObservationSuppressed @PublisherSuppressed
@@ -257,5 +252,12 @@ extension MainActorRelayedTests {
         func makeIgnoredMemoizedProperty() -> Int {
             ignoredStoredProperty
         }
+
+        #if os(macOS)
+            @Memoized
+            func makePlatformMemoizedProperty() -> Int {
+                platformStoredProperty
+            }
+        #endif
     }
 }

@@ -225,11 +225,6 @@ extension ObservablePublishableTests {
             var platformComputedProperty: Int {
                 platformStoredProperty
             }
-
-            @Memoized
-            func makePlatformMemoizedProperty() -> Int {
-                platformStoredProperty
-            }
         #endif
 
         @PublisherSuppressed
@@ -250,5 +245,12 @@ extension ObservablePublishableTests {
         func makeIgnoredMemoizedProperty() -> Int {
             ignoredStoredProperty
         }
+
+        #if os(macOS)
+            @Memoized
+            func makePlatformMemoizedProperty() -> Int {
+                platformStoredProperty
+            }
+        #endif
     }
 }

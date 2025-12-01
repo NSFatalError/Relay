@@ -27,6 +27,7 @@
                 @Relayed
                 class Dog: Animal {
 
+                    let id: UUID
                     var breed: String?
 
                     var isBulldog: Bool {
@@ -47,8 +48,9 @@
                 expandedSource:
                 #"""
                 class Dog: Animal {
+                
+                    let id: UUID
                     @RelayedProperty
-
                     var breed: String?
 
                     var isBulldog: Bool {

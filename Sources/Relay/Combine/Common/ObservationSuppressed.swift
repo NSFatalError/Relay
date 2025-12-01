@@ -1,5 +1,5 @@
 //
-//  PublisherSuppressed.swift
+//  ObservationSuppressed.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 23/11/2025.

@@ -27,6 +27,7 @@
                 @MainActor @Relayed
                 class Dog: Animal {
 
+                    let id: UUID
                     var breed: String?
 
                     var isBulldog: Bool {
@@ -48,8 +49,9 @@
                 #"""
                 @MainActor
                 class Dog: Animal {
-                    @RelayedProperty
 
+                    let id: UUID
+                    @RelayedProperty
                     var breed: String?
 
                     var isBulldog: Bool {
