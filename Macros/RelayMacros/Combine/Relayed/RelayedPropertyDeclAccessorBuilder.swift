@@ -97,7 +97,7 @@ internal struct RelayedPropertyDeclAccessorBuilder: PropertyDeclAccessorBuilder 
     }
 
     private func modifyAccessor() -> AccessorDeclSyntax {
-        if declaration.isStoredObservationTracked, declaration.isStoredPublisherTracked {
+        if declaration.isStoredObservationTracked {
             if declaration.isStoredPublisherTracked {
                 """
                 _modify {

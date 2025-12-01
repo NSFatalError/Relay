@@ -1,5 +1,5 @@
 //
-//  ObservationPublishableTests.swift
+//  ObservablePublishableTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 18/01/2025.
@@ -10,7 +10,7 @@ import Foundation
 import Relay
 import Testing
 
-internal struct ObservationPublishableTests {
+internal struct ObservablePublishableTests {
 
     @Test
     func storedProperty() {
@@ -98,7 +98,7 @@ internal struct ObservationPublishableTests {
     }
 }
 
-extension ObservationPublishableTests {
+extension ObservablePublishableTests {
 
     @Test
     func willChange() {
@@ -199,7 +199,7 @@ extension ObservationPublishableTests {
     }
 }
 
-extension ObservationPublishableTests {
+extension ObservablePublishableTests {
 
     @Publishable @Observable
     final class Person {
@@ -227,10 +227,10 @@ extension ObservationPublishableTests {
             }
         #endif
 
-        @PublisherIgnored
+        @PublisherSupressed
         var ignoredStoredProperty = 123
 
-        @PublisherIgnored
+        @PublisherSupressed
         var ignoredComputedProperty: Int {
             ignoredStoredProperty
         }

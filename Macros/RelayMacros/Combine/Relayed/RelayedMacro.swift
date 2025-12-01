@@ -49,7 +49,7 @@ extension RelayedMacro: MemberMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         let declaration = try validateNode(attachedTo: declaration, in: context)
-        let properties = try PropertiesParser.parse(memberBlock: declaration.memberBlock)
+        let properties = try PropertiesParser.parse(declarationGroup: declaration)
         let parameters = try Parameters(from: node)
 
         let hasPublishableSuperclass = !protocols.contains { $0.isLike("Publishable") }
@@ -82,11 +82,11 @@ extension RelayedMacro: MemberAttributeMacro {
 
     public static func expansion(
         of _: AttributeSyntax,
-        attachedTo declaration: some DeclGroupSyntax,
-        providingAttributesFor _: some DeclSyntaxProtocol,
+        attachedTo _: some DeclGroupSyntax,
+        providingAttributesFor member: some DeclSyntaxProtocol,
         in _: some MacroExpansionContext
     ) throws -> [AttributeSyntax] {
-        if try RelayedPropertyMacro.shouldAttach(to: declaration) {
+        if try RelayedPropertyMacro.shouldAttach(to: member) {
             [RelayedPropertyMacro.attribute]
         } else {
             []

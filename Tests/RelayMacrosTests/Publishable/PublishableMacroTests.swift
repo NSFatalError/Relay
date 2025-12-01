@@ -58,21 +58,21 @@
                     }
                     #endif
 
-                    @PublisherIgnored
+                    @PublisherSupressed
                     var ignoredStoredProperty = 123
                     
-                    @PublisherIgnored
+                    @PublisherSupressed
                     var ignoredComputedProperty: Int {
                         ignoredStoredProperty
                     }
 
                     @available(iOS 26, *) 
                     @Memoized(.private)
-                    func makeLabel() -> String {
+                    func makeMemoizedProperty() -> String {
                         "\(fullName), \(age)"
                     }
 
-                    @Memoized @PublisherIgnored
+                    @Memoized @PublisherSupressed
                     func makeIgnoredMemoizedProperty() -> Int {
                         ignoredStoredProperty
                     }
@@ -114,21 +114,21 @@
                     }
                     #endif
 
-                    @PublisherIgnored
+                    @PublisherSupressed
                     var ignoredStoredProperty = 123
                     
-                    @PublisherIgnored
+                    @PublisherSupressed
                     var ignoredComputedProperty: Int {
                         ignoredStoredProperty
                     }
 
                     @available(iOS 26, *) 
                     @Memoized(.private)
-                    func makeLabel() -> String {
+                    func makeMemoizedProperty() -> String {
                         "\(fullName), \(age)"
                     }
 
-                    @Memoized @PublisherIgnored
+                    @Memoized @PublisherSupressed
                     func makeIgnoredMemoizedProperty() -> Int {
                         ignoredStoredProperty
                     }
@@ -209,8 +209,8 @@
                         #endif
 
                         @available(iOS 26, *)
-                        fileprivate final var label: some Publisher<String, Never> {
-                            _computedPropertyPublisher(for: \.label, object: object)
+                        fileprivate final var memoizedProperty: some Publisher<String, Never> {
+                            _computedPropertyPublisher(for: \.memoizedProperty, object: object)
                         }
                     }
 

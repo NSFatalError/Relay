@@ -64,11 +64,7 @@ internal struct ObservationRegistrarDeclBuilder: ClassDeclBuilder, MemberBuildin
     private func publishKeyPathLookups() -> CodeBlockItemListSyntax {
         for property in trackedProperties {
             let lookup = publishKeyPathLookup(for: property)
-            if let ifConfigLookup = property.underlying.applyingEnclosingIfConfig(to: lookup) {
-                ifConfigLookup
-            } else {
-                lookup
-            }
+            lookup.withIfConfigIfPresent(from: property.underlying)
         }
     }
 

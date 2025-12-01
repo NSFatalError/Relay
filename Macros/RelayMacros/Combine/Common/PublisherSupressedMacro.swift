@@ -1,5 +1,5 @@
 //
-//  PublisherIgnoredMacro.swift
+//  PublisherSupressedMacro.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 22/11/2025.
@@ -8,12 +8,12 @@
 
 import SwiftSyntaxMacros
 
-public enum PublisherIgnoredMacro {
+public enum PublisherSupressedMacro {
 
-    static let attribute: AttributeSyntax = "@PublisherIgnored"
+    static let attribute: AttributeSyntax = "@PublisherSupressed"
 }
 
-extension PublisherIgnoredMacro: PeerMacro {
+extension PublisherSupressedMacro: PeerMacro {
 
     public static func expansion(
         of _: AttributeSyntax,
@@ -31,13 +31,20 @@ extension Property {
             && mutability == .mutable
             && underlying.typeScopeSpecifier == nil
             && underlying.overrideSpecifier == nil
-            && !underlying.attributes.contains(like: PublisherIgnoredMacro.attribute)
+            && !underlying.attributes.contains(like: PublisherSupressedMacro.attribute)
     }
 
     var isComputedPublisherTracked: Bool {
         kind == .computed
             && underlying.typeScopeSpecifier == nil
             && underlying.overrideSpecifier == nil
-            && !underlying.attributes.contains(like: PublisherIgnoredMacro.attribute)
+            && !underlying.attributes.contains(like: PublisherSupressedMacro.attribute)
+    }
+}
+
+extension FunctionDeclSyntax {
+
+    var isPublisherTracked: Bool {
+        !attributes.contains(like: PublisherSupressedMacro.attribute)
     }
 }

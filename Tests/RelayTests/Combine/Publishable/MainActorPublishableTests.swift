@@ -228,10 +228,10 @@ extension MainActorPublishableTests {
             }
         #endif
 
-        @PublisherIgnored
+        @PublisherSupressed
         var ignoredStoredProperty = 123
 
-        @PublisherIgnored
+        @PublisherSupressed
         var ignoredComputedProperty: Int {
             ignoredStoredProperty
         }

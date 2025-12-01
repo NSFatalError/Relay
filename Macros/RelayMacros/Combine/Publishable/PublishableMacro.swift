@@ -53,7 +53,7 @@ extension PublishableMacro: MemberMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
         let declaration = try validateNode(node, attachedTo: declaration, in: context)
-        let properties = try PropertiesParser.parse(memberBlock: declaration.memberBlock)
+        let properties = try PropertiesParser.parse(declarationGroup: declaration)
         let parameters = try Parameters(from: node)
 
         let hasPublishableSuperclass = protocols.isEmpty

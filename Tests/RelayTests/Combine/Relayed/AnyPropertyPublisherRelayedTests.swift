@@ -1,5 +1,5 @@
 //
-//  AnyPropertyPublisherTests.swift
+//  AnyPropertyPublisherRelayedTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 15/05/2025.
@@ -9,7 +9,7 @@
 import Relay
 import Testing
 
-internal enum AnyPropertyPublisherTests {
+internal enum AnyPropertyPublisherRelayedTests {
 
     struct NonEquatableType {
 
@@ -17,7 +17,7 @@ internal enum AnyPropertyPublisherTests {
 
         fileprivate final class NonEquatableClass {}
 
-        @Publishable @Observable
+        @Relayed
         fileprivate final class Object {
 
             var unrelatedProperty = 0
@@ -195,7 +195,7 @@ internal enum AnyPropertyPublisherTests {
     }
 }
 
-extension AnyPropertyPublisherTests {
+extension AnyPropertyPublisherRelayedTests {
 
     struct EquatableType {
 
@@ -212,7 +212,7 @@ extension AnyPropertyPublisherTests {
             }
         }
 
-        @Publishable @Observable
+        @Relayed
         fileprivate final class Object {
 
             var unrelatedProperty = 0

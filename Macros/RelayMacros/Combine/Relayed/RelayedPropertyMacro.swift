@@ -16,7 +16,7 @@ public enum RelayedPropertyMacro {
         to declaration: some DeclSyntaxProtocol
     ) throws -> Bool {
         if let property = try validateNode(attachedTo: declaration) {
-            !property.attributes.contains(like: RelayedPropertyMacro.attribute)
+            !property.attributes.contains(like: attribute)
         } else {
             false
         }
@@ -28,18 +28,12 @@ extension RelayedPropertyMacro {
     private static func validateNode(
         attachedTo declaration: some DeclSyntaxProtocol
     ) throws -> Property? {
-        let properties = try PropertiesParser.parse(
-            declaration: declaration
-        )
-
-        guard let property = properties.first,
-              properties.count == 1,
-              property.isStoredObservationTracked || property.isStoredPublisherTracked
-        else {
-            return nil
+        if let property = try PropertiesParser.parseStandalone(declaration: declaration),
+           property.isStoredObservationTracked || property.isStoredPublisherTracked {
+            property
+        } else {
+            nil
         }
-
-        return property
     }
 }
 
@@ -86,7 +80,7 @@ extension RelayedPropertyMacro: PeerMacro {
             with: CollectionOfOne(binding)
         )
 
-        let storage = property.underlying
+        let storage = property.trimmed
             .with(\.attributes, attributes)
             .with(\.modifiers, modifiers)
             .with(\.bindings, bindings)

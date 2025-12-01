@@ -16,7 +16,8 @@ internal struct RelayPlugin: CompilerPlugin {
         PublishableMacro.self,
         RelayedMacro.self,
         RelayedPropertyMacro.self,
-        PublisherIgnoredMacro.self,
+        PublisherSupressedMacro.self,
+        ObservationSupressedMacro.self,
         MemoizedMacro.self
     ]
 }

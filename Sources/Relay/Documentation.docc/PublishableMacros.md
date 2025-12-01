@@ -55,7 +55,7 @@ person.surname = "Strzelecki"
 
 - ``Publishable()``
 - ``Publishable(isolation:)``
-- ``PublisherIgnored()``
+- ``PublisherSupressed()``
 - <doc:HowPublishableWorks>
 
 ### Observing Changes with Combine
