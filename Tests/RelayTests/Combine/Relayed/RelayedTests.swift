@@ -232,12 +232,18 @@ extension RelayedTests {
             }
         #endif
 
-        @PublisherSupressed
+        @ObservationSupressed @PublisherSupressed
         var ignoredStoredProperty = 123
 
+        @ObservationSupressed
+        var observationIgnoredStoredProperty = 123
+
         @PublisherSupressed
-        var ignoredComputedProperty: Int {
-            ignoredStoredProperty
+        var publisherIgnoredStoredProperty = 123
+
+        @PublisherSupressed
+        var publisherIgnoredComputedProperty: Int {
+            publisherIgnoredStoredProperty
         }
 
         @available(iOS 26, *)
