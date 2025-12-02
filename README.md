@@ -158,6 +158,6 @@ model.filteredData
 ```swift
 .package(
     url: "https://github.com/NSFatalError/Relay",
-    from: "2.0.0"
+    from: "3.0.0"
 )
 ```
