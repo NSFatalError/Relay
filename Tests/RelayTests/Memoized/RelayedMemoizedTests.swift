@@ -1,5 +1,5 @@
 //
-//  PublishableMemoizedTests.swift
+//  RelayedMemoizedTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 15/11/2025.
@@ -9,7 +9,7 @@
 import Relay
 import Testing
 
-internal struct PublishableMemoizedTests {
+internal struct RelayedMemoizedTests {
 
     @Test
     func independent() {
@@ -162,9 +162,9 @@ internal struct PublishableMemoizedTests {
 
 }
 
-extension PublishableMemoizedTests {
+extension RelayedMemoizedTests {
 
-    @Publishable @_Observable
+    @Relayed
     final class Cube {
 
         var offset = 0.0
@@ -172,11 +172,11 @@ extension PublishableMemoizedTests {
         var y = 1.0
         var z = 1.0
 
-        @ObservationIgnored
+        @ObservationSuppressed
         private(set) var calculateBaseAreaCallsCount = 0
         var isBaseAreaCached: Bool { _baseArea != nil }
 
-        @ObservationIgnored
+        @ObservationSuppressed
         private(set) var calculateVolumeCallsCount = 0
         var isVolumeCached: Bool { _volume != nil }
 

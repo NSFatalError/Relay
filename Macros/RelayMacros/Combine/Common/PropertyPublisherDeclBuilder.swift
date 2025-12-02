@@ -89,11 +89,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
     private func storedPropertiesSubjectsFinishCalls() -> CodeBlockItemListSyntax {
         for property in properties.all where property.isStoredPublisherTracked {
             let call = storedPropertySubjectFinishCall(for: property)
-            if let ifConfigCall = property.underlying.applyingEnclosingIfConfig(to: call) {
-                ifConfigCall
-            } else {
-                call
-            }
+            call.withIfConfigIfPresent(from: property.underlying)
         }
     }
 
@@ -105,11 +101,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
     private func storedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.all where property.isStoredPublisherTracked {
             let publisher = storedPropertyPublisher(for: property)
-            if let ifConfigPublisher = property.underlying.applyingEnclosingIfConfig(to: publisher) {
-                ifConfigPublisher
-            } else {
-                publisher
-            }
+            publisher.withIfConfigIfPresent(from: property.underlying)
         }
     }
 
@@ -131,11 +123,7 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
     private func computedPropertiesPublishers() -> MemberBlockItemListSyntax {
         for property in properties.all where property.isComputedPublisherTracked {
             let publisher = computedPropertyPublisher(for: property)
-            if let ifConfigPublisher = property.underlying.applyingEnclosingIfConfig(to: publisher) {
-                ifConfigPublisher
-            } else {
-                publisher
-            }
+            publisher.withIfConfigIfPresent(from: property.underlying)
         }
     }
 
@@ -154,17 +142,13 @@ internal struct PropertyPublisherDeclBuilder: ClassDeclBuilder, MemberBuilding {
 
     @MemberBlockItemListBuilder
     private func memoizedPropertiesPublishers() -> MemberBlockItemListSyntax {
-        for member in declaration.memberBlock.members {
+        for member in declaration.memberBlock.members.flattened {
             if let extractionResult = MemoizedMacro.extract(from: member.decl) {
                 let declaration = extractionResult.declaration
 
-                if !declaration.attributes.contains(like: PublisherIgnoredMacro.attribute) {
+                if declaration.isPublisherTracked {
                     let publisher = memoizedPropertyPublisher(for: extractionResult)
-                    if let ifConfigPublisher = declaration.applyingEnclosingIfConfig(to: publisher) {
-                        ifConfigPublisher
-                    } else {
-                        publisher
-                    }
+                    publisher.withIfConfigIfPresent(from: extractionResult.declaration)
                 }
             }
         }

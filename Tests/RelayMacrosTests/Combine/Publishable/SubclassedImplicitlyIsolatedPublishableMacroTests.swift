@@ -1,5 +1,5 @@
 //
-//  SubclassedPublishableMacroTests.swift
+//  SubclassedImplicitlyIsolatedPublishableMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 23/11/2025.
@@ -12,7 +12,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class SubclassedPublishableMacroTests: XCTestCase {
+    internal final class SubclassedImplicitlyIsolatedPublishableMacroTests: XCTestCase {
 
         private let macroSpecs: [String: MacroSpec] = [
             "Publishable": MacroSpec(
@@ -24,9 +24,10 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @Publishable @Observable
+                @MainActor @Publishable @CustomObservable
                 class Dog: Animal {
 
+                    let id: UUID
                     var breed: String?
 
                     var isBulldog: Bool {
@@ -47,9 +48,10 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @MainActor @CustomObservable
                 class Dog: Animal {
 
+                    let id: UUID
                     var breed: String?
 
                     var isBulldog: Bool {
@@ -80,7 +82,7 @@
                         _publisher
                     }
 
-                    class PropertyPublisher: Animal.PropertyPublisher {
+                    @MainActor class PropertyPublisher: Animal.PropertyPublisher {
 
                         private final unowned let object: Dog
 
@@ -101,7 +103,7 @@
                             super.init(object: object)
                         }
 
-                        deinit {
+                        @MainActor deinit {
                             _breed.send(completion: .finished)
                         }
 
@@ -123,7 +125,7 @@
 
                             private let underlying = SwiftObservationRegistrar()
 
-                            private func publish(
+                            @MainActor private func publish(
                                 _ object: Dog,
                                 keyPath: KeyPath<Dog, some Any>
                             ) {
@@ -189,9 +191,22 @@
                             }
 
                             private nonisolated func assumeIsolatedIfNeeded(
-                                _ operation: () throws -> Void
+                                _ operation: @MainActor () throws -> Void,
+                                file: StaticString = #fileID,
+                                line: UInt = #line
                             ) rethrows {
-                                try operation()
+                                try withoutActuallyEscaping(operation) { operation in
+                                    typealias Nonisolated = () throws -> Void
+                                    let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
+
+                                    try MainActor.shared.assumeIsolated(
+                                        { _ in
+                                            try rawOperation()
+                                        },
+                                        file: file,
+                                        line: line
+                                    )
+                                }
                             }
                         }
                     }

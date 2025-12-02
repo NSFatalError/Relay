@@ -1,5 +1,5 @@
 //
-//  MemoizedMacroTests.swift
+//  RelayedObservationSuppressedMemoizedMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 12/01/2025.
@@ -11,7 +11,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class MemoizedMacroTests: XCTestCase {
+    internal final class RelayedObservationSuppressedMemoizedMacroTests: XCTestCase {
 
         private let macros: [String: any Macro.Type] = [
             "Memoized": MemoizedMacro.self
@@ -20,12 +20,12 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @Relayed
                 public class Square {
 
                     var side = 12.3
 
-                    @Memoized
+                    @Memoized @ObservationSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -33,10 +33,12 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @Relayed
                 public class Square {
 
                     var side = 12.3
+
+                    @ObservationSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -45,7 +47,6 @@
 
                     final var area: Double {
                         if let cached = _area {
-                            _$observationRegistrar.access(self, keyPath: \.area)
                             return cached
                         }
 
@@ -59,12 +60,9 @@
 
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
-                                guard let instance else {
-                                    return
-                                }
-                                instance._$observationRegistrar.willSet(instance, keyPath: \.area)
-                                instance._area = nil
-                                instance._$observationRegistrar.didSet(instance, keyPath: \.area)
+                                instance?.publisher._beginModifications()
+                                instance?._area = nil
+                                instance?.publisher._endModifications()
                             }
                         }
 
@@ -85,13 +83,14 @@
         func testExpansionWithParameters() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @Relayed
                 public final class Square {
 
                     var side = 12.3
 
                     @available(macOS 26, *)
                     @Memoized(.public, "customName")
+                    @ObservationSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -99,12 +98,13 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @Relayed
                 public final class Square {
 
                     var side = 12.3
 
                     @available(macOS 26, *)
+                    @ObservationSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -115,7 +115,6 @@
                     @available(macOS 26, *)
                     public final var customName: Double {
                         if let cached = _customName {
-                            _$observationRegistrar.access(self, keyPath: \.customName)
                             return cached
                         }
 
@@ -129,12 +128,9 @@
 
                         @Sendable nonisolated func invalidateCache() {
                             assumeIsolatedIfNeeded {
-                                guard let instance else {
-                                    return
-                                }
-                                instance._$observationRegistrar.willSet(instance, keyPath: \.customName)
-                                instance._customName = nil
-                                instance._$observationRegistrar.didSet(instance, keyPath: \.customName)
+                                instance?.publisher._beginModifications()
+                                instance?._customName = nil
+                                instance?.publisher._endModifications()
                             }
                         }
 

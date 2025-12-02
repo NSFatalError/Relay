@@ -1,8 +1,8 @@
 //
-//  PublishableMacroTests.swift
+//  NonisolatedRelayedMacroTests.swift
 //  Relay
 //
-//  Created by Kamil Strzelecki on 12/01/2025.
+//  Created by Kamil Strzelecki on 23/11/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
@@ -12,12 +12,12 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class PublishableMacroTests: XCTestCase {
+    internal final class NonisolatedRelayedMacroTests: XCTestCase {
 
         private let macroSpecs: [String: MacroSpec] = [
-            "Publishable": MacroSpec(
-                type: PublishableMacro.self,
-                conformances: ["Publishable"]
+            "Relayed": MacroSpec(
+                type: RelayedMacro.self,
+                conformances: ["Publishable", "Observable"]
             )
         ]
 
@@ -25,7 +25,7 @@
             assertMacroExpansion(
                 #"""
                 @available(iOS 26, macOS 26, *)
-                @Publishable @Observable
+                @Relayed(isolation: nil)
                 public final class Person {
 
                     static var user: Person?
@@ -56,39 +56,52 @@
                     var platformComputedProperty: Int {
                         platformStoredProperty
                     }
+
+                    @Memoized
+                    func makePlatformMemoizedProperty() -> Int {
+                        platformStoredProperty
+                    }
                     #endif
 
-                    @PublisherIgnored
+                    @ObservationSuppressed @PublisherSuppressed
                     var ignoredStoredProperty = 123
+
+                    @ObservationSuppressed
+                    var observationIgnoredStoredProperty = 123
+
+                    @PublisherSuppressed
+                    var publisherIgnoredStoredProperty = 123
                     
-                    @PublisherIgnored
-                    var ignoredComputedProperty: Int {
-                        ignoredStoredProperty
+                    @PublisherSuppressed
+                    var publisherIgnoredComputedProperty: Int {
+                        publisherIgnoredStoredProperty
                     }
 
-                    @available(iOS 26, *) 
+                    @available(iOS 26, *)
                     @Memoized(.private)
-                    func makeLabel() -> String {
+                    func makeMemoizedProperty() -> String {
                         "\(fullName), \(age)"
                     }
 
-                    @Memoized @PublisherIgnored
+                    @Memoized @PublisherSuppressed
                     func makeIgnoredMemoizedProperty() -> Int {
-                        ignoredStoredProperty
+                        publisherIgnoredStoredProperty
                     }
                 }
                 """#,
                 expandedSource:
                 #"""
                 @available(iOS 26, macOS 26, *)
-                @Observable
                 public final class Person {
 
                     static var user: Person?
 
                     let id: UUID
+                    @RelayedProperty
                     fileprivate(set) var age: Int
+                    @RelayedProperty
                     var name: String
+                    @RelayedProperty
 
                     public var surname: String {
                         didSet {
@@ -112,25 +125,38 @@
                     var platformComputedProperty: Int {
                         platformStoredProperty
                     }
+
+                    @Memoized
+                    func makePlatformMemoizedProperty() -> Int {
+                        platformStoredProperty
+                    }
                     #endif
 
-                    @PublisherIgnored
+                    @ObservationSuppressed @PublisherSuppressed
                     var ignoredStoredProperty = 123
+
+                    @ObservationSuppressed
+                    @RelayedProperty
+                    var observationIgnoredStoredProperty = 123
+
+                    @PublisherSuppressed
+                    @RelayedProperty
+                    var publisherIgnoredStoredProperty = 123
                     
-                    @PublisherIgnored
-                    var ignoredComputedProperty: Int {
-                        ignoredStoredProperty
+                    @PublisherSuppressed
+                    var publisherIgnoredComputedProperty: Int {
+                        publisherIgnoredStoredProperty
                     }
 
-                    @available(iOS 26, *) 
+                    @available(iOS 26, *)
                     @Memoized(.private)
-                    func makeLabel() -> String {
+                    func makeMemoizedProperty() -> String {
                         "\(fullName), \(age)"
                     }
 
-                    @Memoized @PublisherIgnored
+                    @Memoized @PublisherSuppressed
                     func makeIgnoredMemoizedProperty() -> Int {
-                        ignoredStoredProperty
+                        publisherIgnoredStoredProperty
                     }
 
                     private final lazy var _publisher = PropertyPublisher(object: self)
@@ -146,7 +172,7 @@
                         _publisher
                     }
 
-                    public final class PropertyPublisher: Relay.AnyPropertyPublisher {
+                    nonisolated public final class PropertyPublisher: Relay.AnyPropertyPublisher {
 
                         private final unowned let object: Person
 
@@ -167,13 +193,14 @@
                             super.init(object: object)
                         }
 
-                        deinit {
+                        nonisolated deinit {
                             _age.send(completion: .finished)
                             _name.send(completion: .finished)
                             _surname.send(completion: .finished)
                             #if os(macOS)
                             _platformStoredProperty.send(completion: .finished)
                             #endif
+                            _observationIgnoredStoredProperty.send(completion: .finished)
                         }
 
                         fileprivate final let _age = PassthroughSubject<Int, Never>()
@@ -194,6 +221,10 @@
                             _storedPropertyPublisher(_platformStoredProperty, for: \.platformStoredProperty, object: object)
                         }
                         #endif
+                        fileprivate final let _observationIgnoredStoredProperty = PassthroughSubject<Int, Never>()
+                        final var observationIgnoredStoredProperty: some Publisher<Int, Never> {
+                            _storedPropertyPublisher(_observationIgnoredStoredProperty, for: \.observationIgnoredStoredProperty, object: object)
+                        }
 
                         internal final var fullName: some Publisher<String, Never> {
                             _computedPropertyPublisher(for: \.fullName, object: object)
@@ -208,107 +239,52 @@
                         }
                         #endif
 
+                        #if os(macOS)
+                        final var platformMemoizedProperty: some Publisher<Int, Never> {
+                            _computedPropertyPublisher(for: \.platformMemoizedProperty, object: object)
+                        }
+                        #endif
                         @available(iOS 26, *)
-                        fileprivate final var label: some Publisher<String, Never> {
-                            _computedPropertyPublisher(for: \.label, object: object)
+                        fileprivate final var memoizedProperty: some Publisher<String, Never> {
+                            _computedPropertyPublisher(for: \.memoizedProperty, object: object)
                         }
                     }
 
-                    private enum Observation {
+                    private let _$observationRegistrar = Observation.ObservationRegistrar()
 
-                        nonisolated struct ObservationRegistrar: PublishableObservationRegistrar {
+                    private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_>(
+                        _ lhs: __macro_local_1TfMu_,
+                        _ rhs: __macro_local_1TfMu_
+                    ) -> Bool {
+                        true
+                    }
 
-                            private let underlying = SwiftObservationRegistrar()
+                    private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_: Equatable>(
+                        _ lhs: __macro_local_1TfMu_,
+                        _ rhs: __macro_local_1TfMu_
+                    ) -> Bool {
+                        lhs != rhs
+                    }
 
-                            private func publish(
-                                _ object: Person,
-                                keyPath: KeyPath<Person, some Any>
-                            ) {
-                                if keyPath == \.age {
-                                    object.publisher._age.send(object[keyPath: \.age])
-                                    return
-                                }
-                                if keyPath == \.name {
-                                    object.publisher._name.send(object[keyPath: \.name])
-                                    return
-                                }
-                                if keyPath == \.surname {
-                                    object.publisher._surname.send(object[keyPath: \.surname])
-                                    return
-                                }
-                                #if os(macOS)
-                                if keyPath == \.platformStoredProperty {
-                                    object.publisher._platformStoredProperty.send(object[keyPath: \.platformStoredProperty])
-                                    return
-                                }
-                                #endif
-                            }
+                    private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_: AnyObject>(
+                        _ lhs: __macro_local_1TfMu_,
+                        _ rhs: __macro_local_1TfMu_
+                    ) -> Bool {
+                        lhs !== rhs
+                    }
 
-                            nonisolated func willSet(
-                                _ object: Person,
-                                keyPath: KeyPath<Person, some Any>
-                            ) {
-                                nonisolated(unsafe) let keyPath = keyPath
-                                assumeIsolatedIfNeeded {
-                                    object.publisher._beginModifications()
-                                    underlying.willSet(object, keyPath: keyPath)
-                                }
-                            }
-
-                            nonisolated func didSet(
-                                _ object: Person,
-                                keyPath: KeyPath<Person, some Any>
-                            ) {
-                                nonisolated(unsafe) let keyPath = keyPath
-                                assumeIsolatedIfNeeded {
-                                    underlying.didSet(object, keyPath: keyPath)
-                                    publish(object, keyPath: keyPath)
-                                    object.publisher._endModifications()
-                                }
-                            }
-
-                            nonisolated func access(
-                                _ object: Person,
-                                keyPath: KeyPath<Person, some Any>
-                            ) {
-                                underlying.access(object, keyPath: keyPath)
-                            }
-
-                            nonisolated func withMutation<__macro_local_1TfMu_>(
-                                of object: Person,
-                                keyPath: KeyPath<Person, some Any>,
-                                _ mutation: () throws -> __macro_local_1TfMu_
-                            ) rethrows -> __macro_local_1TfMu_ {
-                                nonisolated(unsafe) let mutation = mutation
-                                nonisolated(unsafe) let keyPath = keyPath
-                                nonisolated(unsafe) var result: __macro_local_1TfMu_!
-
-                                try assumeIsolatedIfNeeded {
-                                    object.publisher._beginModifications()
-                                    defer {
-                                        publish(object, keyPath: keyPath)
-                                        object.publisher._endModifications()
-                                    }
-                                    result = try underlying.withMutation(
-                                        of: object,
-                                        keyPath: keyPath,
-                                        mutation
-                                    )
-                                }
-
-                                return result
-                            }
-
-                            private nonisolated func assumeIsolatedIfNeeded(
-                                _ operation: () throws -> Void
-                            ) rethrows {
-                                try operation()
-                            }
-                        }
+                    private nonisolated func shouldNotifyObservers<__macro_local_1TfMu_: AnyObject & Equatable>(
+                        _ lhs: __macro_local_1TfMu_,
+                        _ rhs: __macro_local_1TfMu_
+                    ) -> Bool {
+                        lhs != rhs
                     }
                 }
 
-                @available(iOS 26, macOS 26, *) extension Person: Publishable {
+                @available(iOS 26, macOS 26, *) extension Person: nonisolated Relay.Publishable {
+                }
+
+                @available(iOS 26, macOS 26, *) extension Person: nonisolated Observation.Observable {
                 }
                 """#,
                 macroSpecs: macroSpecs

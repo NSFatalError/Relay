@@ -89,4 +89,6 @@ model.filteredData
 
 ### Customizing Generated Declarations
 
+- ``ObservationSuppressed()``
+- ``PublisherSuppressed()``
 - ``AccessControlLevel``

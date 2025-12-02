@@ -1,5 +1,5 @@
 //
-//  MemoizedMacroTests.swift
+//  RelayedPublisherSuppressedMemoizedMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 12/01/2025.
@@ -11,7 +11,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class MemoizedMacroTests: XCTestCase {
+    internal final class RelayedPublisherSuppressedMemoizedMacroTests: XCTestCase {
 
         private let macros: [String: any Macro.Type] = [
             "Memoized": MemoizedMacro.self
@@ -20,12 +20,12 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @Relayed
                 public class Square {
 
                     var side = 12.3
 
-                    @Memoized
+                    @Memoized @PublisherSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -33,10 +33,12 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @Relayed
                 public class Square {
 
                     var side = 12.3
+
+                    @PublisherSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -85,13 +87,14 @@
         func testExpansionWithParameters() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @Relayed
                 public final class Square {
 
                     var side = 12.3
 
                     @available(macOS 26, *)
                     @Memoized(.public, "customName")
+                    @PublisherSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }
@@ -99,12 +102,13 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @Relayed
                 public final class Square {
 
                     var side = 12.3
 
                     @available(macOS 26, *)
+                    @PublisherSuppressed
                     private func calculateArea() -> Double {
                         side * side
                     }

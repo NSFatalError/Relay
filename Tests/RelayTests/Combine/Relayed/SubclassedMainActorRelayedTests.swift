@@ -1,15 +1,16 @@
 //
-//  SubclassedPublishableTests.swift
+//  SubclassedMainActorRelayedTests.swift
 //  Relay
 //
-//  Created by Kamil Strzelecki on 23/11/2025.
+//  Created by Kamil Strzelecki on 29/11/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
-@testable import Relay
+import Relay
 import Testing
 
-internal struct SubclassedPublishableTests {
+@MainActor
+internal struct SubclassedMainActorRelayedTests {
 
     @Test
     func storedProperty() {
@@ -92,7 +93,7 @@ internal struct SubclassedPublishableTests {
     }
 }
 
-extension SubclassedPublishableTests {
+extension SubclassedMainActorRelayedTests {
 
     @Test
     func computedProperty() {
@@ -185,7 +186,7 @@ extension SubclassedPublishableTests {
     }
 }
 
-extension SubclassedPublishableTests {
+extension SubclassedMainActorRelayedTests {
 
     @Test
     func willChange() {
@@ -286,9 +287,9 @@ extension SubclassedPublishableTests {
     }
 }
 
-extension SubclassedPublishableTests {
+extension SubclassedMainActorRelayedTests {
 
-    @Publishable @Observable
+    @MainActor @Relayed
     class PublishableAnimal {
 
         var name = "Unknown"
@@ -299,7 +300,7 @@ extension SubclassedPublishableTests {
         }
     }
 
-    @Publishable @Observable
+    @MainActor @Relayed
     final class Dog: PublishableAnimal {
 
         var breed: String?
@@ -308,7 +309,6 @@ extension SubclassedPublishableTests {
             breed == "Bulldog"
         }
 
-        @ObservationIgnored
         override var age: Int {
             didSet {
                 _ = oldValue
@@ -321,8 +321,9 @@ extension SubclassedPublishableTests {
     }
 }
 
-extension SubclassedPublishableTests {
+extension SubclassedMainActorRelayedTests {
 
+    @MainActor @Observable
     class NonPublishableAnimal {
 
         var name = "Unknown"
@@ -333,7 +334,7 @@ extension SubclassedPublishableTests {
         }
     }
 
-    @Publishable @Observable
+    @MainActor @Relayed
     final class Cat: NonPublishableAnimal {
 
         var breed: String?
@@ -342,7 +343,6 @@ extension SubclassedPublishableTests {
             breed == "Sphynx"
         }
 
-        @ObservationIgnored
         override var age: Int {
             didSet {
                 _ = oldValue

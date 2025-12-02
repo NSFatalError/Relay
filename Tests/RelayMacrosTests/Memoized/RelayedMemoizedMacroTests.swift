@@ -1,5 +1,5 @@
 //
-//  MemoizedMacroTests.swift
+//  RelayedMemoizedMacroTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 12/01/2025.
@@ -11,7 +11,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    internal final class MemoizedMacroTests: XCTestCase {
+    internal final class RelayedMemoizedMacroTests: XCTestCase {
 
         private let macros: [String: any Macro.Type] = [
             "Memoized": MemoizedMacro.self
@@ -20,7 +20,7 @@
         func testExpansion() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @Relayed
                 public class Square {
 
                     var side = 12.3
@@ -33,7 +33,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @Relayed
                 public class Square {
 
                     var side = 12.3
@@ -62,9 +62,11 @@
                                 guard let instance else {
                                     return
                                 }
+                                instance.publisher._beginModifications()
                                 instance._$observationRegistrar.willSet(instance, keyPath: \.area)
                                 instance._area = nil
                                 instance._$observationRegistrar.didSet(instance, keyPath: \.area)
+                                instance.publisher._endModifications()
                             }
                         }
 
@@ -85,7 +87,7 @@
         func testExpansionWithParameters() {
             assertMacroExpansion(
                 #"""
-                @Observable
+                @Relayed
                 public final class Square {
 
                     var side = 12.3
@@ -99,7 +101,7 @@
                 """#,
                 expandedSource:
                 #"""
-                @Observable
+                @Relayed
                 public final class Square {
 
                     var side = 12.3
@@ -132,9 +134,11 @@
                                 guard let instance else {
                                     return
                                 }
+                                instance.publisher._beginModifications()
                                 instance._$observationRegistrar.willSet(instance, keyPath: \.customName)
                                 instance._customName = nil
                                 instance._$observationRegistrar.didSet(instance, keyPath: \.customName)
+                                instance.publisher._endModifications()
                             }
                         }
 

@@ -11,6 +11,7 @@ import SwiftSyntaxMacros
 internal struct MemoizedDeclBuilder: FunctionDeclBuilder, PeerBuilding {
 
     let declaration: FunctionDeclSyntax
+    let enclosingClassDeclaration: ClassDeclSyntax
     let trimmedReturnType: TypeSyntax
     let propertyName: String
 
@@ -27,10 +28,7 @@ internal struct MemoizedDeclBuilder: FunctionDeclBuilder, PeerBuilding {
             """
             \(inheritedAvailability)\(inheritedGlobalActorIsolation)\(preferredAccessControlLevel)final \
             var \(raw: propertyName): \(trimmedReturnType) {
-                if let cached = _\(raw: propertyName) {
-                    access(keyPath: \\._\(raw: propertyName))
-                    return cached
-                }
+                \(returnCachedIfAvailableBlock())
 
                 nonisolated(unsafe) weak var instance = self
 
@@ -52,6 +50,23 @@ internal struct MemoizedDeclBuilder: FunctionDeclBuilder, PeerBuilding {
         }
     }
 
+    private func returnCachedIfAvailableBlock() -> CodeBlockItemSyntax {
+        if declaration.isObservationTracked {
+            """
+            if let cached = _\(raw: propertyName) {
+                _$observationRegistrar.access(self, keyPath: \\.\(raw: propertyName))
+                return cached
+            }
+            """
+        } else {
+            """
+            if let cached = _\(raw: propertyName) {
+                return cached
+            }
+            """
+        }
+    }
+
     private func observationTrackingBlock() -> CodeBlockItemSyntax {
         """
         return withObservationTracking {
@@ -65,15 +80,52 @@ internal struct MemoizedDeclBuilder: FunctionDeclBuilder, PeerBuilding {
     }
 
     private func invalidateCacheFunction() -> CodeBlockItemSyntax {
-        """
-        @Sendable nonisolated func invalidateCache() {
-            assumeIsolatedIfNeeded {
-                instance?.withMutation(keyPath: \\._\(raw: propertyName)) {
+        if enclosingClassDeclaration.attributes.contains(like: RelayedMacro.attribute),
+           declaration.isPublisherTracked {
+            if declaration.isObservationTracked {
+                """
+                @Sendable nonisolated func invalidateCache() {
+                    assumeIsolatedIfNeeded {
+                        guard let instance else { return }
+                        instance.publisher._beginModifications()
+                        instance._$observationRegistrar.willSet(instance, keyPath: \\.\(raw: propertyName))
+                        instance._\(raw: propertyName) = nil
+                        instance._$observationRegistrar.didSet(instance, keyPath: \\.\(raw: propertyName))
+                        instance.publisher._endModifications()
+                    }
+                }
+                """
+            } else {
+                """
+                @Sendable nonisolated func invalidateCache() {
+                    assumeIsolatedIfNeeded {
+                        instance?.publisher._beginModifications()
+                        instance?._\(raw: propertyName) = nil
+                        instance?.publisher._endModifications()
+                    }
+                }
+                """
+            }
+        } else if declaration.isObservationTracked {
+            """
+            @Sendable nonisolated func invalidateCache() {
+                assumeIsolatedIfNeeded {
+                    guard let instance else { return }
+                    instance._$observationRegistrar.willSet(instance, keyPath: \\.\(raw: propertyName))
+                    instance._\(raw: propertyName) = nil
+                    instance._$observationRegistrar.didSet(instance, keyPath: \\.\(raw: propertyName))
+                }
+            }
+            """
+        } else {
+            """
+            @Sendable nonisolated func invalidateCache() {
+                assumeIsolatedIfNeeded {
                     instance?._\(raw: propertyName) = nil
                 }
             }
+            """
         }
-        """
     }
 
     private func assumeIsolatedIfNeededFunction() -> CodeBlockItemSyntax {

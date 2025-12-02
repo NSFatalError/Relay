@@ -1,5 +1,5 @@
 //
-//  ObservationPublishableTests.swift
+//  RelayedTests.swift
 //  Relay
 //
 //  Created by Kamil Strzelecki on 18/01/2025.
@@ -10,7 +10,7 @@ import Foundation
 import Relay
 import Testing
 
-internal struct ObservationPublishableTests {
+internal struct RelayedTests {
 
     @Test
     func storedProperty() {
@@ -98,7 +98,7 @@ internal struct ObservationPublishableTests {
     }
 }
 
-extension ObservationPublishableTests {
+extension RelayedTests {
 
     @Test
     func willChange() {
@@ -199,9 +199,9 @@ extension ObservationPublishableTests {
     }
 }
 
-extension ObservationPublishableTests {
+extension RelayedTests {
 
-    @Publishable @Observable
+    @Relayed
     final class Person {
 
         let id = UUID()
@@ -227,12 +227,36 @@ extension ObservationPublishableTests {
             }
         #endif
 
-        @PublisherIgnored
+        @ObservationSuppressed @PublisherSuppressed
         var ignoredStoredProperty = 123
 
-        @PublisherIgnored
-        var ignoredComputedProperty: Int {
+        @ObservationSuppressed
+        var observationIgnoredStoredProperty = 123
+
+        @PublisherSuppressed
+        var publisherIgnoredStoredProperty = 123
+
+        @PublisherSuppressed
+        var publisherIgnoredComputedProperty: Int {
+            publisherIgnoredStoredProperty
+        }
+
+        @available(iOS 26, *)
+        @Memoized(.private)
+        func makeMemoizedProperty() -> String {
+            "\(fullName), \(age)"
+        }
+
+        @Memoized @PublisherSuppressed
+        func makeIgnoredMemoizedProperty() -> Int {
             ignoredStoredProperty
         }
+
+        #if os(macOS)
+            @Memoized
+            func makePlatformMemoizedProperty() -> Int {
+                platformStoredProperty
+            }
+        #endif
     }
 }

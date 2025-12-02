@@ -202,7 +202,7 @@ extension MainActorPublishableTests {
 
 extension MainActorPublishableTests {
 
-    @MainActor @Publishable @Observable
+    @MainActor @Publishable @_Observable
     final class Person {
 
         let id = UUID()
@@ -228,12 +228,30 @@ extension MainActorPublishableTests {
             }
         #endif
 
-        @PublisherIgnored
+        @PublisherSuppressed
         var ignoredStoredProperty = 123
 
-        @PublisherIgnored
+        @PublisherSuppressed
         var ignoredComputedProperty: Int {
             ignoredStoredProperty
         }
+
+        @available(iOS 26, *)
+        @Memoized(.private)
+        func makeMemoizedProperty() -> String {
+            "\(fullName), \(age)"
+        }
+
+        @Memoized @PublisherSuppressed
+        func makeIgnoredMemoizedProperty() -> Int {
+            ignoredStoredProperty
+        }
+
+        #if os(macOS)
+            @Memoized
+            func makePlatformMemoizedProperty() -> Int {
+                platformStoredProperty
+            }
+        #endif
     }
 }

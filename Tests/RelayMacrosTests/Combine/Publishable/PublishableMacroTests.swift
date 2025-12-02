@@ -1,8 +1,8 @@
 //
-//  ImplicitlyIsolatedPublishableMacroTests.swift
+//  PublishableMacroTests.swift
 //  Relay
 //
-//  Created by Kamil Strzelecki on 24/08/2025.
+//  Created by Kamil Strzelecki on 12/01/2025.
 //  Copyright © 2025 Kamil Strzelecki. All rights reserved.
 //
 
@@ -12,8 +12,7 @@
     import SwiftSyntaxMacrosTestSupport
     import XCTest
 
-    // swiftlint:disable:next type_body_length
-    internal final class ImplicitlyIsolatedPublishableMacroTests: XCTestCase {
+    internal final class PublishableMacroTests: XCTestCase {
 
         private let macroSpecs: [String: MacroSpec] = [
             "Publishable": MacroSpec(
@@ -26,7 +25,7 @@
             assertMacroExpansion(
                 #"""
                 @available(iOS 26, macOS 26, *)
-                @MainActor @Publishable @Observable
+                @Publishable @CustomObservable
                 public final class Person {
 
                     static var user: Person?
@@ -57,23 +56,28 @@
                     var platformComputedProperty: Int {
                         platformStoredProperty
                     }
+
+                    @Memoized
+                    func makePlatformMemoizedProperty() -> Int {
+                        platformStoredProperty
+                    }
                     #endif
 
-                    @PublisherIgnored
+                    @PublisherSuppressed
                     var ignoredStoredProperty = 123
                     
-                    @PublisherIgnored
+                    @PublisherSuppressed
                     var ignoredComputedProperty: Int {
                         ignoredStoredProperty
                     }
 
-                    @available(iOS 26, *)
+                    @available(iOS 26, *) 
                     @Memoized(.private)
-                    func makeLabel() -> String {
+                    func makeMemoizedProperty() -> String {
                         "\(fullName), \(age)"
                     }
 
-                    @Memoized @PublisherIgnored
+                    @Memoized @PublisherSuppressed
                     func makeIgnoredMemoizedProperty() -> Int {
                         ignoredStoredProperty
                     }
@@ -82,7 +86,7 @@
                 expandedSource:
                 #"""
                 @available(iOS 26, macOS 26, *)
-                @MainActor @Observable
+                @CustomObservable
                 public final class Person {
 
                     static var user: Person?
@@ -113,23 +117,28 @@
                     var platformComputedProperty: Int {
                         platformStoredProperty
                     }
+
+                    @Memoized
+                    func makePlatformMemoizedProperty() -> Int {
+                        platformStoredProperty
+                    }
                     #endif
 
-                    @PublisherIgnored
+                    @PublisherSuppressed
                     var ignoredStoredProperty = 123
                     
-                    @PublisherIgnored
+                    @PublisherSuppressed
                     var ignoredComputedProperty: Int {
                         ignoredStoredProperty
                     }
 
-                    @available(iOS 26, *)
+                    @available(iOS 26, *) 
                     @Memoized(.private)
-                    func makeLabel() -> String {
+                    func makeMemoizedProperty() -> String {
                         "\(fullName), \(age)"
                     }
 
-                    @Memoized @PublisherIgnored
+                    @Memoized @PublisherSuppressed
                     func makeIgnoredMemoizedProperty() -> Int {
                         ignoredStoredProperty
                     }
@@ -147,7 +156,7 @@
                         _publisher
                     }
 
-                    @MainActor public final class PropertyPublisher: Relay.AnyPropertyPublisher {
+                    public final class PropertyPublisher: Relay.AnyPropertyPublisher {
 
                         private final unowned let object: Person
 
@@ -168,7 +177,7 @@
                             super.init(object: object)
                         }
 
-                        @MainActor deinit {
+                        deinit {
                             _age.send(completion: .finished)
                             _name.send(completion: .finished)
                             _surname.send(completion: .finished)
@@ -209,9 +218,14 @@
                         }
                         #endif
 
+                        #if os(macOS)
+                        final var platformMemoizedProperty: some Publisher<Int, Never> {
+                            _computedPropertyPublisher(for: \.platformMemoizedProperty, object: object)
+                        }
+                        #endif
                         @available(iOS 26, *)
-                        fileprivate final var label: some Publisher<String, Never> {
-                            _computedPropertyPublisher(for: \.label, object: object)
+                        fileprivate final var memoizedProperty: some Publisher<String, Never> {
+                            _computedPropertyPublisher(for: \.memoizedProperty, object: object)
                         }
                     }
 
@@ -221,7 +235,7 @@
 
                             private let underlying = SwiftObservationRegistrar()
 
-                            @MainActor private func publish(
+                            private func publish(
                                 _ object: Person,
                                 keyPath: KeyPath<Person, some Any>
                             ) {
@@ -301,28 +315,15 @@
                             }
 
                             private nonisolated func assumeIsolatedIfNeeded(
-                                _ operation: @MainActor () throws -> Void,
-                                file: StaticString = #fileID,
-                                line: UInt = #line
+                                _ operation: () throws -> Void
                             ) rethrows {
-                                try withoutActuallyEscaping(operation) { operation in
-                                    typealias Nonisolated = () throws -> Void
-                                    let rawOperation = unsafeBitCast(operation, to: Nonisolated.self)
-
-                                    try MainActor.shared.assumeIsolated(
-                                        { _ in
-                                            try rawOperation()
-                                        },
-                                        file: file,
-                                        line: line
-                                    )
-                                }
+                                try operation()
                             }
                         }
                     }
                 }
 
-                @available(iOS 26, macOS 26, *) extension Person: @MainActor Publishable {
+                @available(iOS 26, macOS 26, *) extension Person: Relay.Publishable {
                 }
                 """#,
                 macroSpecs: macroSpecs
